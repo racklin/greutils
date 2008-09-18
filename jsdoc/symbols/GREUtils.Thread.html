@@ -195,8 +195,6 @@ ul.inheritsList
 	
 	<li><a href="../symbols/GREUtils.Charset.html">GREUtils.Charset</a></li>
 	
-	<li><a href="../symbols/GREUtils.ControllerAdapter.html">GREUtils.ControllerAdapter</a></li>
-	
 	<li><a href="../symbols/GREUtils.CryptoHash.html">GREUtils.CryptoHash</a></li>
 	
 	<li><a href="../symbols/GREUtils.Dialog.html">GREUtils.Dialog</a></li>
@@ -236,11 +234,10 @@ ul.inheritsList
 				
 			
 				GREUtils.Thread
-A set of utility functions that applications and extensions can easily use to
-create and manage threads within the Gecko Runtime Environment.
+This is a set of utility functions that applications and extensions can
+use to easily create and manage threads within the Gecko Runtime Environment.
 
 Each thread is represented by an nsIThread object.
-ONLY Work with Firefox 3 or XULRunner 1.9
 				
 				
 					<br /><i>Defined in: </i> <a href="../symbols/src/_home_rack_workspace_greutils_dist_GREUtils.js.html">GREUtils.js</a>.
@@ -264,8 +261,8 @@ ONLY Work with Firefox 3 or XULRunner 1.9
 							<div class="fixedFont">
 								<b><a href="../symbols/GREUtils.Thread.html#constructor">GREUtils.Thread</a></b>
 							</div>
-							<div class="description">A set of utility functions that applications and extensions can easily use to
-create and manage threads within the Gecko Runtime Environment.</div>
+							<div class="description">This is a set of utility functions that applications and extensions can
+use to easily create and manage threads within the Gecko Runtime Environment.</div>
 						</td>
 					</tr>
 				</tbody>
@@ -372,11 +369,10 @@ returned upon subsequent getWorkerThread() calls.</div>
 				</div>
 				
 				<div class="description">
-					A set of utility functions that applications and extensions can easily use to
-create and manage threads within the Gecko Runtime Environment.
+					This is a set of utility functions that applications and extensions can
+use to easily create and manage threads within the Gecko Runtime Environment.
 
 Each thread is represented by an nsIThread object.
-ONLY Work with Firefox 3 or XULRunner 1.9
 					
 				</div>
 				
@@ -427,7 +423,7 @@ each time this method is called.
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd><span class="light fixedFont">{Object}</span> nsIThread           The new worker thread</dd>
+								<dd><span class="light fixedFont">{nsIThread}</span> The new worker thread</dd>
 							
 							</dl>
 						
@@ -487,7 +483,7 @@ each time this method is called.
 					<a name=".dispatchMainThread"> </a>
 					<div class="fixedFont">&lt;static&gt; 
 					
-					<span class="light">{void}</span>
+					
 					<span class="light">GREUtils.Thread.</span><b>dispatchMainThread</b>(aRunnable, aType)
 					
 					</div>
@@ -528,13 +524,6 @@ and this method does not return until the event has been processed by the main t
 						
 						
 						
-							<dl class="detailList">
-							<dt class="heading">Returns:</dt>
-							
-								<dd><span class="light fixedFont">{Object}</span> nsIThreadManager</dd>
-							
-							</dl>
-						
 						
 						
 
@@ -543,7 +532,7 @@ and this method does not return until the event has been processed by the main t
 					<a name=".dispatchWorkerThread"> </a>
 					<div class="fixedFont">&lt;static&gt; 
 					
-					<span class="light">{void}</span>
+					
 					<span class="light">GREUtils.Thread.</span><b>dispatchWorkerThread</b>(workerThread, aRunnable, aType)
 					
 					</div>
@@ -590,13 +579,6 @@ and this method does not return until the event has been processed by the worker
 						
 						
 						
-							<dl class="detailList">
-							<dt class="heading">Returns:</dt>
-							
-								<dd><span class="light fixedFont">{Object}</span> nsIThreadManager</dd>
-							
-							</dl>
-						
 						
 						
 
@@ -625,7 +607,7 @@ and this method does not return until the event has been processed by the worker
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd><span class="light fixedFont">{Object}</span> The main thread</dd>
+								<dd><span class="light fixedFont">{nsIThread}</span> The main thread</dd>
 							
 							</dl>
 						
@@ -657,7 +639,7 @@ and this method does not return until the event has been processed by the worker
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd><span class="light fixedFont">{Object}</span> The nsIThreadManager service</dd>
+								<dd><span class="light fixedFont">{nsIThreadManager}</span> The nsIThreadManager service</dd>
 							
 							</dl>
 						
@@ -669,7 +651,7 @@ and this method does not return until the event has been processed by the worker
 					<a name=".getWorkerThread"> </a>
 					<div class="fixedFont">&lt;static&gt; 
 					
-					<span class="light">{nsIThread}</span>
+					
 					<span class="light">GREUtils.Thread.</span><b>getWorkerThread</b>()
 					
 					</div>
@@ -690,7 +672,7 @@ returned upon subsequent getWorkerThread() calls.
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd><span class="light fixedFont">{Object}</span> nsIThread           The worker thread</dd>
+								<dd><span class="light fixedFont">{nsIThread}</span> The worker thread</dd>
 							
 							</dl>
 						
@@ -707,7 +689,7 @@ returned upon subsequent getWorkerThread() calls.
 <!-- ============================== footer ================================= -->
 		<div class="fineprint" style="clear:both">
 			
-			Documentation generated by <a href="http://www.jsdoctoolkit.org/" target="_blank">JsDoc Toolkit</a> 2.0.1 on Wed Sep 17 2008 09:30:31 GMT+0800 (CST)
+			Documentation generated by <a href="http://www.jsdoctoolkit.org/" target="_blank">JsDoc Toolkit</a> 2.0.1 on Thu Sep 18 2008 18:39:20 GMT+0800 (CST)
 		</div>
 	</body>
 </html>
