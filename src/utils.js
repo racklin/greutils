@@ -11,9 +11,7 @@ GREUtils._data = {};
  *
  * @public
  * @static
- *  
  * @function
- *   
  * @return {Object}                   An nsIXULAppInfo service instance
  */
 GREUtils.getAppInfo = function () {
@@ -28,9 +26,7 @@ GREUtils.getAppInfo = function () {
  *
  * @public
  * @static
- *  
  * @function
- *  
  * @return {Object}                   An nsIXULRuntime service instance
  */
 GREUtils.getRuntimeInfo = function() {
@@ -45,9 +41,7 @@ GREUtils.getRuntimeInfo = function() {
  *
  * @public
  * @static
- *  
  * @function
- *  
  * @return {String}                   A string tag identifying the current operating system
  */
 GREUtils.getOSInfo = function() {
@@ -61,9 +55,7 @@ GREUtils.getOSInfo = function() {
  *
  * @public
  * @static
- *  
  * @function 
- *  
  * @return {Boolean}                  "true" if current operating system is Linux-based; "false" otherwise
  */
 GREUtils.isLinux = function(){
@@ -76,9 +68,7 @@ GREUtils.isLinux = function(){
  *
  * @public
  * @static
- *  
  * @function 
- *  
  * @return {Boolean}                  "true" if current operating system is Windows-based; "false" otherwise
  */
 GREUtils.isWindow = function() {
@@ -91,9 +81,7 @@ GREUtils.isWindow = function() {
  *
  * @public
  * @static
- *  
  * @function 
- *  
  * @return {Boolean}                  "true" if current operating system is MacOS-based; "false" otherwise
  */
 GREUtils.isMac =function() {
@@ -112,11 +100,9 @@ GREUtils.isMac =function() {
  * 
  * @public
  * @static
- *  
  * @function 
  * @param {String} scriptSrc          This is a URL specifying the location of the script
  * @param {Object} scope              This is the scope in which to execute the script
- * 
  * @return {Object}                   a NSResult return code
  */
 GREUtils.include = function (scriptSrc, scope) {
@@ -151,12 +137,10 @@ GREUtils.include = function (scriptSrc, scope) {
  *
  * @public
  * @static
- *  
  * @function 
  * @param {String} scriptSrc          This is the URL specifying the location of the script
  * @param {Object} scope              This is the the scope in which to execute the script
- * 
- * @return {Object}                   A NSResult return code  
+ * @return {Object}                   An NSResult return code  
  */
 GREUtils.include_once = function(scriptSrc, scope) {
 
@@ -199,7 +183,6 @@ GREUtils.include_once = function(scriptSrc, scope) {
  * @public
  * @static
  * @name GREUtils.import
- *  
  * @function 
  * @param {String} url                This is the URL of the script to be loaded; The URL must be either a file: or resource: URL, pointing to a file on the disk. In particular, chrome: URLs are not valid
  * @param {Object} scope              This is the scope into which to import; defaults to the global object
@@ -229,7 +212,6 @@ GREUtils['import'] = GREUtils.import_;
  * @function 
  * @param {String} urlString      This is the string containing XUL
  * @param {Object} xmlns          This is the XUL namespace; defaults to the standard XUL namespace
- * 
  * @return {Object}               An nsIDOMElement|nsIDOMNodeDOM object
  */
 GREUtils.domXULString = function (xulString, xmlns) {
@@ -266,11 +248,9 @@ GREUtils.domXULString = function (xulString, xmlns) {
  *  
  * @public
  * @static
- *  
  * @function 
  * @param {String} urlString          This is the string containing XUL
  * @param {Object} xmlns              This is the XUL namespace; defaults to the standard XHTML namespace
- *  
  * @return {Object}                   An nsIDOMElement|nsIDOMNode DOM object
  */
 GREUtils.domHTMLString = function (htmlString, xmlns) {
@@ -307,7 +287,7 @@ GREUtils.domHTMLString = function (htmlString, xmlns) {
  * @static
  *  
  * @function 
- * @param {Int} mode                  This is the application shutdown mode; defaults to eAttemptQuit
+ * @param {Integer} mode              This is the application shutdown mode; defaults to eAttemptQuit
  */
 GREUtils.quitApplication = function() {
     var mode = arguments[0] || Components.interfaces.nsIAppStartup.eAttemptQuit;
@@ -325,7 +305,6 @@ GREUtils.quitApplication = function() {
  *
  * @public
  * @static
- *  
  * @function 
  */
 GREUtils.restartApplication = function() {
@@ -342,7 +321,6 @@ GREUtils.restartApplication = function() {
  *
  * @public
  * @static
- *  
  * @function 
  */
 GREUtils.ramback = function() {
@@ -361,7 +339,6 @@ GREUtils.ramback = function() {
  * 
  * @public
  * @static
- *  
  * @function 
  * @param {String} sMsg               This is the message to log. 
  */
@@ -375,9 +352,7 @@ GREUtils.log = function (sMsg) {
  * 
  * @public
  * @static
- *  
  * @function 
- *  
  * @return {String}                   A globally unique ID
  */
 GREUtils.uuid  = function () {
@@ -393,9 +368,7 @@ GREUtils.uuid  = function () {
  * 
  * @public
  * @static
- *  
  * @function 
- *  
  * @return {Integer}                  The user idle time
  */
 GREUtils.getIdleTime = function() {
@@ -419,11 +392,9 @@ GREUtils.getIdleTime = function() {
  * 
  * @public
  * @static
- *  
  * @function 
  * @param {Function} func             This is the function that is invoked when there is an idle notification
- * @param {Int} time                  This is the idle time  
- *  
+ * @param {Integer} time              This is the idle time  
  * @return {Object}                   The idle observer object
  */
 GREUtils.getIdleObserver = function(func, time) {
@@ -457,10 +428,8 @@ GREUtils.getIdleObserver = function(func, time) {
  * 
  * @public
  * @static
- *  
  * @function 
  * @param {String} str                This is the string to encode
- *  
  * @return {String}                   The base-64 encoded ASCII string
  */
 GREUtils.base64Encode = function(str){
@@ -472,9 +441,7 @@ GREUtils.base64Encode = function(str){
  * 
  * @public
  * @static
- *  
  * @param {String} str                This is the base-64 encoded string to decode
- *  
  * @return {String}                   The decoded string
  */
 GREUtils.base64Decode = function(str){
@@ -486,10 +453,8 @@ GREUtils.base64Decode = function(str){
  *
  * @public
  * @static
- *  
  * @function 
  * @param {String} word               This is the string of words
- *  
  * @return {String}                   The string with first character of each word converted to upper case
  */
 GREUtils.ucwords = function(word) {
@@ -502,10 +467,8 @@ GREUtils.ucwords = function(word) {
  *
  * @public
  * @static
- *  
  * @function 
  * @param {String} word               This is the string
- *  
  * @return {String}                   The string with the first character converted to upper case
  */
 GREUtils.ucfirst = function(word) {
