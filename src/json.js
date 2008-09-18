@@ -74,7 +74,7 @@ GREUtils.JSON.encode = function(aJSObject) {
  * @static
  * @function
  * @param {nsIInputStream} stream         This is the input stream from which to read the JSON string
- * @param {Integer} contentLength         This is the length of the JSON string to read from the input stream
+ * @param {Number} contentLength          This is the length of the JSON string to read from the input stream
  * @return {Object}                       The JavaScript object represented by the JSON string
  */
 GREUtils.JSON.decodeFromStream = function(stream, contentLength) {

@@ -76,7 +76,7 @@ GREUtils.Dir.create = function(aPath){
  * @function
  * @param {String} aPath                This is the directory path
  * @param {Boolean} aRecursive          This flag indicates if directory is to be deleted if it is not empty
- * @return {Integer}                    void  : directory is successfully removed
+ * @return {Number}                    void  : directory is successfully removed
  *                                      -1    : path does not exist
  *                                      -2    : aPath is not a directory
  *                                      -3    : delete fails
