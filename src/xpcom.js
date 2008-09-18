@@ -1,5 +1,6 @@
 /**
- * A set of utility functions for accessing XPCOM component interfaces and services.
+ * This is a set of utility functions for accessing XPCOM component interfaces
+ * and services.
  *
  * @public
  * @name GREUtils.XPCOM
@@ -28,7 +29,6 @@ try {
  * @function
  * @param {String} cName        This is the name of the XPCOM component
  * @return {Object}             The XPCOM component
- * @type                        Object
  */
 GREUtils.XPCOM.Cc = function (cName) {
     try {
@@ -53,7 +53,6 @@ GREUtils.XPCOM.Cc = function (cName) {
  * @function
  * @param {String} ifaceName    This is the name of the XPCOM interface
  * @return {Object}             The XPCOM interface
- * @type                        Object
  */
 GREUtils.XPCOM.Ci = function (ifaceName) {
     try {
@@ -74,16 +73,16 @@ GREUtils.XPCOM.Ci = function (ifaceName) {
 
 
 /**
- * Returns the Components.results object whose properties are the names of well-known
+ * Returns the Components.results array whose elements are the names of common
  * XPCOM result codes, with each value being that of the corresponding result code.
- * Elements in this array can be used to test against unknown nsresult variables or
- * they can be 'thrown' to indicate failure.
+ * 
+ * Elements in this array can be used to test against unknown NSResult
+ * variables or can be 'thrown' to indicate failure.
  *
  * @public
  * @static
  * @function
- * @return {Array}              List of well known XPCOM result codes
- * @type                        Object
+ * @return {Array}              Common XPCOM result codes
  */
 GREUtils.XPCOM.Cr = function (){
     try {
@@ -98,8 +97,8 @@ GREUtils.XPCOM.Cr = function (){
 /**
  * Returns an XPCOM service.
  *
- * This method returns the XPCOM service identified by its Component class and interface
- * name. If the service does not exist, null is returned.
+ * This method returns the XPCOM service identified by its Component class and
+ * interface name. If the service does not exist, null is returned.
  *
  * @public
  * @static
@@ -107,7 +106,6 @@ GREUtils.XPCOM.Cr = function (){
  * @param {String} cName        This is the name of the XPCOM component
  * @param {String} iName        This is the name of the XPCOM interface; can be null
  * @return {Object}             The XPCOM service
- * @type                        Object
  */
 GREUtils.XPCOM.getService = function (cName, ifaceName) {
     var cls = GREUtils.XPCOM.Cc(cName);
@@ -142,7 +140,6 @@ GREUtils.XPCOM.getService = function (cName, ifaceName) {
  * @param {String} cName        This is the name of the XPCOM component
  * @param {String} iName        This is the name of the XPCOM interface
  * @return {Object}             An instance of the XPCOM component with the given interface
- * @type                        Object
  */
 GREUtils.XPCOM.createInstance = function (cName, ifaceName) {
     var cls = GREUtils.XPCOM.Cc(cName);
@@ -166,14 +163,12 @@ GREUtils.XPCOM.createInstance = function (cName, ifaceName) {
  * This method gets the specified interface for an instance of an XPCOM component
  * if the interface is supported by the component. Otherwise null is returned.
  *
- * If the
  * @public
  * @static
  * @function
  * @param {Object} obj          This is an instance of XPCOM component
  * @param {String} ifaceName    This is the name of the XPCOM interface
  * @return {Object}             The XPCOM component instance with the specified interface
- * @type                        Object
  */
 GREUtils.XPCOM.queryInterface = function (obj, ifaceName) {
 
@@ -213,7 +208,6 @@ GREUtils.XPCOM.queryInterface = function (obj, ifaceName) {
  * @param {String} aInterface   This is the name of the XPCOM interface
  * @param {String} aFunc        This is the name of the initializer function
  * @return {Object}             An XPCOM component constructor
- * @type                        Object
  */
 GREUtils.XPCOM.getConstructor = function (aCID, aInterface, aFunc) {
   try {
@@ -280,7 +274,6 @@ GREUtils.XPCOM._usefulServicePool = {};
  * @function
  * @param {String} serviceName  This is the abbreviated name of the XPCOM service
  * @return {Object}             The XPCOM service
- * @type                        Object
  */
 GREUtils.XPCOM.getUsefulService = function (serviceName) {
 	if (GREUtils.XPCOM._usefulServicePool[serviceName] && GREUtils.isXPCOM(GREUtils.XPCOM._usefulServicePool[serviceName]))
@@ -301,15 +294,13 @@ GREUtils.XPCOM.getUsefulService = function (serviceName) {
 
 
 /**
- * Returns true if val is a xpcom components.
- *
- * XPCom components must implement nsISupports Interface.
- *
+ * Checks if an object is an XPCOM component.
+ *  
  * @public
  * @static
  * @function
- * @param {Object} val
- * @return {Boolean}
+ * @param {Object} val            This is the object to check
+ * @return {Boolean}              "true" if the object is an XPCOM component; false otherwise
  */
 GREUtils.isXPCOM = function(val) {
 	var res = GREUtils.XPCOM.queryInterface(val, "nsISupports");

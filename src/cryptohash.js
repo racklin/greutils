@@ -1,8 +1,9 @@
 /**
- * A Javascript wrapper around the XPCOM nsiCryptoHash component that provides
- * native implementation of cryptographic hash function. This can be used,
- * for example, to calculate the MD5 hash of a file to determine if it contains
- * the data you think it does.
+ * This is a set of Javascript wrappers around the XPCOM nsiCryptoHash component
+ * that provides native implementation of cryptographic hash function.
+ * 
+ * This can be used, for example, to calculate the MD5 hash of a file to
+ * determine if it contains the data you think it does.
  *
  * The hash algorithms supported are MD2, MD5, SHA-1, SHA-256, SHA-384, and SHA-512.
  *
@@ -24,8 +25,7 @@ GREUtils.define('GREUtils.CryptoHash');
  * @function
  * @param {String} str          This is the UTF-8 string to compute the hash for
  * @param {String} algorithm    This is the hash algorithm to use
- * @return {String} string      The resulting hash as a hex string
- * @type                        String
+ * @return {String}             The resulting hash as a hex string
  */
 GREUtils.CryptoHash.crypt = function(str, algorithm) {
 
@@ -62,7 +62,6 @@ GREUtils.CryptoHash.crypt = function(str, algorithm) {
  * @param {String|nsIFile} file   This is the file given as a file path or an nsIFile object
  * @param {String} algorithm      This is the hash algorithm to use
  * @return {String}               The resulting hash as a hex string; an empty string is returned if the file is empty or cannot be read
- * @type                          String
  */
 GREUtils.CryptoHash.cryptFromStream = function(aFile, algorithm) {
 
@@ -98,7 +97,6 @@ GREUtils.CryptoHash.cryptFromStream = function(aFile, algorithm) {
  * @function
  * @param {String} str              This is the UTF-8 string to compute the hash for
  * @return {String}                 The resulting hash as a hex string
- * @type                            String
  */
 GREUtils.CryptoHash.md5 = function(str) {
 
@@ -117,7 +115,6 @@ GREUtils.CryptoHash.md5 = function(str) {
  * @function
  * @param {String|nsIFile} aFile  This is the file given as a file path or an nsIFile object
  * @return {String}               The resulting hash as a hex string; an empty string is returned if the file is empty or cannot be read
- * @type                          String
  */
 GREUtils.CryptoHash.md5FromFile = function(aFile){
 
@@ -136,7 +133,6 @@ GREUtils.CryptoHash.md5FromFile = function(aFile){
  * @function
  * @param {String|nsIFile} aFile  This is the file given as a file path or an nsIFile object
  * @return {String}               The resulting hash as a hex string; an empty string is returned if the file is empty or cannot be read
- * @type                          String
  */
 GREUtils.CryptoHash.md5sum = GREUtils.CryptoHash.md5FromFile;
 
@@ -151,7 +147,6 @@ GREUtils.CryptoHash.md5sum = GREUtils.CryptoHash.md5FromFile;
  * @function
  * @param {String} str          This is the UTF-8 string to compute the hash for
  * @return {String}             The resulting hash as a hex string
- * @type                        String
  */
 GREUtils.CryptoHash.sha1 = function(str) {
 
@@ -169,7 +164,6 @@ GREUtils.CryptoHash.sha1 = function(str) {
  * @function
  * @param {String} str          This is the UTF-8 string to compute the hash for
  * @return {String}             The resulting hash as a hex string
- * @type                        String
  */
 GREUtils.CryptoHash.sha256 = function(str) {
 
@@ -184,7 +178,6 @@ GREUtils.CryptoHash.sha256 = function(str) {
  * @function
  * @param {String} charCode     This is the byte value
  * @return {String}             The two-digit hexadecimal representation of the byte value
- * @type                        String
  */
 GREUtils.CryptoHash.toHexString = function(charCode) {
   return ("0" + charCode.toString(16)).slice(-2);
@@ -202,7 +195,6 @@ GREUtils.CryptoHash.toHexString = function(charCode) {
  * @function
  * @param {Array} data        This is the array of byte values
  * @return {String}           The hexadecimal representation of the array of byte values
- * @type                      String
  */
 GREUtils.CryptoHash.arrayToHexString = function(data) {
 

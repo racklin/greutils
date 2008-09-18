@@ -7,14 +7,18 @@
  * $Rev: 9 $
  */
 /**
- * GREUtils - A set of convenience packages and functions useful for developing applications for
- * the Gecko Runtime Environment (XULRunner / FireFox).
+ * GREUtils is a set of convenience packages and functions useful for developing
+ * applications for the Gecko Runtime Environment (XULRunner/FireFox).
+ * 
+ * GREUtils is built as a Javascript code module, so when it it loaded into
+ * different JavaScript scopes, any modifications to data, objects, or functions
+ * defined in GREUtils are visible to all the scopes.   
  * 
  * @public
  * @name GREUtils
  * @namespace GREUtils
  */
-var GREUtils = GREUtils  ||  {version: "1.1"};
+var GREUtils = GREUtils  ||  {version: "1.1.0"};
 
 GREUtils.context = this;
 
@@ -24,16 +28,17 @@ GREUtils.global = (typeof window != 'undefined') ? window : this;
 /**
  * Extends an object by merging properties from other objects.
  * 
- * Properties in the target object (the object being extended) are overridden by
- * properties from the objects used for extending the target object.  
+ * Properties in the target object (the object being extended) will be overridden
+ * by properties of the same name from the objects used for extending the target
+ * object.  
  *
  * @public
  * @static
- * @function
+ * @function 
  * @param {Object} target                     This is the object being extended
  * @param {Object} source                     This is the object used to extend the target
- * @param {Object} extras                     This object, if provided, is also used to extend the target
- * @return {Object}                           The original but modified object
+ * @param {Object} extras                     This object, if provided, is also used to extend the target object
+ * @return {Object}                           The original, extended target object
  */
 GREUtils.extend = function () {
     // copy reference to target object
@@ -69,17 +74,17 @@ GREUtils.extend = function () {
 
 
 /**
- *  Extends any object or function with a getInstance() method to support the
+ *  Extends an object or a function with a getInstance() method to support the
  *  Singleton pattern. Invoking the getInstance() method on the extended
- *  target will always return the same instance of the target.
+ *  object will always return the same instance of the object.
  *  
  *  The intent of the Singleton pattern as defined in Design Patterns is to
- *  "ensure a class has only one instance, and provide a global point of access to it".
+ *  "ensure that a class has only one instance, and provide a global point of access to it".
  *
  * @public
  * @static
  * @function
- * @param {Object|Function} target            This is the object or function to extend to support Singleton pattern
+ * @param {Object|Function} target            This is the object or function to extend as a Singleton
  */
 GREUtils.singleton = function(target) {
 	
@@ -103,14 +108,14 @@ GREUtils.singleton = function(target) {
  * Establishes an inheritance relationship between two classes.
  * 
  * The child class inherits methods and attributes from the parent class. After
- * inheritance has been established, instance of the child class can use
- * this._super to call parent methods.
+ * inheritance has been established, an instance of the child class can use
+ * this._super to invoke parent methods.
  * 
  * @public
  * @static
  * @function
- * @param {Function} childFunc                This is the child class.
- * @param {Function} parentFunc               This is the parent class.
+ * @param {Function} childFunc                This is the child class
+ * @param {Function} parentFunc               This is the parent class
  */
 GREUtils.inherits = function(childFunc, parentFunc) {
 
@@ -137,13 +142,15 @@ GREUtils.inherits = function(childFunc, parentFunc) {
 
 
 /**
- * Creates a namespace, optionally associating a context with the namespace.
+ * Creates a namespace in a context. The namespace is also declared in the
+ * GREUtils global context, overriding any previously declared namespace of the
+ * same name.  
  * 
  * @public
  * @static
  * @function
- * @param {Function} name                     This is the name of the namespace
- * @param {Function} context                  This is the namespace context; defaults to the global context
+ * @param {String} name                    This is the name of the namespace
+ * @param {Object} context                 This is the context in which to declare the namespace; defaults to the GREUtils global context
  */
 GREUtils.define = function(name, context) {
 
@@ -153,17 +160,22 @@ GREUtils.define = function(name, context) {
 
 
 /**
- * Using a namespace, optionally associating a context with the namespace.
+ * Declares in current scope's global context a namespace that has been declared
+ * in another scope. After this declaration, objects in the source namespace will
+ * become available in the current scope. 
  * 
+ * If the source namespace is not found in the specified context, an attempt will
+ * be made to locate it in the GREUtils global context.  
+ *      
  * @public
  * @static
  * @function
- * @param {Function} name                     This is the name of the namespace
- * @param {Function} context                  This is the namespace context; defaults to the global context
+ * @param {String} name                     This is the name of the source namespace
+ * @param {Object} context                  This is the context in which the source namespace has been declared
  */
 GREUtils.using = function(name, context) {
 
-  GREUtils.createNamespace(name,  GREUtils.getObjectByNamespace(name), context);
+  GREUtils.createNamespace(name,  GREUtils.getObjectByNamespace(name, context));
 
 };
 
@@ -175,9 +187,9 @@ GREUtils.using = function(name, context) {
  * Used by GREUtils.namespace
  * 
  * @private
- * @function
  * @static
- * @param {string} name 			Name of the object that this file defines.
+ * @function
+ * @param {string} name 			  Name of the object that this file defines.
  * @param {Object} object 			Object to expose at the end of the path.
  * @param {Object} context			Create Namespace in context.
  */
@@ -186,50 +198,69 @@ GREUtils.createNamespace = function(name, object, context) {
   var cur = context || GREUtils.global;
   var part;
 
+  // keep localContext
+  var curLocal = GREUtils.context;
+
   while ((part = parts.shift())) {
     if (!parts.length && GREUtils.isDefined(object)) {
       // last part and we have an object; use it
       cur[part] = object;
+      
+      // add to GREUtils jsm context
+      curLocal[part] = object;
+
     } else if (cur[part]) {
       cur = cur[part];
+      curLocal = curLocal[part] = cur;
     } else {
       cur = cur[part] = {};
+      curLocal = curLocal[part] = cur;
     }
   }
+
 };
 
 /**
- * Returns an object based on its fully qualified name (by GREUtils.createNamespace)
- *
- * @param {Object} name  The fully qualified name.
- * @param {Object} context
- * @return {Object?} The object or, if not found, null. 
+ * Returns a namespace object based on its fully qualified name in the specified context.
+ *  
+ * @public
+ * @static  
+ * @function 
+ * @param {String}      name          The fully qualified name of the namespace.
+ * @param {Object}      context       The context in which the namespace was declared
+ * @return {Object}                   The namespace object or, if not found, null.
  */
 GREUtils.getObjectByNamespace = function(name, context){
 	
   var parts = name.split('.');
   var cur = context || GREUtils.global;
+  var recursive = (cur == GREUtils.context);
   
   for (var part; part = parts.shift(); ) {
     if (cur[part]) {
       cur = cur[part];
     } else {
-      return null;
+      cur = null;
+      break;
     }
   }
+
+  if (cur == null && !recursive) {
+    cur = GREUtils.getObjectByNamespace(name, GREUtils.context);
+  }
+
   return cur;
 
 };
 
-
 /**
- * Checks if the type is defined
+ * Checks if an object is defined
  * 
  * @public
  * @static
  * @function
- * @param {String} type           			This is the value to check
- * @return {Boolean}            			"true" if parameter is defined; "false" otherwise
+ * @param {Object} type               This is the object to check
+ * @return {Boolean}                  "true" if the object is defined; "false" otherwise
  */
 GREUtils.isDefined = function(type) {
     return typeof type != 'undefined';
@@ -237,13 +268,13 @@ GREUtils.isDefined = function(type) {
 
 
 /**
- * Checks if the type is function.
+ * Checks if an object is a function.
  * 
  * @public
  * @static
  * @function
- * @param {Object|Function} type			This is the value to check
- * @return {Boolean}						"true" if the value is a function; "false" otherwise
+ * @param {Object} type               This is the object to check
+ * @return {Boolean}                  "true" if the object is a function; "false" otherwise
  */
 GREUtils.isFunction = function(type) {
   return typeof type == "function";
@@ -251,13 +282,13 @@ GREUtils.isFunction = function(type) {
 
 
 /**
- * Checks if the value is null.
+ * Checks if an object is null.
  * 
  * @public
  * @static
  * @function
- * @param {Object} type           This is the value to check
- * @return {Boolean}              "true" if the value is null; "false" otherwise
+ * @param {Object} type               This is the object to check
+ * @return {Boolean}                  "true" if the object is null; "false" otherwise
  */
 GREUtils.isNull = function(type) {
   return type === null;
@@ -265,13 +296,13 @@ GREUtils.isNull = function(type) {
 
 
 /**
- * Checks if the value is defined and not null.
+ * Checks if an object is defined and not null.
  * 
  * @public
  * @static
  * @function
- * @param {Object} type			          This is the value to check
- * @return {Boolean}                      "true" if the value is defined and not null; "false" otherwise
+ * @param {Object} type			          This is the object to check
+ * @return {Boolean}                  "true" if the object is defined and not null; "false" otherwise
  */
 GREUtils.isDefineAndNotNull = function(type) {
   return GREUtils.isDefined(type) && !GREUtils.isNull(type);
@@ -279,26 +310,26 @@ GREUtils.isDefineAndNotNull = function(type) {
 
 
 /**
- * Checks if the value is an array.
+ * Checks if an object is an array.
  * 
  * @public
  * @static
  * @function
- * @param {Object} type           This is the value to check
- * @return {Boolean}              "true" if the value is an array; "false" otherwise
+ * @param {Object} type               This is the object to check
+ * @return {Boolean}                  "true" if the object is an array; "false" otherwise
  */
 GREUtils.isArray = function(type) {
   return typeof type == 'array';
 };
 
 /**
- * Checks if the value is a string.
+ * Checks if an object is a string.
  * 
  * @public
  * @static
  * @function
- * @param {Object} type           This is the value to check
- * @return {Boolean}              "true" if the value is a string; "false" otherwise
+ * @param {Object} type               This is the object to check
+ * @return {Boolean}                  "true" if the object is a string; "false" otherwise
  */
 GREUtils.isString = function(type) {
   return typeof type == 'string';
@@ -306,13 +337,13 @@ GREUtils.isString = function(type) {
 
 
 /**
- * Checks if the value is a boolean.
+ * Checks if an object is a boolean.
  * 
  * @public
  * @static
  * @function
- * @param {Object} type           This is the value to check
- * @return {Boolean}              "true" if the value is a boolean; "false" otherwise
+ * @param {Object} type               This is the object to check
+ * @return {Boolean}                  "true" if the object is a boolean; "false" otherwise
  */
 GREUtils.isBoolean = function(type) {
   return typeof type == 'boolean';
@@ -320,13 +351,13 @@ GREUtils.isBoolean = function(type) {
 
 
 /**
- * Checks if the value is a number.
+ * Checks if an object is a number.
  * 
  * @public
  * @static
  * @function
- * @param {String} type           This is the value to check
- * @return {Boolean}              "true" if the value is a number; "false" otherwise
+ * @param {String} type               This is the object to check
+ * @return {Boolean}                  "true" if the object is a number; "false" otherwise
  */
 GREUtils.isNumber = function(type) {
   return typeof type == 'number';
@@ -334,13 +365,13 @@ GREUtils.isNumber = function(type) {
 
 
 /**
- * Checks if the value is an object (including functions and arrays).
+ * Checks if the parameter is an object, a function, or an array.
  * 
  * @public
  * @static
  * @function
- * @param {String} type           This is the value to check
- * @return {Boolean}              "true" if the value is an object; "false" otherwise
+ * @param {Object} type               This is the parameter to check
+ * @return {Boolean}                  "true" if the parameter is an object, function, or array; "false" otherwise
  */
 GREUtils.isObject = function(type) {
   var type = typeof type;
@@ -348,7 +379,7 @@ GREUtils.isObject = function(type) {
 };
 
 /**
- * Gets the current time.
+ * Returns the current time.
  * 
  * This method returns the current time expressed as the number of milliseconds since
  * January 1, 1970, 00:00:00 UTC.
@@ -362,7 +393,8 @@ GREUtils.now = Date.now || (function() {
   return (new Date()).getTime();
 });
 /**
- * A set of utility functions for accessing XPCOM component interfaces and services.
+ * This is a set of utility functions for accessing XPCOM component interfaces
+ * and services.
  *
  * @public
  * @name GREUtils.XPCOM
@@ -391,7 +423,6 @@ try {
  * @function
  * @param {String} cName        This is the name of the XPCOM component
  * @return {Object}             The XPCOM component
- * @type                        Object
  */
 GREUtils.XPCOM.Cc = function (cName) {
     try {
@@ -416,7 +447,6 @@ GREUtils.XPCOM.Cc = function (cName) {
  * @function
  * @param {String} ifaceName    This is the name of the XPCOM interface
  * @return {Object}             The XPCOM interface
- * @type                        Object
  */
 GREUtils.XPCOM.Ci = function (ifaceName) {
     try {
@@ -437,16 +467,16 @@ GREUtils.XPCOM.Ci = function (ifaceName) {
 
 
 /**
- * Returns the Components.results object whose properties are the names of well-known
+ * Returns the Components.results array whose elements are the names of common
  * XPCOM result codes, with each value being that of the corresponding result code.
- * Elements in this array can be used to test against unknown nsresult variables or
- * they can be 'thrown' to indicate failure.
+ * 
+ * Elements in this array can be used to test against unknown NSResult
+ * variables or can be 'thrown' to indicate failure.
  *
  * @public
  * @static
  * @function
- * @return {Array}              List of well known XPCOM result codes
- * @type                        Object
+ * @return {Array}              Common XPCOM result codes
  */
 GREUtils.XPCOM.Cr = function (){
     try {
@@ -461,8 +491,8 @@ GREUtils.XPCOM.Cr = function (){
 /**
  * Returns an XPCOM service.
  *
- * This method returns the XPCOM service identified by its Component class and interface
- * name. If the service does not exist, null is returned.
+ * This method returns the XPCOM service identified by its Component class and
+ * interface name. If the service does not exist, null is returned.
  *
  * @public
  * @static
@@ -470,7 +500,6 @@ GREUtils.XPCOM.Cr = function (){
  * @param {String} cName        This is the name of the XPCOM component
  * @param {String} iName        This is the name of the XPCOM interface; can be null
  * @return {Object}             The XPCOM service
- * @type                        Object
  */
 GREUtils.XPCOM.getService = function (cName, ifaceName) {
     var cls = GREUtils.XPCOM.Cc(cName);
@@ -505,7 +534,6 @@ GREUtils.XPCOM.getService = function (cName, ifaceName) {
  * @param {String} cName        This is the name of the XPCOM component
  * @param {String} iName        This is the name of the XPCOM interface
  * @return {Object}             An instance of the XPCOM component with the given interface
- * @type                        Object
  */
 GREUtils.XPCOM.createInstance = function (cName, ifaceName) {
     var cls = GREUtils.XPCOM.Cc(cName);
@@ -529,14 +557,12 @@ GREUtils.XPCOM.createInstance = function (cName, ifaceName) {
  * This method gets the specified interface for an instance of an XPCOM component
  * if the interface is supported by the component. Otherwise null is returned.
  *
- * If the
  * @public
  * @static
  * @function
  * @param {Object} obj          This is an instance of XPCOM component
  * @param {String} ifaceName    This is the name of the XPCOM interface
  * @return {Object}             The XPCOM component instance with the specified interface
- * @type                        Object
  */
 GREUtils.XPCOM.queryInterface = function (obj, ifaceName) {
 
@@ -576,7 +602,6 @@ GREUtils.XPCOM.queryInterface = function (obj, ifaceName) {
  * @param {String} aInterface   This is the name of the XPCOM interface
  * @param {String} aFunc        This is the name of the initializer function
  * @return {Object}             An XPCOM component constructor
- * @type                        Object
  */
 GREUtils.XPCOM.getConstructor = function (aCID, aInterface, aFunc) {
   try {
@@ -643,7 +668,6 @@ GREUtils.XPCOM._usefulServicePool = {};
  * @function
  * @param {String} serviceName  This is the abbreviated name of the XPCOM service
  * @return {Object}             The XPCOM service
- * @type                        Object
  */
 GREUtils.XPCOM.getUsefulService = function (serviceName) {
 	if (GREUtils.XPCOM._usefulServicePool[serviceName] && GREUtils.isXPCOM(GREUtils.XPCOM._usefulServicePool[serviceName]))
@@ -664,15 +688,13 @@ GREUtils.XPCOM.getUsefulService = function (serviceName) {
 
 
 /**
- * Returns true if val is a xpcom components.
- *
- * XPCom components must implement nsISupports Interface.
- *
+ * Checks if an object is an XPCOM component.
+ *  
  * @public
  * @static
  * @function
- * @param {Object} val
- * @return {Boolean}
+ * @param {Object} val            This is the object to check
+ * @return {Boolean}              "true" if the object is an XPCOM component; false otherwise
  */
 GREUtils.isXPCOM = function(val) {
 	var res = GREUtils.XPCOM.queryInterface(val, "nsISupports");
@@ -685,14 +707,14 @@ GREUtils._data = {};
 
 
 /**
- * Get Application Infomation.
+ * Returns the XPCOM service that implements the nsIXULAppInfo interface.
  *
- * see nsIXULAppInfo Interface.
+ * For more information, please see nsIXULAppInfo Interface.
  *
  * @public
  * @static
- * @function 
- * @return {Object}
+ * @function
+ * @return {Object}                   An nsIXULAppInfo service instance
  */
 GREUtils.getAppInfo = function () {
     return GREUtils.XPCOM.getUsefulService("app-info");
@@ -700,14 +722,14 @@ GREUtils.getAppInfo = function () {
 
 
 /**
- * Get Runtime Infomation.
+ * Returns the XPCOM service that implements the nsIXULRuntime interface.
  *
- * see nsIXULRuntime Interface.
+ * For more information, please see nsIXULRuntime Interface.
  *
  * @public
  * @static
- * @function 
- * @return {Object}
+ * @function
+ * @return {Object}                   An nsIXULRuntime service instance
  */
 GREUtils.getRuntimeInfo = function() {
     return GREUtils.XPCOM.getUsefulService("runtime-info");
@@ -715,14 +737,14 @@ GREUtils.getRuntimeInfo = function() {
 
 
 /**
- * Get OS Infomation.
+ * Returns the tag identifying the current operating system.
  *
- * see nsIXULRuntime Interface.
+ * For more information, please see nsIXULRuntime Interface.
  *
  * @public
  * @static
- * @function 
- * @return {Object}
+ * @function
+ * @return {String}                   A string tag identifying the current operating system
  */
 GREUtils.getOSInfo = function() {
     return GREUtils.getRuntimeInfo().OS;
@@ -731,12 +753,12 @@ GREUtils.getOSInfo = function() {
 
  
 /**
- * is Linux OS
+ * Checks if the current operating system is Linux-based.
  *
  * @public
  * @static
  * @function 
- * @return {Boolean}
+ * @return {Boolean}                  "true" if current operating system is Linux-based; "false" otherwise
  */
 GREUtils.isLinux = function(){
     return (GREUtils.getOSInfo().match(/Linux/,"i").length > 0);
@@ -744,12 +766,12 @@ GREUtils.isLinux = function(){
 
 
 /**
- * is Window OS
+ * Checks if the current operating system is Windows-based.
  *
  * @public
  * @static
  * @function 
- * @return {Boolean}
+ * @return {Boolean}                  "true" if current operating system is Windows-based; "false" otherwise
  */
 GREUtils.isWindow = function() {
     return (GREUtils.getOSInfo().match(/Win/,"i").length > 0);
@@ -757,12 +779,12 @@ GREUtils.isWindow = function() {
 
 
 /**
- * is Mac OS
+ * Checks if the current operating system is MacOS-based.
  *
  * @public
  * @static
  * @function 
- * @return {Boolean}
+ * @return {Boolean}                  "true" if current operating system is MacOS-based; "false" otherwise
  */
 GREUtils.isMac =function() {
     return (GREUtils.getOSInfo().match(/Mac|Darwin/,"i").length > 0);
@@ -770,15 +792,20 @@ GREUtils.isMac =function() {
 
 
 /**
- * Synchronously loads and executes the script from the specified URL.
+ * Synchronously loads and executes the script from the specified URL in a given
+ * scope.
+ * 
+ * The default scope is the GREUtils.global. 
  *
- * default scope is window.
- *
+ * If the script is executed successfully, this method returns the NS_OK result code;
+ * otherwise NS_ERROR_INVALID_ARG is returned.
+ * 
  * @public
  * @static
  * @function 
- * @param {Object} scriptSrc
- * @param {Object} scope
+ * @param {String} scriptSrc          This is a URL specifying the location of the script
+ * @param {Object} scope              This is the scope in which to execute the script
+ * @return {Object}                   a NSResult return code
  */
 GREUtils.include = function (scriptSrc, scope) {
 
@@ -802,17 +829,20 @@ GREUtils.include = function (scriptSrc, scope) {
 
 
 /**
- * Synchronously loads and executes the script from the specified URL.
+ * Synchronously loads and executes the script from the specified URL in a given
+ * scope. The default scope is the GREUtils.global. 
  *
- * Specified URL will loads and executes once.
- *
- * default scope is window.
+ * If the script is executed successfully, this method returns the NS_OK result code;
+ * otherwise NS_ERROR_INVALID_ARG is returned. Once thes cript has been successfully
+ * executed, this method will not execute the script again on subsequent calls; it will
+ * simply return NS_OK.   
  *
  * @public
  * @static
  * @function 
- * @param {Object} scriptSrc
- * @param {Object} scope
+ * @param {String} scriptSrc          This is the URL specifying the location of the script
+ * @param {Object} scope              This is the the scope in which to execute the script
+ * @return {Object}                   An NSResult return code  
  */
 GREUtils.include_once = function(scriptSrc, scope) {
 
@@ -832,15 +862,32 @@ GREUtils.include_once = function(scriptSrc, scope) {
 
 
 /**
- * This method was introduced in Firefox 3.
- * Is used for sharing code between different scopes easily.
+ * Loads a script from the specified URL into a specific scope. The URL must be
+ * either a file: or resource: URL pointing to a file on the disk. chrome: URLs
+ * are not valid. 
+ * 
+ * Note that the script is cached when loaded and subsequent imports do not reload
+ * a new version of the module, but instead use the previously cached version.
+ * This means that a given module will be shared when imported multiple times.
+ * Any modifications to data, objects or functions will be available in any scope
+ * that has imported the module. For example, if the simple module were imported
+ * into two different JavaScript scopes, changes in one scope can be observed in
+ * the other scope. This provides an efficient and simple means of sharing code
+ * between different scopes. 
+ *
+ * Default scope is the global object.
+ * 
+ * If the script is executed successfully, this method returns the NS_OK result code;
+ * otherwise NS_ERROR_INVALID_ARG is returned. Once thescript has been successfully
+ * executed, this method will not execute the script again on subsequent calls; it will
+ * simply return NS_OK.   
  *
  * @public
  * @static
- * @function 
  * @name GREUtils.import
- * @param {Object} url
- * @param {Object} scope
+ * @function 
+ * @param {String} url                This is the URL of the script to be loaded; The URL must be either a file: or resource: URL, pointing to a file on the disk. In particular, chrome: URLs are not valid
+ * @param {Object} scope              This is the scope into which to import; defaults to the global object
  */
 GREUtils.import_ = function(url, scope) {
 
@@ -854,17 +901,20 @@ GREUtils.import_ = function(url, scope) {
 GREUtils['import'] = GREUtils.import_;
 
 /**
- * Convert XUL String to DOM Elements.
- *
- * XUL String namespace is http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul
- * You can specified your custom namespace.
- *
+ * Parses a string containing XUL code into an DOM object.
+ * 
+ * This method returns the document element from the DOM tree. In the case where
+ * the document element has a single child node, that child node is returned
+ * instead.
+ * 
+ * If parsing fails, null is returned.
+ *        
  * @public
  * @static
  * @function 
- * @param {String} xulString
- * @param {String} xmlns
- * @return {Object}
+ * @param {String} urlString      This is the string containing XUL
+ * @param {Object} xmlns          This is the XUL namespace; defaults to the standard XUL namespace
+ * @return {Object}               An nsIDOMElement|nsIDOMNodeDOM object
  */
 GREUtils.domXULString = function (xulString, xmlns) {
 
@@ -890,17 +940,20 @@ GREUtils.domXULString = function (xulString, xmlns) {
 
 
 /**
- * Convert HTML String to DOM Elements.
- *
- * HTML String namespace is http://www.w3.org/1999/xhtml
- * You can specified your custom namespace.
- *
+ * Parses a string containing XHTML into an DOM object.
+ * 
+ * This method returns the document element from the DOM tree. In the case where
+ * the document element has a single child node, that child node is returned
+ * instead.
+ * 
+ * If parsing fails, null is returned.      
+ *  
  * @public
  * @static
  * @function 
- * @param {String} htmlString
- * @param {String} xmlns
- * @return {Object}
+ * @param {String} urlString          This is the string containing XUL
+ * @param {Object} xmlns              This is the XUL namespace; defaults to the standard XHTML namespace
+ * @return {Object}                   An nsIDOMElement|nsIDOMNode DOM object
  */
 GREUtils.domHTMLString = function (htmlString, xmlns) {
 
@@ -925,14 +978,18 @@ GREUtils.domHTMLString = function (htmlString, xmlns) {
 
 
 /**
- * Quit Application
+ * Exits the event loop, and shut down the application.
+ * 
+ * This method takes an optional mode parameter which modifies how the application
+ * is shutdown. For more details, please refer to the XPCOM nsIAppStartup interface. 
  *
- * see nsIAppStartup
+ * For more information, please see nsIAppStartup
  *
  * @public
  * @static
+ *  
  * @function 
- * @param {Number} mode
+ * @param {Number} mode               This is the application shutdown mode; defaults to eAttemptQuit
  */
 GREUtils.quitApplication = function() {
     var mode = arguments[0] || Components.interfaces.nsIAppStartup.eAttemptQuit;
@@ -941,9 +998,12 @@ GREUtils.quitApplication = function() {
 
 
 /**
- * Restart Application
- *
- * see nsIAppStartup
+ * Restarts the application after quitting.
+ * 
+ * This method attempts to shut down and then restart the application. The application
+ * will be restarted with the same profile and an empty command line. 
+ * 
+ * For more information, please see nsIAppStartup
  *
  * @public
  * @static
@@ -955,9 +1015,11 @@ GREUtils.restartApplication = function() {
 
 
 /**
- * Ram Back  notifyObservers memory-pressure
- *
- * see memory-pressure
+ * Attempts to reclaim memory by shrinking the heap.
+ * 
+ * This memory notifies registered observers of the "memory-pressure" topic of a 
+ * "heap-minimize" condition. The pressure observers should subsequently schedule
+ * a memory flush. 
  *
  * @public
  * @static
@@ -975,12 +1037,12 @@ GREUtils.ramback = function() {
 
     
 /**
- * Use Console.logStringMessage(msg);
- *
+ * Logs a message to the JavaScript console.
+ * 
  * @public
  * @static
- * @function
- * @param {String} log message 
+ * @function 
+ * @param {String} sMsg               This is the message to log. 
  */
 GREUtils.log = function (sMsg) {
     GREUtils.XPCOM.getUsefulService("consoleservice").logStringMessage(sMsg);
@@ -988,12 +1050,12 @@ GREUtils.log = function (sMsg) {
 
 
 /**
- * UUID Generator -  use XPCOM base for fast uuid generate.
+ * Generates a globally unique ID.
  * 
  * @public
  * @static
- * @function
- * @return {String} uuid string 
+ * @function 
+ * @return {String}                   A globally unique ID
  */
 GREUtils.uuid  = function () {
 	var uuid = GREUtils.XPCOM.getService("@mozilla.org/uuid-generator;1","nsIUUIDGenerator").generateUUID().number;
@@ -1003,14 +1065,13 @@ GREUtils.uuid  = function () {
 
 
 /**
- * Get Idle Time - 
- * The amount of time in milliseconds that has passed since the last user activity.
- * Firefox3 and XULrunner 1.9 above only.
+ * Returns the amount of time in milliseconds that has passed since the last user
+ * activity (i.e. mouse clicks or key presses).
  * 
  * @public
  * @static
  * @function 
- * @return {Number} idle time
+ * @return {Number}                   The user idle time
  */
 GREUtils.getIdleTime = function() {
     return GREUtils.XPCOM.getUsefulService("idleservice").idleTime;
@@ -1018,19 +1079,25 @@ GREUtils.getIdleTime = function() {
 
 
 /**
- * getIdleObserver Helper
+ * Constructs an idleObserver object.
  * 
- * call register for Register IdleObserver 
- * call unregister for Remove IdleObserver
+ * This method constructs an idle observer with the given function and idle time.
+ * The idle observer implements the nsIObserver interface, and is activated through
+ * the register() call. When registered, an idle notification will be generated and
+ * passed to the given function by the XPCOM nsIIdleService when the user has been
+ * idle for the given amount of time. When idle notifications are no longer needed,
+ * the idle observer can be deactivated by calling unregister(). 
  * 
+ * For details on the idle service, please refer to the XPCOM nsIIdleService interface.
+ *   
  * Firefox3 and XULrunner 1.9 above only.
  * 
  * @public
  * @static
  * @function 
- * @param {Function} func
- * @param {Integer} time
- * @return {Object} idle Observer Object
+ * @param {Function} func             This is the function that is invoked when there is an idle notification
+ * @param {Number} time               This is the idle time  
+ * @return {Object}                   The idle observer object
  */
 GREUtils.getIdleObserver = function(func, time) {
 	
@@ -1059,39 +1126,38 @@ GREUtils.getIdleObserver = function(func, time) {
 
 
 /**
- * base-64 encode of a string
+ * Generates a base-64 encoding of a string.
  * 
  * @public
  * @static
  * @function 
- * @param {String} str
- * @return {String} base64 string
+ * @param {String} str                This is the string to encode
+ * @return {String}                   The base-64 encoded ASCII string
  */
 GREUtils.base64Encode = function(str){
 	return btoa(str);
 };
 
 /**
- * base-64 decode of a string
+ * Decodes a string of data which has been encoded using base-64 encoding.
  * 
  * @public
  * @static
- * @function 
- * @param {String} str
- * @return {String}
+ * @param {String} str                This is the base-64 encoded string to decode
+ * @return {String}                   The decoded string
  */
 GREUtils.base64Decode = function(str){
 	return atob(str);
 };
 
 /** 
- * Uppercase the first character of each word in a string
+ * Converts the first character of each word in a string to upper case.
  *
  * @public
  * @static
  * @function 
- * @param {String} word
- * @return {String}
+ * @param {String} word               This is the string of words
+ * @return {String}                   The string with first character of each word converted to upper case
  */
 GREUtils.ucwords = function(word) {
     return word.replace(/^(.)|\s(.)/g, function ( $1 ) { return $1.toUpperCase ( ); } );
@@ -1099,20 +1165,20 @@ GREUtils.ucwords = function(word) {
 
 
 /**
- * Make a string's first character uppercase
+ * Converts the first character of a string to upper case.
  *
  * @public
  * @static
  * @function 
- * @param {String} word
- * @return {String}
+ * @param {String} word               This is the string
+ * @return {String}                   The string with the first character converted to upper case
  */
 GREUtils.ucfirst = function(word) {
     var f = word.charAt(0).toUpperCase();
     return f + word.substr(1, word.length-1);
 };
 /**
- * A set of convenience functions for manipulating files.
+ * This is a set of functions for common file operations.
  *
  * @public
  * @name GREUtils.File
@@ -1122,14 +1188,14 @@ GREUtils.define('GREUtils.File');
 
 GREUtils.File = {
 
-	FILE_RDONLY:       0x01,
-	FILE_WRONLY:       0x02,
-	FILE_RDWR:         0x04,
-	FILE_CREATE_FILE:  0x08,
-	FILE_APPEND:       0x10,
-	FILE_TRUNCATE:     0x20,
-	FILE_SYNC:         0x40,
-	FILE_EXCL:         0x80,
+    FILE_RDONLY:       0x01,
+    FILE_WRONLY:       0x02,
+    FILE_RDWR:         0x04,
+    FILE_CREATE_FILE:  0x08,
+    FILE_APPEND:       0x10,
+    FILE_TRUNCATE:     0x20,
+    FILE_SYNC:         0x40,
+    FILE_EXCL:         0x80,
 
     FILE_READ_MODE: "r",
     FILE_WRITE_MODE: "w",
@@ -1137,11 +1203,11 @@ GREUtils.File = {
     FILE_BINARY_MODE: "b",
 
     NORMAL_FILE_TYPE: 0x00,
-	DIRECTORY_TYPE:   0x01,
+    DIRECTORY_TYPE:   0x01,
 
     FILE_CHUNK: 1024, // buffer for readline => set to 1k
     FILE_DEFAULT_PERMS: 0644,
-	DIR_DEFAULT_PERMS:  0755
+    DIR_DEFAULT_PERMS:  0755
 };
 
 
@@ -1160,31 +1226,35 @@ GREUtils.File = {
  * @static
  * @function
  * @param {String} sFile          This is the full path to the file
- * @param {String} autoCreate     This flag indicates whether the file should be created if it does not exist; defaults to false
- * @return                        The file location reference
- * @type                          nsILocalFile
+ * @param {Boolean} autoCreate    This flag indicates whether the file should be created if it does not exist; defaults to false
+ * @param {Boolean} notCheckExists This flag indicates whether the file does not exist; defaults to false
+ * @return {nsILocalFile}         The file location reference
  */
 GREUtils.File.getFile = function(sFile){
+    
     var autoCreate = arguments[1] || false;
+    var notcheckExists = arguments[2] || false;
     if (/^file:/.test(sFile))
         sFile = sFile.replace("file://", "");
+        
     var obj = GREUtils.XPCOM.createInstance('@mozilla.org/file/local;1', 'nsILocalFile');
     obj.initWithPath(sFile);
-    if (obj.exists())
+    
+    if (obj.exists() || notcheckExists)
         return obj;
     else
-        if (autoCreate) {
-            try {
-                obj.create(GREUtils.File.NORMAL_FILE_TYPE, GREUtils.File.FILE_DEFAULT_PERMS);
-                return obj;
-            }
-            catch (ex) {
-                return null;
-            }
+    if (autoCreate) {
+        try {
+            obj.create(GREUtils.File.NORMAL_FILE_TYPE, GREUtils.File.FILE_DEFAULT_PERMS);
+            return obj;
         }
-        else {
+        catch (ex) {
             return null;
         }
+    }
+    else {
+        return null;
+    }
 };
 
 
@@ -1199,8 +1269,7 @@ GREUtils.File.getFile = function(sFile){
  * @static
  * @function
  * @param {String} sURL           This is the URL string
- * @return                        An URL object
- * @type                          nsIURL|nsIFileURL
+ * @return {nsIURL|nsIFileURL}    An URL object
  */
 GREUtils.File.getURL = function(sURL){
     var mURL = null;
@@ -1242,8 +1311,7 @@ GREUtils.File.getURL = function(sURL){
  * @param {Object} file           This is the file. It can be a string containing the file path or a file location reference
  * @param {String} mode           This is the mode flag
  * @param {Number} perm           This is the permission with which to create the file (if needed)
- * @return                        A file output stream
- * @type                          nsIFileOutputStream|nsIBinaryOutputStream
+ * @return {nsIFileOutputStream|nsIBinaryOutputStream}                       A file output stream
  */
 GREUtils.File.getOutputStream = function(file, mode, perm){
     var nsIFile = (typeof(file) == "string") ? this.getFile(file) : file;
@@ -1296,8 +1364,7 @@ GREUtils.File.getOutputStream = function(file, mode, perm){
  * @param {Object} file           This is the file. It can be a string containing the file path or a file location reference
  * @param {String} mode           This is the mode flag
  * @param {Number} perm           This is the permission with which to create the file (if needed); defaults to FILE_DEFAULT_PERMS
- * @return                        A file output stream
- * @type                          nsIScritableInputStream|nsIBinaryInputStream
+ * @return {nsIScritableInputStream|nsIBinaryInputStream}                   A file output stream
  */
 GREUtils.File.getInputStream = function(file, mode, perm){
     var nsIFile = (typeof(file) == "string") ? this.getFile(file) : file;
@@ -1341,8 +1408,7 @@ GREUtils.File.getInputStream = function(file, mode, perm){
  * @static
  * @function
  * @param {Object} file           This is the file. It can be a string containing the file path or a file location reference
- * @return                        A file output stream
- * @type                          nsIScritableInputStream|nsIBinaryInputStream
+ * @return {nsIScritableInputStream|nsIBinaryInputStream}                       A file output stream
  */
 GREUtils.File.getLineInputStream = function(file){
     var nsIFile = (typeof(file) == "string") ? this.getFile(file) : file;
@@ -1353,6 +1419,7 @@ GREUtils.File.getLineInputStream = function(file){
     fs.init(nsIFile, GREUtils.File.FILE_RDONLY, GREUtils.File.FILE_DEFAULT_PERMS, null);
     return GREUtils.XPCOM.queryInterface(fs, "nsILineInputStream");
 };
+
 
 /**
  * Reads in the entire content of a file as a series of lines.
@@ -1368,8 +1435,7 @@ GREUtils.File.getLineInputStream = function(file){
  * @static
  * @function
  * @param {Object} file           This is the file. It can be a string containing the file path or a file location reference
- * @return                        The file content as an array of lines
- * @type                          Array of String
+ * @return {Array of String}      The file content as an array of lines
  */
 GREUtils.File.readAllLine = function(file){
     var lineStream = this.getLineInputStream(file);
@@ -1397,14 +1463,13 @@ GREUtils.File.readAllLine = function(file){
  * This method reads in the specified file as a binary stream containing untagged,
  * big-endian binary data.
  *
- * This method returns the content of the file as a String.
+ * This method returns the content of the file as a binary String.
  *
  * @public
  * @static
  * @function
  * @param {Object} file           This is the file. It can be a string containing the file path or a file location reference
- * @return                        The file content as a String
- * @type                          String
+ * @return {String}               The file content as a binary String
  */
 GREUtils.File.readAllBytes = function(file){
     var nsIFile = (typeof(file) == "string") ? this.getFile(file) : file;
@@ -1427,30 +1492,29 @@ GREUtils.File.readAllBytes = function(file){
  * @static
  * @function
  * @param {String} aURL           This is the URL from which to retrieve content
- * @return                        The URL content as a String
- * @type                          String
+ * @return {String}               The URL content as a String
  */
 GREUtils.File.getURLContents = function(aURL) {
 
-	var ioService=GREUtils.XPCOM.getService("@mozilla.org/network/io-service;1", "nsIIOService");
-	var scriptableStream=GREUtils.XPCOM.getService("@mozilla.org/scriptableinputstream;1", "nsIScriptableInputStream");
+    var ioService=GREUtils.XPCOM.getService("@mozilla.org/network/io-service;1", "nsIIOService");
+    var scriptableStream=GREUtils.XPCOM.getService("@mozilla.org/scriptableinputstream;1", "nsIScriptableInputStream");
 
-	var str = "";
-	try {
-      var channel=ioService.newChannel(aURL,null,null);
-      var input=channel.open();
-      scriptableStream.init(input);
+    var str = "";
+    try {
+        var channel=ioService.newChannel(aURL,null,null);
+        var input=channel.open();
+        scriptableStream.init(input);
 
-      while ((bytes = input.available()) > 0) {
-		str += scriptableStream.read(bytes);
-      }
-      scriptableStream.close();
-      input.close();
+        while ((bytes = input.available()) > 0) {
+            str += scriptableStream.read(bytes);
+        }
+        scriptableStream.close();
+        input.close();
 
-	}catch(e) {
+    }catch(e) {
 
-	}
-	return str;
+    }
+    return str;
 };
 
 /**
@@ -1464,8 +1528,6 @@ GREUtils.File.getURLContents = function(aURL) {
  * @function
  * @param {Object} file           This is the file. It can be a string containing the file path or a file location reference
  * @param {Array} lines           This is the Array of Strings to write
- * @return
- * @type                          void
  */
 GREUtils.File.writeAllLine = function(file, lines){
     var outputStream = this.getOutputStream(file, "w");
@@ -1489,8 +1551,6 @@ GREUtils.File.writeAllLine = function(file, lines){
  * @function
  * @param {Object} file           This is the file. It can be a string containing the file path or a file location reference
  * @param {String} buf            This is the binary data to write
- * @return
- * @type                          void
  */
 GREUtils.File.writeAllBytes = function(file, buf){
     var outputStream = this.getOutputStream(file, "wb");
@@ -1523,8 +1583,7 @@ GREUtils.File.writeAllBytes = function(file, buf){
  * @param {Object} nsFile         This is the executable file. It can be a string containing the file path or a file location reference
  * @param {String} aArgs          This is the array of arguments to pass to the executable
  * @param {Boolean} blocking      If "true", the method blocks until the process terminates; defaults to false
- * @return {Number}                       The process ID
- * @type                          Int
+ * @return {Number}               The process ID
  */
 GREUtils.File.run = function(nsFile, aArgs, blocking){
     var nsIFile = (typeof(nsFile) == "string") ? this.getFile(nsFile) : nsFile;
@@ -1549,7 +1608,7 @@ GREUtils.File.run = function(nsFile, aArgs, blocking){
         rv = process.run(blocking, aArgs, len);
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.run: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.run: '+e.message);
         rv = -3
     }
     return rv;
@@ -1568,8 +1627,6 @@ GREUtils.File.run = function(nsFile, aArgs, blocking){
  * @param {Object} nsFile         This is the executable file. It can be a string containing the file path or a file location reference
  * @param {String} aArgs          This is the array of arguments to pass to the executable
  * @param {Boolean} blocking      If "true", the method blocks until the process terminates; defaults to false
- * @return
- * @type                          void
  */
 GREUtils.File.exec = function(){
     GREUtils.File.run.apply(this, arguments);
@@ -1585,10 +1642,10 @@ GREUtils.File.exec = function(){
  * @function
  * @param {String} chromePath     This is the chrome URL
  * @return {String} url           The loadable URL
- * @type                          String
  */
 GREUtils.File.chromeToURL = function(chromePath){
-    var uri = this.getURL(chromePath);
+    
+    var uri = GREUtils.File.getURL(chromePath);
     var cr = GREUtils.XPCOM.getService("@mozilla.org/chrome/chrome-registry;1", "nsIChromeRegistry");
     var rv = null;
     try {
@@ -1601,7 +1658,7 @@ GREUtils.File.chromeToURL = function(chromePath){
         }
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.chromeToURL: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.chromeToURL: '+e.message);
         rv = null;
     }
     return rv;
@@ -1616,10 +1673,10 @@ GREUtils.File.chromeToURL = function(chromePath){
  * @function
  * @param {String} chromePath     This is the chrome URL
  * @return {String} filepath      The file path
- * @type                          String
  */
 GREUtils.File.chromeToPath = function(chromePath){
-    var uri = this.getURL(chromePath);
+    
+    var uri = GREUtils.File.getURL(chromePath);
     var cr = GREUtils.XPCOM.getService("@mozilla.org/chrome/chrome-registry;1", "nsIChromeRegistry");
     var rv = null;
     try {
@@ -1636,10 +1693,64 @@ GREUtils.File.chromeToPath = function(chromePath){
 
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.chromeToPath: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.chromeToPath: '+e.message);
         rv = null;
     }
     return rv;
+};
+
+
+/**
+ * Resolves a File URL into a loadable URL using local file path.
+ * Returns a string representation of the loadable URL if successful; otherwise null
+ * is returned.
+ *
+ * @public
+ * @static
+ * @function
+ * @param {String} aPath           This is the file path
+ * @return {String} url            The URL
+ */
+GREUtils.File.pathToURL = function(aPath){
+    
+      if (!aPath)
+        return "";
+    
+      var rv;
+      try {
+        rv =GREUtils.XPCOM.createInstance("@mozilla.org/network/protocol;1?name=file",
+                                     "nsIFileProtocolHandler").getURLSpecFromFile(GREUtils.File(aPath));
+      } catch (e) { rv = ""; }
+
+      return rv;
+    
+};
+
+/**
+ * Resolves a URL into a file path using file path.
+ * Returns null if resolution fails.
+ *
+ * @public
+ * @static
+ * @function
+ * @param {String} aUrl           This is the URL
+ * @return {String} path          The file path
+ */
+GREUtils.File.urlToPath = function(aUrl){
+    
+      if (!aUrl || !/^file:/.test(aPath))
+        return "";
+    
+      var rv;
+      try {
+
+        rv = GREUtils.XPCOM.createInstance("@mozilla.org/network/protocol;1?name=file",
+                                     "nsIFileProtocolHandler").getFileFromURLSpec(aUrl).path;
+
+      } catch (e) { rv = ""; }
+
+      return rv;
+    
 };
 
 
@@ -1651,7 +1762,6 @@ GREUtils.File.chromeToPath = function(chromePath){
  * @function
  * @param {String} aFile          This is the file path
  * @return {Boolean}              "true" if the file exists; "false" otherwise
- * @type                          Boolean
  */
 GREUtils.File.exists = function(aFile){
 
@@ -1660,10 +1770,10 @@ GREUtils.File.exists = function(aFile){
 
     var rv;
     try {
-        rv = GREUtils.File.getFile(aFile).exists();
+        rv = GREUtils.File.getFile(aFile, false, true).exists();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.exists: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.exists: '+e.message);
         rv = false;
     }
 
@@ -1680,8 +1790,7 @@ GREUtils.File.exists = function(aFile){
  * @static
  * @function
  * @param {String} aFile          This is the file path
- * @return {Boolean}                       "true" if the file exists; "false" otherwise
- * @type                          Boolean
+ * @return {Boolean}              "true" if the file exists; "false" otherwise
  */
 GREUtils.File.remove = function(aFile){
 
@@ -1702,7 +1811,7 @@ GREUtils.File.remove = function(aFile){
 
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.remove: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.remove: '+e.message);
         rv = false;
     }
 
@@ -1727,7 +1836,6 @@ GREUtils.File.remove = function(aFile){
  * @param {String} aSource        This is the file from which to copy
  * @param {String} aDest          This is the location to which to copy
  * @return {Boolean}              "true" if the copy succeeds; "false" otherwise
- * @type                          Boolean
  */
 GREUtils.File.copy = function(aSource, aDest){
 
@@ -1740,7 +1848,7 @@ GREUtils.File.copy = function(aSource, aDest){
     var rv;
     try {
         var fileInst = GREUtils.File.getFile(aSource);
-        var dir = GREUtils.File.getFile(aDest);
+        var dir = GREUtils.File.getFile(aDest, false, true);
         var copyName = fileInst.leafName;
 
         if (fileInst.isDirectory())
@@ -1764,14 +1872,14 @@ GREUtils.File.copy = function(aSource, aDest){
         rv = true;
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.copy: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.copy: '+e.message);
         return false;
     }
 
     return rv;
 };
 
- /**
+/**
  * Creates a new file path by appending a file name to a directory path and returns
  * that new file path.  Returns an empty string if the directory does not exist or
  * if the directory path given does not point to an actual directory.
@@ -1781,8 +1889,7 @@ GREUtils.File.copy = function(aSource, aDest){
  * @function
  * @param {String} aDirPath       This is the directory path
  * @param {String} aFileName      This is the file name to append to the directory
- * @return {String} filePath      The new file path, empty String if error
- * @type                          String
+ * @return {String} filePath      The new file path, empty if error
  */
 GREUtils.File.append = function(aDirPath, aFileName){
 
@@ -1803,7 +1910,7 @@ GREUtils.File.append = function(aDirPath, aFileName){
         delete fileInst;
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.append: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.append: '+e.message);
         return "";
     }
 
@@ -1820,7 +1927,6 @@ GREUtils.File.append = function(aDirPath, aFileName){
  * @function
  * @param {String} aPath          This is the file path
  * @return {String}               The octal representation of the Unix style permission bits
- * @type                          String
  */
 GREUtils.File.permissions = function(aPath){
 
@@ -1835,7 +1941,7 @@ GREUtils.File.permissions = function(aPath){
         rv = (GREUtils.File.getFile(aPath)).permissions.toString(8);
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.permissions: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.permissions: '+e.message);
         rv = 0;
     }
 
@@ -1851,8 +1957,7 @@ GREUtils.File.permissions = function(aPath){
  * @static
  * @function
  * @param {String} aPath          This is the file path
- * @return {Date}                 The modification date
- * @type                          String
+ * @return {String}               The modification date
  */
 GREUtils.File.dateModified = function(aPath){
 
@@ -1865,7 +1970,7 @@ GREUtils.File.dateModified = function(aPath){
         rv = new Date((GREUtils.File.getFile(aPath)).lastModifiedTime).toLocaleString();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.dateModified: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.dateModified: '+e.message);
         rv = null;
     }
 
@@ -1881,7 +1986,6 @@ GREUtils.File.dateModified = function(aPath){
  * @function
  * @param {String} aPath          This is the file path
  * @return {Number}               The file size
- * @type                          Int
  */
 GREUtils.File.size = function(aPath){
 
@@ -1896,7 +2000,7 @@ GREUtils.File.size = function(aPath){
         rv = (GREUtils.File.getFile(aPath)).fileSize;
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.size: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.size: '+e.message);
         rv = -1;
     }
 
@@ -1911,8 +2015,7 @@ GREUtils.File.size = function(aPath){
  * @static
  * @function
  * @param {String} aPath          This is the file path
- * @return {String} filePath      The file extension, empty String if error.
- * @type                          String
+ * @return {String}               The file extension, empty if error.
  */
 GREUtils.File.ext = function(aPath){
 
@@ -1929,7 +2032,7 @@ GREUtils.File.ext = function(aPath){
         rv = (dotIndex >= 0) ? leafName.substring(dotIndex + 1) : "";
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.ext: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.ext: '+e.message);
         return ""
     }
 
@@ -1948,8 +2051,7 @@ GREUtils.File.ext = function(aPath){
  * @static
  * @function
  * @param {String} aPath          This is the file path
- * @return {String} filePath      The parent path, empty String if error
- * @type                          String
+ * @return {String} filePath      The parent path, empty if error
  */
 GREUtils.File.parent = function(aPath){
     if (!aPath)
@@ -1966,14 +2068,14 @@ GREUtils.File.parent = function(aPath){
             rv = fileInst.parent.path;
 
         else
-            if (fileInst.isDirectory())
-                rv = fileInst.path;
+        if (fileInst.isDirectory())
+            rv = fileInst.path;
 
-            else
-                rv = "";
+        else
+            rv = "";
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.parent: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.parent: '+e.message);
         rv = "";
     }
 
@@ -1982,24 +2084,23 @@ GREUtils.File.parent = function(aPath){
 
 
 /**
- * Checks if a file path points to a regular file.
+ * Checks if a file path points to a directory.
  *
  * @public
  * @static
  * @function
  * @param {String} aPath          This is the file path
- * @return {Boolean}              "true" if the path is a file; "false" otherwise
- * @type                          Boolean
+ * @return {Boolean}              "true" if the path is a directory; "false" otherwise
  */
 GREUtils.File.isDir = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isDirectory();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isDirectory();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isDir: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isDir: '+e.message);
         rv = false;
     }
     return rv;
@@ -2013,17 +2114,16 @@ GREUtils.File.isDir = function(aPath){
  * @function
  * @param {String} aPath          This is the file path
  * @return {Boolean}              "true" if the path is a file; "false" otherwise
- * @type                          Boolean
  */
 GREUtils.File.isFile = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isFile();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isFile();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isFile: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isFile: '+e.message);
         rv = false;
     }
     return rv;
@@ -2035,19 +2135,18 @@ GREUtils.File.isFile = function(aPath){
  * @public
  * @static
  * @function
- * @param {String} aPath          This is the file
+ * @param {String} aPath          This is the file path
  * @return {Boolean}              "true" if the path is an executable file; "false" otherwise
- * @type                          Boolean
  */
 GREUtils.File.isExecutable = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isExecutable();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isExecutable();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isExecutable: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isExecutable: '+e.message);
         rv = false;
     }
     return rv;
@@ -2063,17 +2162,16 @@ GREUtils.File.isExecutable = function(aPath){
  * @function
  * @param {String} aPath          This is the file path
  * @return {Boolean}              "true" if the path is a symbolic link; "false" otherwise
- * @type                          Boolean
  */
 GREUtils.File.isSymlink = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isSymlink();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isSymlink();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isSymlink: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isSymlink: '+e.message);
         rv = false;
     }
     return rv;
@@ -2086,19 +2184,18 @@ GREUtils.File.isSymlink = function(aPath){
  * @public
  * @static
  * @function
- * @param {String} aPath          This is the file or directory
+ * @param {String} aPath          This is the file path
  * @return {Boolean}              "true" if the path is writable; "false" otherwise
- * @type                          Boolean
  */
 GREUtils.File.isWritable = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isWritable();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isWritable();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isWritable: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isWritable: '+e.message);
         rv = false;
     }
     return rv;
@@ -2110,19 +2207,18 @@ GREUtils.File.isWritable = function(aPath){
  * @public
  * @static
  * @function
- * @param {String} aPath          This is the file or directory
+ * @param {String} aPath          This is the file path
  * @return {Boolean}              "true" if the path is writable; "false" otherwise
- * @type                          Boolean
  */
 GREUtils.File.isHidden = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isHidden();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isHidden();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isHidden: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isHidden: '+e.message);
         rv = false;
     }
     return rv;
@@ -2136,19 +2232,18 @@ GREUtils.File.isHidden = function(aPath){
  * @public
  * @static
  * @function
- * @param {String} aPath          This is the file or directory
+ * @param {String} aPath          This is the file path
  * @return {Boolean}              "true" if the path is readable; "false" otherwise
- * @type                          Boolean
  */
 GREUtils.File.isReadable = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isReadable();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isReadable();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isReadable: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isReadable: '+e.message);
         rv = false;
     }
     return rv;
@@ -2164,17 +2259,16 @@ GREUtils.File.isReadable = function(aPath){
  * @function
  * @param {String} aPath          This is the file path
  * @return {Boolean}              "true" if the file is special; "false" otherwise
- * @type                          Boolean
  */
 GREUtils.File.isSpecial = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isSpecial();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isSpecial();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isSpecial: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isSpecial: '+e.message);
         rv = false;
     }
     return rv;
@@ -2191,26 +2285,25 @@ GREUtils.File.isSpecial = function(aPath){
  * @static
  * @function
  * @param {String} aPath          This is the file path to normalize
- * @return                        The normalized file path
- * @type                          String
+ * @return {String}               The normalized file path
  */
 GREUtils.File.normalize = function(aPath){
 
-	var rv;
+    var rv;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.normalize();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.normalize();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.normalize: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.normalize: '+e.message);
         rv = -1;
     }
     return rv;
 
 };
 /**
- * A set of utility functions that provide various directory operations on the
- * local file system in a platform-independent manner.
+ * This is a set of utility functions that provide common directory operations
+ * on the local file system in a platform-independent manner.
  *
  * @public
  * @name GREUtils.Dir
@@ -2220,7 +2313,7 @@ GREUtils.define('GREUtils.Dir');
 
 
 /**
- * Returns a nsILocalFile instsance representing the given file.
+ * Returns an nsILocalFile instance representing the given file.
  *
  * Bt setting autoCreate to "true", this method will attempt to create the file
  * with default permissions if the file does not already exists.
@@ -2232,8 +2325,7 @@ GREUtils.define('GREUtils.Dir');
  * @function
  * @param {String} aPath                This is the file path
  * @param {Boolean} autoCreate          This flag indicates whether to create the file if it does not exist; false by default
- * @return {nsILocalFile}               The file, or null if the file does not exist and is not/cannot be created
- * @type                                nsILocalFile
+ * @return {nsILocalFile}               The given file, or null if the file does not exist and is not/cannot be created
  */
 GREUtils.Dir.getFile = function(aPath){
     var autoCreate = arguments[1] || false;
@@ -2271,7 +2363,6 @@ GREUtils.Dir.getFile = function(aPath){
  * @function
  * @param {String} aPath                This is the file path
  * @return {nsILocalFile}               The file, or null if the file does not exist and is not/cannot be created
- * @type                                nsILocalFile
  */
 GREUtils.Dir.create = function(aPath){
 	return GREUtils.Dir.getFile(aPath, true);
@@ -2281,18 +2372,17 @@ GREUtils.Dir.create = function(aPath){
 /**
  * Removes a directory.
  *
- * If aRecursive is false, then the directory must be empty before it can be deleted.
+ * If "aRecursive" is false, then the directory must be empty before it can be deleted.
  *
  * @public
  * @static
  * @function
  * @param {String} aPath                This is the directory path
  * @param {Boolean} aRecursive          This flag indicates if directory is to be deleted if it is not empty
- * @return {Number}                     void  : directory is successfully removed
+ * @return {Number}                    void  : directory is successfully removed
  *                                      -1    : path does not exist
  *                                      -2    : aPath is not a directory
  *                                      -3    : delete fails
- * @type                                Int
  */
 GREUtils.Dir.remove = function(aPath, aRecursive){
 	var dir = GREUtils.Dir.getFile(aPath);
@@ -2320,7 +2410,6 @@ GREUtils.Dir.remove = function(aPath, aRecursive){
  * @param {String} aPath                This is the directory to test
  * @param {String} aFile                This is the full path of the file to test
  * @return {Boolean}                    Returns true if the file is a descendant of the directory, false otherwise
- * @type                                Boolean
  */
 GREUtils.Dir.contains = function(aPath, aFile){
 	var dir = GREUtils.Dir.getFile(aPath);
@@ -2342,11 +2431,11 @@ GREUtils.Dir.contains = function(aPath, aFile){
 
 
 /**
- * Reads directory entries.
+ * Reads directory entries recursively.
  *
  * This method returns the directory entries as an array. Each array
- * element can be a string representing a file path, or an array of representing
- * a sub-directory.
+ * element can be a string representing a file, or an array representing
+ * a sub-directory. Directory entries are read recursively.
  *
  * If the given path is not a directory an empty array is returned.
  *
@@ -2355,7 +2444,6 @@ GREUtils.Dir.contains = function(aPath, aFile){
  * @function
  * @param {String} aPath                This is the directory path
  * @return {Object}                     Returns the directory entries as an array of strings containing file paths
- * @type                                Object
  */
 GREUtils.Dir.readDir = function(aPath){
 
@@ -2391,10 +2479,11 @@ GREUtils.Dir.readDir = function(aPath){
 
 };
 /**
- * A Javascript wrapper around the XPCOM nsiCryptoHash component that provides
- * native implementation of cryptographic hash function. This can be used,
- * for example, to calculate the MD5 hash of a file to determine if it contains
- * the data you think it does.
+ * This is a set of Javascript wrappers around the XPCOM nsiCryptoHash component
+ * that provides native implementation of cryptographic hash function.
+ * 
+ * This can be used, for example, to calculate the MD5 hash of a file to
+ * determine if it contains the data you think it does.
  *
  * The hash algorithms supported are MD2, MD5, SHA-1, SHA-256, SHA-384, and SHA-512.
  *
@@ -2416,8 +2505,7 @@ GREUtils.define('GREUtils.CryptoHash');
  * @function
  * @param {String} str          This is the UTF-8 string to compute the hash for
  * @param {String} algorithm    This is the hash algorithm to use
- * @return {String} string      The resulting hash as a hex string
- * @type                        String
+ * @return {String}             The resulting hash as a hex string
  */
 GREUtils.CryptoHash.crypt = function(str, algorithm) {
 
@@ -2454,7 +2542,6 @@ GREUtils.CryptoHash.crypt = function(str, algorithm) {
  * @param {String|nsIFile} file   This is the file given as a file path or an nsIFile object
  * @param {String} algorithm      This is the hash algorithm to use
  * @return {String}               The resulting hash as a hex string; an empty string is returned if the file is empty or cannot be read
- * @type                          String
  */
 GREUtils.CryptoHash.cryptFromStream = function(aFile, algorithm) {
 
@@ -2490,7 +2577,6 @@ GREUtils.CryptoHash.cryptFromStream = function(aFile, algorithm) {
  * @function
  * @param {String} str              This is the UTF-8 string to compute the hash for
  * @return {String}                 The resulting hash as a hex string
- * @type                            String
  */
 GREUtils.CryptoHash.md5 = function(str) {
 
@@ -2509,7 +2595,6 @@ GREUtils.CryptoHash.md5 = function(str) {
  * @function
  * @param {String|nsIFile} aFile  This is the file given as a file path or an nsIFile object
  * @return {String}               The resulting hash as a hex string; an empty string is returned if the file is empty or cannot be read
- * @type                          String
  */
 GREUtils.CryptoHash.md5FromFile = function(aFile){
 
@@ -2528,7 +2613,6 @@ GREUtils.CryptoHash.md5FromFile = function(aFile){
  * @function
  * @param {String|nsIFile} aFile  This is the file given as a file path or an nsIFile object
  * @return {String}               The resulting hash as a hex string; an empty string is returned if the file is empty or cannot be read
- * @type                          String
  */
 GREUtils.CryptoHash.md5sum = GREUtils.CryptoHash.md5FromFile;
 
@@ -2543,7 +2627,6 @@ GREUtils.CryptoHash.md5sum = GREUtils.CryptoHash.md5FromFile;
  * @function
  * @param {String} str          This is the UTF-8 string to compute the hash for
  * @return {String}             The resulting hash as a hex string
- * @type                        String
  */
 GREUtils.CryptoHash.sha1 = function(str) {
 
@@ -2561,7 +2644,6 @@ GREUtils.CryptoHash.sha1 = function(str) {
  * @function
  * @param {String} str          This is the UTF-8 string to compute the hash for
  * @return {String}             The resulting hash as a hex string
- * @type                        String
  */
 GREUtils.CryptoHash.sha256 = function(str) {
 
@@ -2576,7 +2658,6 @@ GREUtils.CryptoHash.sha256 = function(str) {
  * @function
  * @param {String} charCode     This is the byte value
  * @return {String}             The two-digit hexadecimal representation of the byte value
- * @type                        String
  */
 GREUtils.CryptoHash.toHexString = function(charCode) {
   return ("0" + charCode.toString(16)).slice(-2);
@@ -2594,7 +2675,6 @@ GREUtils.CryptoHash.toHexString = function(charCode) {
  * @function
  * @param {Array} data        This is the array of byte values
  * @return {String}           The hexadecimal representation of the array of byte values
- * @type                      String
  */
 GREUtils.CryptoHash.arrayToHexString = function(data) {
 
@@ -2607,7 +2687,7 @@ GREUtils.CryptoHash.arrayToHexString = function(data) {
 
 };
 /**
- * A set of utility functions for character set conversions.
+ * This is a set of utility functions for character set conversions.
  * 
  * @public
  * @name GREUtils.Charset
@@ -2625,7 +2705,7 @@ GREUtils.define('GREUtils.Charset');
  * @static
  * @function
  * @param {String} text         This is the string to convert to Unicode
- * @param {String} charset      This is the character set the string is encoded in. 
+ * @param {String} charset      This is the character set encoding of the string
  * @return {String}             The string encoded in Unicode if conversion succeeds; otherwise the original string is returned
  */
 GREUtils.Charset.convertToUnicode = function(text, charset) {
@@ -2644,15 +2724,16 @@ GREUtils.Charset.convertToUnicode = function(text, charset) {
 /**
  * Converts a Unicode string to the given character set encoding.
  *
- * This method takes a string encoded in Unicode, and returns the corresponding string encoded in "charset".
- * If "charset" is not given then the string will be converted to "UTF-8".
+ * This method takes a string encoded in Unicode, and returns the corresponding
+ * string encoded in the given character set encoding. If a character set
+ * encoding is not specified then the string will be converted to "UTF-8".
  *  
  * @public
  * @static
  * @function
  * @param {String} text         This is the Unicode string to convert
  * @param {String} charset      This is the character set encoding to convert to
- * @return {String}             The string encoded in "charset" if conversion succeeds; otherwise the original string is returned
+ * @return {String}             The string in the given encoding if conversion succeeds; otherwise the original string is returned
  */
 GREUtils.Charset.convertFromUnicode = function(text, charset) {
     try {
@@ -2669,25 +2750,25 @@ GREUtils.Charset.convertFromUnicode = function(text, charset) {
 /**
  * Converts a string from one character set encoding to another.
  * 
- * This method takes a string encoded in character set "in_charset"
- * and returns the corresponding string encoded in character set "out_charset".
+ * This method takes a string encoded in encoding "in_charset"
+ * and returns the corresponding string in encoding "out_charset".
  *
  * @public
  * @static
  * @function
  * @param {String} text         This is the string to convert
- * @param {String} in_charset   This is the character set used to encode the string
- * @param {String} out_charset  This is the character set encoding the string is to be converted to
- * @return {String}             A string encoded using the given character set "out_charset" if conversion succeeds; otherwise the original string is returned
+ * @param {String} in_charset   This is the character set encoding of the string
+ * @param {String} out_charset  This is the character set encoding to convert the string to
+ * @return {String}             A string encoded in "out_charset" if conversion succeeds; otherwise the original string is returned
  */
 GREUtils.Charset.convertCharset = function (text, in_charset, out_charset) {
     return this.convertFromUnicode(this.convertToUnicode(text, in_charset), out_charset);
 };
 /**
- * A set of utility functions to encode and decode JSON strings.
+ * This is a set of utility functions to encode and decode JSON strings.
  *
- *  XPCOM BASE Native JSON Services
- *  It is very faster then javascript implemention.
+ * The functions are based on XPCOM Native JSON Services and are much faster
+ * than JavaScript implemention.
  *
  * @public
  * @name GREUtils.JSON
@@ -2706,8 +2787,7 @@ GREUtils.JSON = {
  * @public
  * @static
  * @function
- * @return {Object}                       The nsIJSON service
- * @type                                  nsIJSON
+ * @return {nsIJSON}                       The nsIJSON service
  */
 GREUtils.JSON.getJSONService = function() {
 
@@ -2726,14 +2806,13 @@ GREUtils.JSON.getJSONService = function() {
 
 
 /**
- * Decodes a JSON string, returning the JavaScript object it represents.
+ * Decodes a JSON string and returns the JavaScript object it represents.
  *
  * @public
  * @static
  * @function
  * @param {String} aJSONString            This is the JSON string
  * @return {Object}                       The JavaScript object represented by the JSON string
- * @type                                  Object
  */
 GREUtils.JSON.decode = function(aJSONString) {
  	return GREUtils.JSON.getJSONService().decode(aJSONString);
@@ -2747,8 +2826,7 @@ GREUtils.JSON.decode = function(aJSONString) {
  * @static
  * @function
  * @param {Object} aJSObject              This is the JavaScript object to encode
- * @return {String} JSON string           The JSON representation of the JavaScript object
- * @type                                  Object
+ * @return {String}                       The JSON representation of the JavaScript object
  */
 GREUtils.JSON.encode = function(aJSObject) {
 	return GREUtils.JSON.getJSONService().encode(aJSObject);
@@ -2756,7 +2834,7 @@ GREUtils.JSON.encode = function(aJSObject) {
 
 
 /**
- * Decodes a JSON string read from an input stream, returning the JavaScript object it represents.
+ * Decodes a JSON string read from an input stream and returns the JavaScript object it represents.
  *
  * @public
  * @static
@@ -2764,7 +2842,6 @@ GREUtils.JSON.encode = function(aJSObject) {
  * @param {nsIInputStream} stream         This is the input stream from which to read the JSON string
  * @param {Number} contentLength          This is the length of the JSON string to read from the input stream
  * @return {Object}                       The JavaScript object represented by the JSON string
- * @type                                  Object
  */
 GREUtils.JSON.decodeFromStream = function(stream, contentLength) {
 	return GREUtils.JSON.getJSONService().decodeFromStream(stream, contentLength);
@@ -2772,7 +2849,7 @@ GREUtils.JSON.decodeFromStream = function(stream, contentLength) {
 
 
 /**
- * Encodes a JavaScript object into JSON format, writing it to a stream.
+ * Encodes a JavaScript object into JSON format and writes it to a stream.
  *
  * If byte-order mark (BOM) is desired, set writeBOM to true; otherwise set writeBOM to false.
  *
@@ -2783,8 +2860,6 @@ GREUtils.JSON.decodeFromStream = function(stream, contentLength) {
  * @param {Object} value                  This is the JavaScript object to encode
  * @param {String} charset                This is the character set encoding to use on the JSON string; defaults to "UTF-8"
  * @param {Boolean} writeBOM              This flag indicates whether to write a byte-order mark (BOM) into the stream; defaults to "false"
- * @return
- * @type                                  void
  */
 GREUtils.JSON.encodeToStream = function(stream, value, charset, writeBOM) {
 	charset = charset || 'UTF-8';
@@ -2795,7 +2870,7 @@ GREUtils.JSON.encodeToStream = function(stream, value, charset, writeBOM) {
 
 
 /**
- * Decodes a JSON string read from a file, returning the JavaScript object it represents.
+ * Decodes a JSON string read from a file and returns the JavaScript object it represents.
  *
  * If the file cannot be read, null is returned.
  *
@@ -2804,7 +2879,6 @@ GREUtils.JSON.encodeToStream = function(stream, value, charset, writeBOM) {
  * @function
  * @param {String} filename               This is the file path from which to read the JSON string
  * @return {Object}                       The JavaScript object represented by the JSON string
- * @type                                  Object
  */
 GREUtils.JSON.decodeFromFile = function(filename) {
     var fileInputStream = GREUtils.File.getInputStream(filename, "rb");
@@ -2822,7 +2896,7 @@ GREUtils.JSON.decodeFromFile = function(filename) {
 
 
 /**
- * Encodes a JavaScript object into JSON format, writing it to a file.
+ * Encodes a JavaScript object into JSON format and writes it to a file.
  *
  * The JSON string will first be encoded in "UTF-8" before being written to the file.
  *
@@ -2831,8 +2905,6 @@ GREUtils.JSON.decodeFromFile = function(filename) {
  * @function
  * @param {nsIOutputStream} filename      This is the output file to which to write the JSON string
  * @param {Object} value                  This is the JavaScript object to encode
- * @return
- * @type                                  void
  */
 GREUtils.JSON.encodeToFile = function(filename, value) {
 
@@ -2848,7 +2920,7 @@ GREUtils.JSON.encodeToFile = function(filename, value) {
     return;
 };
 /**
- * A set of utility functions for playing sounds.
+ * This is a set of utility functions for playing sounds through XPCOM.
  *
  * @public
  * @name GREUtils.Sound
@@ -2858,13 +2930,12 @@ GREUtils.define('GREUtils.Sound');
 
 
 /**
- * Returns the XPCOM service that implements the nsISound interface
+ * Returns the XPCOM service that implements the nsISound interface.
  *
  * @public
  * @static
  * @function
- * @return {Object}                       The nsISound service
- * @type                                  nsISound
+ * @return {nsISound}                     The nsISound service
  */
 GREUtils.Sound.getSoundService = function() {
     return GREUtils.XPCOM.getUsefulService("sound");
@@ -2878,8 +2949,6 @@ GREUtils.Sound.getSoundService = function() {
  * @static
  * @function
  * @param {String} sURL                   This is the URL pointing to the location of the sound file
- * @return
- * @type                                  void
  */
 GREUtils.Sound.play = function(sURL) {
     mURL = GREUtils.File.getURL(sURL);
@@ -2895,8 +2964,6 @@ GREUtils.Sound.play = function(sURL) {
  * @public
  * @static
  * @function
- * @return
- * @type                                  void
  */
 GREUtils.Sound.beep = function() {
     return GREUtils.Sound.getSoundService().beep();
@@ -2904,14 +2971,12 @@ GREUtils.Sound.beep = function() {
 
 
 /**
- * Plays a system sound.
+ * Plays the specified system sound.
  *
  * @public
  * @static
  * @function
- * @param {String} sURL                   This is the system sound identifier
- * @return
- * @type                                  void
+ * @param {String} sURL                   This is the system sound identifier.
  */
 GREUtils.Sound.playSystemSound = function(sURL) {
     mURL = GREUtils.File.getURL(sURL);
@@ -2920,7 +2985,7 @@ GREUtils.Sound.playSystemSound = function(sURL) {
     return snd.playSystemSound(mURL);
 };
 /**
- * A set of utility functions used to manipulate preference data.
+ * This is set of utility functions for manipulating preferences.
  *
  * @public
  * @name GREUtils.Pref
@@ -2935,8 +3000,7 @@ GREUtils.define('GREUtils.Pref');
  * @public
  * @static
  * @function
- * @return {Object} nsIPrefBranch2      The preference service
- * @type                                nsIPrefBranch2
+ * @return {nsIPrefBranch2}             The preference service
  */
 GREUtils.Pref.getPrefService = function () {
     return GREUtils.XPCOM.getService("@mozilla.org/preferences-service;1", "nsIPrefBranch2");
@@ -2944,7 +3008,7 @@ GREUtils.Pref.getPrefService = function () {
 
 
 /**
- * Returns preference value by key.
+ * Returns a preference value by key.
  *
  * This method will automatically detect the type of preference (string, int, boolean)
  * and return the preference value accordingly.
@@ -2955,7 +3019,6 @@ GREUtils.Pref.getPrefService = function () {
  * @param {String} prefName             This is the name of the preference
  * @param {Object} prefService          This is the preferences service to use; if null, the default preferences service will be used
  * @return {Object}                     The preference value
- * @type                                Object
  */
 GREUtils.Pref.getPref = function() {
     var prefName = arguments[0] ;
@@ -2974,17 +3037,15 @@ GREUtils.Pref.getPref = function() {
 /**
  * Sets the state of individual preferences
  *
- * This method will automatically detect the type of preference (string, int, boolean)
- * and set the preference value accordingly.
+ * This method will automatically detect the type of preference (string, number,
+ * boolean) and set the preference value accordingly.
  *
  * @public
  * @static
  * @function
  * @param {String} prefName             This is the name of the preference
- * @param {Object} prefValue            This is the value to which to set the preference
+ * @param {Object} prefValue            This is the preference value to set
  * @param {Object} prefService          This is the preferences service to use; if null, the default preferences service will be used
- * @return
- * @type                                void
  */
 
 GREUtils.Pref.setPref = function() {
@@ -3001,7 +3062,8 @@ GREUtils.Pref.setPref = function() {
         prefs.setBoolPref(prefName, value);
 };
 /**
- * A set of utility functions to create various types of dialogs and specialize windows.
+ * This is a set of utility functions to render common types of dialogs and
+ * windows.
  *
  * @public
  * @name GREUtils.Dialog
@@ -3023,13 +3085,13 @@ GREUtils.define('GREUtils.Dialog');
  */
 GREUtils.Dialog.openWindow =  function(aParent, aUrl, aName, aFeatures, aArguments) {
 
-	var parent = aParent || null;
-	var name = aName || "_blank";
-	var args = aArguments || null;
-	var features = aFeatures || "chrome,centerscreen";
+    var parent = aParent || null;
+    var name = aName || "_blank";
+    var args = aArguments || null;
+    var features = aFeatures || "chrome,centerscreen";
 
-	var ww = GREUtils.XPCOM.getUsefulService("window-watcher");
-	return ww.openWindow(null, aUrl, name, features, args);
+    var ww = GREUtils.XPCOM.getUsefulService("window-watcher");
+    return ww.openWindow(null, aUrl, name, features, args);
 
 };
 
@@ -3053,21 +3115,21 @@ GREUtils.Dialog.openWindow =  function(aParent, aUrl, aName, aFeatures, aArgumen
 GREUtils.Dialog.openDialog = function(aURL, aName, aArguments, posX, posY, width, height) {
 
     var features = "chrome,dialog,dependent=yes,resize=yes";
-	if (arguments.length <= 3 ) {
-		features += ",centerscreen";
-	}
-	else {
-		if (posX)
-			features += ",screenX=" + posX;
-		if (posY)
-			features += ",screenY=" + posY;
-		if (width)
-			features += ",width=" + width;
-		if (height)
-			features += ",height=" + height;
-	}
+    if (arguments.length <= 3 ) {
+        features += ",centerscreen";
+    }
+    else {
+        if (posX)
+            features += ",screenX=" + posX;
+        if (posY)
+            features += ",screenY=" + posY;
+        if (width)
+            features += ",width=" + width;
+        if (height)
+            features += ",height=" + height;
+    }
 
-	return GREUtils.Dialog.openWindow(null, aURL, aName, features, aArguments);
+    return GREUtils.Dialog.openWindow(null, aURL, aName, features, aArguments);
 
 };
 
@@ -3091,17 +3153,17 @@ GREUtils.Dialog.openDialog = function(aURL, aName, aArguments, posX, posY, width
 GREUtils.Dialog.openModalDialog = function(aURL, aName, aArguments, posX, posY, width, height) {
 
     var features = "chrome,dialog,dependent=no,modal,resize=yes";
-	if (arguments.length <= 3) {
-		features += ",centerscreen";
-	}
-	else {
-	    if(posX) features += ",screenX="+posX;
-	    if(posY) features += ",screenY="+posY;
-	    if(width) features += ",width="+width;
-	    if(height) features += ",height="+height;
-	}
+    if (arguments.length <= 3) {
+        features += ",centerscreen";
+    }
+    else {
+        if(posX) features += ",screenX="+posX;
+        if(posY) features += ",screenY="+posY;
+        if(width) features += ",width="+width;
+        if(height) features += ",height="+height;
+    }
 
-	return GREUtils.Dialog.openWindow(null, aURL, aName, features, aArguments);
+    return GREUtils.Dialog.openWindow(null, aURL, aName, features, aArguments);
 
 };
 
@@ -3124,7 +3186,7 @@ GREUtils.Dialog.openFullScreen = function (aURL, aName, aArguments) {
     features += ",screenX="+0;
     features += ",screenY="+0;
 
-	return GREUtils.Dialog.openWindow(null, aURL, aName, features, aArguments);
+    return GREUtils.Dialog.openWindow(null, aURL, aName, features, aArguments);
 };
 
 
@@ -3138,7 +3200,7 @@ GREUtils.Dialog.openFullScreen = function (aURL, aName, aArguments) {
  * @type                                            nsIFilePicker
  */
 GREUtils.Dialog.getFilePicker = function() {
-    return GREUtils.XPCOM.getService("@mozilla.org/filepicker;1", "nsIFilePicker");
+    return GREUtils.XPCOM.createInstance("@mozilla.org/filepicker;1", "nsIFilePicker");
 };
 
 /**
@@ -3152,21 +3214,35 @@ GREUtils.Dialog.getFilePicker = function() {
  * @static
  * @function
  * @param {String|nsILocalFile} sDir                This is the directory that the file open/save dialog initially displays
+ * @param {String} title
  * @return {String}                                         The path of the selected file, or null if no file is selected
  * @type                                            String
  */
-GREUtils.Dialog.openFilePicker = function(sDir){
-    var filePicker = this.getFilePicker();
-    if(sDir) {
-        if (typeof(sDir)=="object" && GREUtils.XPCOM.queryInterface(sDir, "nsIFile")) {
-            filePicker.displayDirectory = sDir;
+GREUtils.Dialog.openFilePicker = function(sDir, title){
+    
+    // Get filepicker component.
+    try {
+        const nsIFilePicker = Components.interfaces.nsIFilePicker;
+        var fp = this.getFilePicker();
+
+        fp.init(GREUtils.global, title, nsIFilePicker.modeOpen);
+        fp.appendFilters(nsIFilePicker.filterAll | nsIFilePicker.filterText | nsIFilePicker.filterImages |
+            nsIFilePicker.filterXML | nsIFilePicker.filterHTML);
+
+        if(sDir) {
+            if (typeof(sDir)=="object" && GREUtils.XPCOM.queryInterface(sDir, "nsIFile")) {
+                fp.displayDirectory = sDir;
+            }
+            if (typeof(sDir)=="string") {
+                fp.displayDirectory = GREUtils.File.getFile(sDir);
+            }
         }
-        if (typeof(sDir)=="string") {
-            filePicker.displayDirectory = GREUtils.File.getFile(sDir);
-        }
+
+        if (fp.show() == nsIFilePicker.returnOK) return fp.fileURL.spec;
+        else return null;
+
+    } catch (ex) {
     }
-    filePicker.show();
-    return (filePicker.file.path.length > 0 ? filePicker.file.path : null);
 };
 
 /**
@@ -3257,7 +3333,7 @@ GREUtils.Dialog.select = function(dialogTitle, dialogText, list, selected) {
  * Returns a ChromeWindow object representing the most recent window of the
  * type given by "windowName".
  *
- * If there are no windows open, null is returned.
+ * If there are no windows of the given type open, null is returned.
  *
  * @public
  * @static
@@ -3267,13 +3343,13 @@ GREUtils.Dialog.select = function(dialogTitle, dialogText, list, selected) {
  * @type                                            ChromeWindow
  */
 GREUtils.Dialog.getMostRecentWindow = function(windowName) {
-	return GREUtils.XPCOM.getUsefulService("window-mediator").getMostRecentWindow(windowName);
+    return GREUtils.XPCOM.getUsefulService("window-mediator").getMostRecentWindow(windowName);
 };
 
 /**
  * Returns all open windows of a given type in an array of ChromeWindow objects.
  *
- * Returns an empty array [] if there are no windows of the given type open.
+ * Returns an empty array if there are no windows of the given type open.
  *
  * @public
  * @static
@@ -3283,19 +3359,18 @@ GREUtils.Dialog.getMostRecentWindow = function(windowName) {
  * @type                                            ChromeWindow[]
  */
 GREUtils.Dialog.getWindowArray = function(windowName) {
-	var enumerator = GREUtils.XPCOM.getUsefulService("window-mediator").getEnumerator(windowName);
-	var wins = [];
-	while(enumerator.hasMoreElements()) {
-	  wins.push(enumerator.getNext());
-	}
-	return wins;
+    var enumerator = GREUtils.XPCOM.getUsefulService("window-mediator").getEnumerator(windowName);
+    var wins = [];
+    while(enumerator.hasMoreElements()) {
+        wins.push(enumerator.getNext());
+    }
+    return wins;
 };
 /**
- * A set of utility functions that applications and extensions can easily use to
- * create and manage threads within the Gecko Runtime Environment.
+ * This is a set of utility functions that applications and extensions can
+ * use to easily create and manage threads within the Gecko Runtime Environment.
  *
  * Each thread is represented by an nsIThread object.
- * ONLY Work with Firefox 3 or XULRunner 1.9
  *
  * @public
  * @name GREUtils.Thread
@@ -3305,7 +3380,7 @@ GREUtils.define('GREUtils.Thread');
 
 GREUtils.Thread = {
 
-    _threadManager: GREUtils.XPCOM.getUsefulService("thread-manager"),
+    _threadManager: null,
 
     _mainThread: null,
 
@@ -3323,10 +3398,10 @@ GREUtils.Thread = {
  * @public
  * @static
  * @function
- * @return {Object}                     The nsIThreadManager service
- * @type                                nsIThreadManager
+ * @return {nsIThreadManager}           The nsIThreadManager service
  */
 GREUtils.Thread.getThreadManager = function(){
+    if (this._threadManager == null ) this._threadManager = GREUtils.XPCOM.getUsefulService("thread-manager");
     return this._threadManager;
 };
 
@@ -3337,8 +3412,7 @@ GREUtils.Thread.getThreadManager = function(){
  * @public
  * @static
  * @function
- * @return {Object}                     The main thread
- * @type                                nsIThread
+ * @return {nsIThread}                  The main thread
  */
 GREUtils.Thread.getMainThread = function(){
     if (this._mainThread == null) {
@@ -3351,16 +3425,6 @@ GREUtils.Thread.getMainThread = function(){
 };
 
 
-/**
- * dispatchMainThread
- *
- * @public
- * @static
- * @function
- * @return {Object} nsIThreadManager
- * @param {Object} aRunnable
- * @param {Object} aType
- */
 /**
  * Dispatches an event to the main thread.
  *
@@ -3376,8 +3440,6 @@ GREUtils.Thread.getMainThread = function(){
  * @function
  * @parameter {nsIRunnable} aRunnable   This is the event to dispatch to the main thread
  * @parameter {int} aType               This is the dispatch mode
- * @return {Object} nsIThreadManager
- * @type                                void
  */
 GREUtils.Thread.dispatchMainThread = function(aRunnable, aType) {
     var mainThread = GREUtils.Thread.getMainThread();
@@ -3390,17 +3452,6 @@ GREUtils.Thread.dispatchMainThread = function(aRunnable, aType) {
 };
 
 
-/**
- * dispatchWorkerThread
- *
- * @public
- * @static
- * @function
- * @return {Object} nsIThreadManager
- * @param {Object} workerThread
- * @param {Object} aRunnable
- * @param {Object} aType
- */
 /**
  * Dispatches an event to a worker thread.
  *
@@ -3417,8 +3468,6 @@ GREUtils.Thread.dispatchMainThread = function(aRunnable, aType) {
  * @parameter {nsIThread} workerThread  This is the Worker thread to which to dispatch the event
  * @parameter {nsIRunnable} aRunnable   This is the event to dispatch to the Worker thread
  * @parameter {int} aType               This is the dispatch mode
- * @return {Object} nsIThreadManager
- * @type                                void
  */
 GREUtils.Thread.dispatchWorkerThread = function(workerThread, aRunnable, aType) {
     var aType = aType || workerThread.DISPATCH_NORMAL;
@@ -3437,8 +3486,8 @@ GREUtils.Thread.dispatchWorkerThread = function(workerThread, aRunnable, aType) 
  * @public
  * @static
  * @function
- * @return {Object} nsIThread           The worker thread
- * @type                                nsIThread
+ * @return {nsIThread}            The worker thread
+ * @type                                
  */
 GREUtils.Thread.getWorkerThread = function(){
     // get presist work thread
@@ -3460,8 +3509,7 @@ GREUtils.Thread.getWorkerThread = function(){
  * @public
  * @static
  * @function
- * @return {Object} nsIThread           The new worker thread
- * @type                                nsIThread
+ * @return {nsIThread}                  The new worker thread
  */
 GREUtils.Thread.createWorkerThread = function(){
     // create new worker thread
@@ -3620,8 +3668,10 @@ GREUtils.Thread.createWorkerThreadAdapter = function(workerFunc, callbackFunc, d
  * $Rev: 1 $
  */
 /**
- *  GREUtils - is simple and easy use APIs libraries for GRE (Gecko Runtime Environment).
  * Controller and CommandDispatcher Helper
+ *  
+ *@private
+ * 
  */
 GREUtils.ControllerHelper = GREUtils.extend({}, {
 
@@ -3674,6 +3724,8 @@ GREUtils.ControllerHelper = GREUtils.extend({}, {
  * @classDescription ControllerAdapter
  * @id ControllerAdapter
  * @alias GREUtils.ControllerAdapter
+ * 
+ * @private  
  */
 GREUtils.ControllerAdapter = GREUtils.extend({}, {
     _app: null,

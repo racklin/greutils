@@ -195,8 +195,6 @@ ul.inheritsList
 	
 	<li><a href="../symbols/GREUtils.Charset.html">GREUtils.Charset</a></li>
 	
-	<li><a href="../symbols/GREUtils.ControllerAdapter.html">GREUtils.ControllerAdapter</a></li>
-	
 	<li><a href="../symbols/GREUtils.CryptoHash.html">GREUtils.CryptoHash</a></li>
 	
 	<li><a href="../symbols/GREUtils.Dialog.html">GREUtils.Dialog</a></li>
@@ -236,8 +234,8 @@ ul.inheritsList
 				
 			
 				GREUtils.Dir
-A set of utility functions that provide various directory operations on the
-local file system in a platform-independent manner.
+This is a set of utility functions that provide common directory operations
+on the local file system in a platform-independent manner.
 				
 				
 					<br /><i>Defined in: </i> <a href="../symbols/src/_home_rack_workspace_greutils_dist_GREUtils.js.html">GREUtils.js</a>.
@@ -261,8 +259,8 @@ local file system in a platform-independent manner.
 							<div class="fixedFont">
 								<b><a href="../symbols/GREUtils.Dir.html#constructor">GREUtils.Dir</a></b>
 							</div>
-							<div class="description">A set of utility functions that provide various directory operations on the
-local file system in a platform-independent manner.</div>
+							<div class="description">This is a set of utility functions that provide common directory operations
+on the local file system in a platform-independent manner.</div>
 						</td>
 					</tr>
 				</tbody>
@@ -310,7 +308,7 @@ an nsILocalFile instance representing the file.</div>
 							<td class="nameDescription">
 								<div class="fixedFont">GREUtils.Dir.<b><a href="../symbols/GREUtils.Dir.html#.getFile">getFile</a></b>(aPath, autoCreate)
 								</div>
-								<div class="description">Returns a nsILocalFile instsance representing the given file.</div>
+								<div class="description">Returns an nsILocalFile instance representing the given file.</div>
 							</td>
 						</tr>
 					
@@ -319,7 +317,7 @@ an nsILocalFile instance representing the file.</div>
 							<td class="nameDescription">
 								<div class="fixedFont">GREUtils.Dir.<b><a href="../symbols/GREUtils.Dir.html#.readDir">readDir</a></b>(aPath)
 								</div>
-								<div class="description">Reads directory entries.</div>
+								<div class="description">Reads directory entries recursively.</div>
 							</td>
 						</tr>
 					
@@ -351,8 +349,8 @@ an nsILocalFile instance representing the file.</div>
 				</div>
 				
 				<div class="description">
-					A set of utility functions that provide various directory operations on the
-local file system in a platform-independent manner.
+					This is a set of utility functions that provide common directory operations
+on the local file system in a platform-independent manner.
 					
 				</div>
 				
@@ -485,7 +483,7 @@ null is returned.
 					
 					</div>
 					<div class="description">
-						Returns a nsILocalFile instsance representing the given file.
+						Returns an nsILocalFile instance representing the given file.
 
 Bt setting autoCreate to "true", this method will attempt to create the file
 with default permissions if the file does not already exists.
@@ -522,7 +520,7 @@ If the file does not exist and is not/cannot be created, null will be returned.
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd><span class="light fixedFont">{nsILocalFile}</span> The file, or null if the file does not exist and is not/cannot be created</dd>
+								<dd><span class="light fixedFont">{nsILocalFile}</span> The given file, or null if the file does not exist and is not/cannot be created</dd>
 							
 							</dl>
 						
@@ -539,11 +537,11 @@ If the file does not exist and is not/cannot be created, null will be returned.
 					
 					</div>
 					<div class="description">
-						Reads directory entries.
+						Reads directory entries recursively.
 
 This method returns the directory entries as an array. Each array
-element can be a string representing a file path, or an array of representing
-a sub-directory.
+element can be a string representing a file, or an array representing
+a sub-directory. Directory entries are read recursively.
 
 If the given path is not a directory an empty array is returned.
 						
@@ -583,14 +581,14 @@ If the given path is not a directory an empty array is returned.
 					<a name=".remove"> </a>
 					<div class="fixedFont">&lt;static&gt; 
 					
-					<span class="light">{Int}</span>
+					<span class="light">{Number}</span>
 					<span class="light">GREUtils.Dir.</span><b>remove</b>(aPath, aRecursive)
 					
 					</div>
 					<div class="description">
 						Removes a directory.
 
-If aRecursive is false, then the directory must be empty before it can be deleted.
+If "aRecursive" is false, then the directory must be empty before it can be deleted.
 						
 						
 					</div>
@@ -642,7 +640,7 @@ If aRecursive is false, then the directory must be empty before it can be delete
 <!-- ============================== footer ================================= -->
 		<div class="fineprint" style="clear:both">
 			
-			Documentation generated by <a href="http://www.jsdoctoolkit.org/" target="_blank">JsDoc Toolkit</a> 2.0.1 on Wed Sep 17 2008 09:30:30 GMT+0800 (CST)
+			Documentation generated by <a href="http://www.jsdoctoolkit.org/" target="_blank">JsDoc Toolkit</a> 2.0.1 on Thu Sep 25 2008 17:38:58 GMT+0800 (CST)
 		</div>
 	</body>
 </html>

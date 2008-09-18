@@ -1,5 +1,5 @@
 /**
- * A set of convenience functions for manipulating files.
+ * This is a set of functions for common file operations.
  *
  * @public
  * @name GREUtils.File
@@ -9,14 +9,14 @@ GREUtils.define('GREUtils.File');
 
 GREUtils.File = {
 
-	FILE_RDONLY:       0x01,
-	FILE_WRONLY:       0x02,
-	FILE_RDWR:         0x04,
-	FILE_CREATE_FILE:  0x08,
-	FILE_APPEND:       0x10,
-	FILE_TRUNCATE:     0x20,
-	FILE_SYNC:         0x40,
-	FILE_EXCL:         0x80,
+    FILE_RDONLY:       0x01,
+    FILE_WRONLY:       0x02,
+    FILE_RDWR:         0x04,
+    FILE_CREATE_FILE:  0x08,
+    FILE_APPEND:       0x10,
+    FILE_TRUNCATE:     0x20,
+    FILE_SYNC:         0x40,
+    FILE_EXCL:         0x80,
 
     FILE_READ_MODE: "r",
     FILE_WRITE_MODE: "w",
@@ -24,11 +24,11 @@ GREUtils.File = {
     FILE_BINARY_MODE: "b",
 
     NORMAL_FILE_TYPE: 0x00,
-	DIRECTORY_TYPE:   0x01,
+    DIRECTORY_TYPE:   0x01,
 
     FILE_CHUNK: 1024, // buffer for readline => set to 1k
     FILE_DEFAULT_PERMS: 0644,
-	DIR_DEFAULT_PERMS:  0755
+    DIR_DEFAULT_PERMS:  0755
 };
 
 
@@ -47,31 +47,35 @@ GREUtils.File = {
  * @static
  * @function
  * @param {String} sFile          This is the full path to the file
- * @param {String} autoCreate     This flag indicates whether the file should be created if it does not exist; defaults to false
- * @return                        The file location reference
- * @type                          nsILocalFile
+ * @param {Boolean} autoCreate    This flag indicates whether the file should be created if it does not exist; defaults to false
+ * @param {Boolean} notCheckExists This flag indicates whether the file does not exist; defaults to false
+ * @return {nsILocalFile}         The file location reference
  */
 GREUtils.File.getFile = function(sFile){
+    
     var autoCreate = arguments[1] || false;
+    var notcheckExists = arguments[2] || false;
     if (/^file:/.test(sFile))
         sFile = sFile.replace("file://", "");
+        
     var obj = GREUtils.XPCOM.createInstance('@mozilla.org/file/local;1', 'nsILocalFile');
     obj.initWithPath(sFile);
-    if (obj.exists())
+    
+    if (obj.exists() || notcheckExists)
         return obj;
     else
-        if (autoCreate) {
-            try {
-                obj.create(GREUtils.File.NORMAL_FILE_TYPE, GREUtils.File.FILE_DEFAULT_PERMS);
-                return obj;
-            }
-            catch (ex) {
-                return null;
-            }
+    if (autoCreate) {
+        try {
+            obj.create(GREUtils.File.NORMAL_FILE_TYPE, GREUtils.File.FILE_DEFAULT_PERMS);
+            return obj;
         }
-        else {
+        catch (ex) {
             return null;
         }
+    }
+    else {
+        return null;
+    }
 };
 
 
@@ -86,8 +90,7 @@ GREUtils.File.getFile = function(sFile){
  * @static
  * @function
  * @param {String} sURL           This is the URL string
- * @return                        An URL object
- * @type                          nsIURL|nsIFileURL
+ * @return {nsIURL|nsIFileURL}    An URL object
  */
 GREUtils.File.getURL = function(sURL){
     var mURL = null;
@@ -129,8 +132,7 @@ GREUtils.File.getURL = function(sURL){
  * @param {Object} file           This is the file. It can be a string containing the file path or a file location reference
  * @param {String} mode           This is the mode flag
  * @param {Number} perm           This is the permission with which to create the file (if needed)
- * @return                        A file output stream
- * @type                          nsIFileOutputStream|nsIBinaryOutputStream
+ * @return {nsIFileOutputStream|nsIBinaryOutputStream}                       A file output stream
  */
 GREUtils.File.getOutputStream = function(file, mode, perm){
     var nsIFile = (typeof(file) == "string") ? this.getFile(file) : file;
@@ -183,8 +185,7 @@ GREUtils.File.getOutputStream = function(file, mode, perm){
  * @param {Object} file           This is the file. It can be a string containing the file path or a file location reference
  * @param {String} mode           This is the mode flag
  * @param {Number} perm           This is the permission with which to create the file (if needed); defaults to FILE_DEFAULT_PERMS
- * @return                        A file output stream
- * @type                          nsIScritableInputStream|nsIBinaryInputStream
+ * @return {nsIScritableInputStream|nsIBinaryInputStream}                   A file output stream
  */
 GREUtils.File.getInputStream = function(file, mode, perm){
     var nsIFile = (typeof(file) == "string") ? this.getFile(file) : file;
@@ -228,8 +229,7 @@ GREUtils.File.getInputStream = function(file, mode, perm){
  * @static
  * @function
  * @param {Object} file           This is the file. It can be a string containing the file path or a file location reference
- * @return                        A file output stream
- * @type                          nsIScritableInputStream|nsIBinaryInputStream
+ * @return {nsIScritableInputStream|nsIBinaryInputStream}                       A file output stream
  */
 GREUtils.File.getLineInputStream = function(file){
     var nsIFile = (typeof(file) == "string") ? this.getFile(file) : file;
@@ -240,6 +240,7 @@ GREUtils.File.getLineInputStream = function(file){
     fs.init(nsIFile, GREUtils.File.FILE_RDONLY, GREUtils.File.FILE_DEFAULT_PERMS, null);
     return GREUtils.XPCOM.queryInterface(fs, "nsILineInputStream");
 };
+
 
 /**
  * Reads in the entire content of a file as a series of lines.
@@ -255,8 +256,7 @@ GREUtils.File.getLineInputStream = function(file){
  * @static
  * @function
  * @param {Object} file           This is the file. It can be a string containing the file path or a file location reference
- * @return                        The file content as an array of lines
- * @type                          Array of String
+ * @return {Array of String}      The file content as an array of lines
  */
 GREUtils.File.readAllLine = function(file){
     var lineStream = this.getLineInputStream(file);
@@ -284,14 +284,13 @@ GREUtils.File.readAllLine = function(file){
  * This method reads in the specified file as a binary stream containing untagged,
  * big-endian binary data.
  *
- * This method returns the content of the file as a String.
+ * This method returns the content of the file as a binary String.
  *
  * @public
  * @static
  * @function
  * @param {Object} file           This is the file. It can be a string containing the file path or a file location reference
- * @return                        The file content as a String
- * @type                          String
+ * @return {String}               The file content as a binary String
  */
 GREUtils.File.readAllBytes = function(file){
     var nsIFile = (typeof(file) == "string") ? this.getFile(file) : file;
@@ -314,30 +313,29 @@ GREUtils.File.readAllBytes = function(file){
  * @static
  * @function
  * @param {String} aURL           This is the URL from which to retrieve content
- * @return                        The URL content as a String
- * @type                          String
+ * @return {String}               The URL content as a String
  */
 GREUtils.File.getURLContents = function(aURL) {
 
-	var ioService=GREUtils.XPCOM.getService("@mozilla.org/network/io-service;1", "nsIIOService");
-	var scriptableStream=GREUtils.XPCOM.getService("@mozilla.org/scriptableinputstream;1", "nsIScriptableInputStream");
+    var ioService=GREUtils.XPCOM.getService("@mozilla.org/network/io-service;1", "nsIIOService");
+    var scriptableStream=GREUtils.XPCOM.getService("@mozilla.org/scriptableinputstream;1", "nsIScriptableInputStream");
 
-	var str = "";
-	try {
-      var channel=ioService.newChannel(aURL,null,null);
-      var input=channel.open();
-      scriptableStream.init(input);
+    var str = "";
+    try {
+        var channel=ioService.newChannel(aURL,null,null);
+        var input=channel.open();
+        scriptableStream.init(input);
 
-      while ((bytes = input.available()) > 0) {
-		str += scriptableStream.read(bytes);
-      }
-      scriptableStream.close();
-      input.close();
+        while ((bytes = input.available()) > 0) {
+            str += scriptableStream.read(bytes);
+        }
+        scriptableStream.close();
+        input.close();
 
-	}catch(e) {
+    }catch(e) {
 
-	}
-	return str;
+    }
+    return str;
 };
 
 /**
@@ -351,8 +349,6 @@ GREUtils.File.getURLContents = function(aURL) {
  * @function
  * @param {Object} file           This is the file. It can be a string containing the file path or a file location reference
  * @param {Array} lines           This is the Array of Strings to write
- * @return
- * @type                          void
  */
 GREUtils.File.writeAllLine = function(file, lines){
     var outputStream = this.getOutputStream(file, "w");
@@ -376,8 +372,6 @@ GREUtils.File.writeAllLine = function(file, lines){
  * @function
  * @param {Object} file           This is the file. It can be a string containing the file path or a file location reference
  * @param {String} buf            This is the binary data to write
- * @return
- * @type                          void
  */
 GREUtils.File.writeAllBytes = function(file, buf){
     var outputStream = this.getOutputStream(file, "wb");
@@ -410,8 +404,7 @@ GREUtils.File.writeAllBytes = function(file, buf){
  * @param {Object} nsFile         This is the executable file. It can be a string containing the file path or a file location reference
  * @param {String} aArgs          This is the array of arguments to pass to the executable
  * @param {Boolean} blocking      If "true", the method blocks until the process terminates; defaults to false
- * @return {Number}                       The process ID
- * @type                          Int
+ * @return {Number}               The process ID
  */
 GREUtils.File.run = function(nsFile, aArgs, blocking){
     var nsIFile = (typeof(nsFile) == "string") ? this.getFile(nsFile) : nsFile;
@@ -436,7 +429,7 @@ GREUtils.File.run = function(nsFile, aArgs, blocking){
         rv = process.run(blocking, aArgs, len);
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.run: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.run: '+e.message);
         rv = -3
     }
     return rv;
@@ -455,8 +448,6 @@ GREUtils.File.run = function(nsFile, aArgs, blocking){
  * @param {Object} nsFile         This is the executable file. It can be a string containing the file path or a file location reference
  * @param {String} aArgs          This is the array of arguments to pass to the executable
  * @param {Boolean} blocking      If "true", the method blocks until the process terminates; defaults to false
- * @return
- * @type                          void
  */
 GREUtils.File.exec = function(){
     GREUtils.File.run.apply(this, arguments);
@@ -472,10 +463,10 @@ GREUtils.File.exec = function(){
  * @function
  * @param {String} chromePath     This is the chrome URL
  * @return {String} url           The loadable URL
- * @type                          String
  */
 GREUtils.File.chromeToURL = function(chromePath){
-    var uri = this.getURL(chromePath);
+    
+    var uri = GREUtils.File.getURL(chromePath);
     var cr = GREUtils.XPCOM.getService("@mozilla.org/chrome/chrome-registry;1", "nsIChromeRegistry");
     var rv = null;
     try {
@@ -488,7 +479,7 @@ GREUtils.File.chromeToURL = function(chromePath){
         }
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.chromeToURL: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.chromeToURL: '+e.message);
         rv = null;
     }
     return rv;
@@ -503,10 +494,10 @@ GREUtils.File.chromeToURL = function(chromePath){
  * @function
  * @param {String} chromePath     This is the chrome URL
  * @return {String} filepath      The file path
- * @type                          String
  */
 GREUtils.File.chromeToPath = function(chromePath){
-    var uri = this.getURL(chromePath);
+    
+    var uri = GREUtils.File.getURL(chromePath);
     var cr = GREUtils.XPCOM.getService("@mozilla.org/chrome/chrome-registry;1", "nsIChromeRegistry");
     var rv = null;
     try {
@@ -523,10 +514,64 @@ GREUtils.File.chromeToPath = function(chromePath){
 
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.chromeToPath: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.chromeToPath: '+e.message);
         rv = null;
     }
     return rv;
+};
+
+
+/**
+ * Resolves a File URL into a loadable URL using local file path.
+ * Returns a string representation of the loadable URL if successful; otherwise null
+ * is returned.
+ *
+ * @public
+ * @static
+ * @function
+ * @param {String} aPath           This is the file path
+ * @return {String} url            The URL
+ */
+GREUtils.File.pathToURL = function(aPath){
+    
+      if (!aPath)
+        return "";
+    
+      var rv;
+      try {
+        rv =GREUtils.XPCOM.createInstance("@mozilla.org/network/protocol;1?name=file",
+                                     "nsIFileProtocolHandler").getURLSpecFromFile(GREUtils.File(aPath));
+      } catch (e) { rv = ""; }
+
+      return rv;
+    
+};
+
+/**
+ * Resolves a URL into a file path using file path.
+ * Returns null if resolution fails.
+ *
+ * @public
+ * @static
+ * @function
+ * @param {String} aUrl           This is the URL
+ * @return {String} path          The file path
+ */
+GREUtils.File.urlToPath = function(aUrl){
+    
+      if (!aUrl || !/^file:/.test(aPath))
+        return "";
+    
+      var rv;
+      try {
+
+        rv = GREUtils.XPCOM.createInstance("@mozilla.org/network/protocol;1?name=file",
+                                     "nsIFileProtocolHandler").getFileFromURLSpec(aUrl).path;
+
+      } catch (e) { rv = ""; }
+
+      return rv;
+    
 };
 
 
@@ -538,7 +583,6 @@ GREUtils.File.chromeToPath = function(chromePath){
  * @function
  * @param {String} aFile          This is the file path
  * @return {Boolean}              "true" if the file exists; "false" otherwise
- * @type                          Boolean
  */
 GREUtils.File.exists = function(aFile){
 
@@ -547,10 +591,10 @@ GREUtils.File.exists = function(aFile){
 
     var rv;
     try {
-        rv = GREUtils.File.getFile(aFile).exists();
+        rv = GREUtils.File.getFile(aFile, false, true).exists();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.exists: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.exists: '+e.message);
         rv = false;
     }
 
@@ -567,8 +611,7 @@ GREUtils.File.exists = function(aFile){
  * @static
  * @function
  * @param {String} aFile          This is the file path
- * @return {Boolean}                       "true" if the file exists; "false" otherwise
- * @type                          Boolean
+ * @return {Boolean}              "true" if the file exists; "false" otherwise
  */
 GREUtils.File.remove = function(aFile){
 
@@ -589,7 +632,7 @@ GREUtils.File.remove = function(aFile){
 
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.remove: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.remove: '+e.message);
         rv = false;
     }
 
@@ -614,7 +657,6 @@ GREUtils.File.remove = function(aFile){
  * @param {String} aSource        This is the file from which to copy
  * @param {String} aDest          This is the location to which to copy
  * @return {Boolean}              "true" if the copy succeeds; "false" otherwise
- * @type                          Boolean
  */
 GREUtils.File.copy = function(aSource, aDest){
 
@@ -627,7 +669,7 @@ GREUtils.File.copy = function(aSource, aDest){
     var rv;
     try {
         var fileInst = GREUtils.File.getFile(aSource);
-        var dir = GREUtils.File.getFile(aDest);
+        var dir = GREUtils.File.getFile(aDest, false, true);
         var copyName = fileInst.leafName;
 
         if (fileInst.isDirectory())
@@ -651,14 +693,14 @@ GREUtils.File.copy = function(aSource, aDest){
         rv = true;
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.copy: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.copy: '+e.message);
         return false;
     }
 
     return rv;
 };
 
- /**
+/**
  * Creates a new file path by appending a file name to a directory path and returns
  * that new file path.  Returns an empty string if the directory does not exist or
  * if the directory path given does not point to an actual directory.
@@ -668,8 +710,7 @@ GREUtils.File.copy = function(aSource, aDest){
  * @function
  * @param {String} aDirPath       This is the directory path
  * @param {String} aFileName      This is the file name to append to the directory
- * @return {String} filePath      The new file path, empty String if error
- * @type                          String
+ * @return {String} filePath      The new file path, empty if error
  */
 GREUtils.File.append = function(aDirPath, aFileName){
 
@@ -690,7 +731,7 @@ GREUtils.File.append = function(aDirPath, aFileName){
         delete fileInst;
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.append: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.append: '+e.message);
         return "";
     }
 
@@ -707,7 +748,6 @@ GREUtils.File.append = function(aDirPath, aFileName){
  * @function
  * @param {String} aPath          This is the file path
  * @return {String}               The octal representation of the Unix style permission bits
- * @type                          String
  */
 GREUtils.File.permissions = function(aPath){
 
@@ -722,7 +762,7 @@ GREUtils.File.permissions = function(aPath){
         rv = (GREUtils.File.getFile(aPath)).permissions.toString(8);
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.permissions: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.permissions: '+e.message);
         rv = 0;
     }
 
@@ -738,8 +778,7 @@ GREUtils.File.permissions = function(aPath){
  * @static
  * @function
  * @param {String} aPath          This is the file path
- * @return {Date}                 The modification date
- * @type                          String
+ * @return {String}               The modification date
  */
 GREUtils.File.dateModified = function(aPath){
 
@@ -752,7 +791,7 @@ GREUtils.File.dateModified = function(aPath){
         rv = new Date((GREUtils.File.getFile(aPath)).lastModifiedTime).toLocaleString();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.dateModified: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.dateModified: '+e.message);
         rv = null;
     }
 
@@ -768,7 +807,6 @@ GREUtils.File.dateModified = function(aPath){
  * @function
  * @param {String} aPath          This is the file path
  * @return {Number}               The file size
- * @type                          Int
  */
 GREUtils.File.size = function(aPath){
 
@@ -783,7 +821,7 @@ GREUtils.File.size = function(aPath){
         rv = (GREUtils.File.getFile(aPath)).fileSize;
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.size: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.size: '+e.message);
         rv = -1;
     }
 
@@ -798,8 +836,7 @@ GREUtils.File.size = function(aPath){
  * @static
  * @function
  * @param {String} aPath          This is the file path
- * @return {String} filePath      The file extension, empty String if error.
- * @type                          String
+ * @return {String}               The file extension, empty if error.
  */
 GREUtils.File.ext = function(aPath){
 
@@ -816,7 +853,7 @@ GREUtils.File.ext = function(aPath){
         rv = (dotIndex >= 0) ? leafName.substring(dotIndex + 1) : "";
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.ext: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.ext: '+e.message);
         return ""
     }
 
@@ -835,8 +872,7 @@ GREUtils.File.ext = function(aPath){
  * @static
  * @function
  * @param {String} aPath          This is the file path
- * @return {String} filePath      The parent path, empty String if error
- * @type                          String
+ * @return {String} filePath      The parent path, empty if error
  */
 GREUtils.File.parent = function(aPath){
     if (!aPath)
@@ -853,14 +889,14 @@ GREUtils.File.parent = function(aPath){
             rv = fileInst.parent.path;
 
         else
-            if (fileInst.isDirectory())
-                rv = fileInst.path;
+        if (fileInst.isDirectory())
+            rv = fileInst.path;
 
-            else
-                rv = "";
+        else
+            rv = "";
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.parent: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.parent: '+e.message);
         rv = "";
     }
 
@@ -869,24 +905,23 @@ GREUtils.File.parent = function(aPath){
 
 
 /**
- * Checks if a file path points to a regular file.
+ * Checks if a file path points to a directory.
  *
  * @public
  * @static
  * @function
  * @param {String} aPath          This is the file path
- * @return {Boolean}              "true" if the path is a file; "false" otherwise
- * @type                          Boolean
+ * @return {Boolean}              "true" if the path is a directory; "false" otherwise
  */
 GREUtils.File.isDir = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isDirectory();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isDirectory();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isDir: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isDir: '+e.message);
         rv = false;
     }
     return rv;
@@ -900,17 +935,16 @@ GREUtils.File.isDir = function(aPath){
  * @function
  * @param {String} aPath          This is the file path
  * @return {Boolean}              "true" if the path is a file; "false" otherwise
- * @type                          Boolean
  */
 GREUtils.File.isFile = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isFile();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isFile();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isFile: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isFile: '+e.message);
         rv = false;
     }
     return rv;
@@ -922,19 +956,18 @@ GREUtils.File.isFile = function(aPath){
  * @public
  * @static
  * @function
- * @param {String} aPath          This is the file
+ * @param {String} aPath          This is the file path
  * @return {Boolean}              "true" if the path is an executable file; "false" otherwise
- * @type                          Boolean
  */
 GREUtils.File.isExecutable = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isExecutable();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isExecutable();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isExecutable: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isExecutable: '+e.message);
         rv = false;
     }
     return rv;
@@ -950,17 +983,16 @@ GREUtils.File.isExecutable = function(aPath){
  * @function
  * @param {String} aPath          This is the file path
  * @return {Boolean}              "true" if the path is a symbolic link; "false" otherwise
- * @type                          Boolean
  */
 GREUtils.File.isSymlink = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isSymlink();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isSymlink();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isSymlink: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isSymlink: '+e.message);
         rv = false;
     }
     return rv;
@@ -973,19 +1005,18 @@ GREUtils.File.isSymlink = function(aPath){
  * @public
  * @static
  * @function
- * @param {String} aPath          This is the file or directory
+ * @param {String} aPath          This is the file path
  * @return {Boolean}              "true" if the path is writable; "false" otherwise
- * @type                          Boolean
  */
 GREUtils.File.isWritable = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isWritable();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isWritable();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isWritable: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isWritable: '+e.message);
         rv = false;
     }
     return rv;
@@ -997,19 +1028,18 @@ GREUtils.File.isWritable = function(aPath){
  * @public
  * @static
  * @function
- * @param {String} aPath          This is the file or directory
+ * @param {String} aPath          This is the file path
  * @return {Boolean}              "true" if the path is writable; "false" otherwise
- * @type                          Boolean
  */
 GREUtils.File.isHidden = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isHidden();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isHidden();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isHidden: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isHidden: '+e.message);
         rv = false;
     }
     return rv;
@@ -1023,19 +1053,18 @@ GREUtils.File.isHidden = function(aPath){
  * @public
  * @static
  * @function
- * @param {String} aPath          This is the file or directory
+ * @param {String} aPath          This is the file path
  * @return {Boolean}              "true" if the path is readable; "false" otherwise
- * @type                          Boolean
  */
 GREUtils.File.isReadable = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isReadable();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isReadable();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isReadable: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isReadable: '+e.message);
         rv = false;
     }
     return rv;
@@ -1051,17 +1080,16 @@ GREUtils.File.isReadable = function(aPath){
  * @function
  * @param {String} aPath          This is the file path
  * @return {Boolean}              "true" if the file is special; "false" otherwise
- * @type                          Boolean
  */
 GREUtils.File.isSpecial = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isSpecial();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isSpecial();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isSpecial: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isSpecial: '+e.message);
         rv = false;
     }
     return rv;
@@ -1078,18 +1106,17 @@ GREUtils.File.isSpecial = function(aPath){
  * @static
  * @function
  * @param {String} aPath          This is the file path to normalize
- * @return                        The normalized file path
- * @type                          String
+ * @return {String}               The normalized file path
  */
 GREUtils.File.normalize = function(aPath){
 
-	var rv;
+    var rv;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.normalize();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.normalize();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.normalize: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.normalize: '+e.message);
         rv = -1;
     }
     return rv;

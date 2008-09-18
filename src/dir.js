@@ -1,6 +1,6 @@
 /**
- * A set of utility functions that provide various directory operations on the
- * local file system in a platform-independent manner.
+ * This is a set of utility functions that provide common directory operations
+ * on the local file system in a platform-independent manner.
  *
  * @public
  * @name GREUtils.Dir
@@ -10,7 +10,7 @@ GREUtils.define('GREUtils.Dir');
 
 
 /**
- * Returns a nsILocalFile instsance representing the given file.
+ * Returns an nsILocalFile instance representing the given file.
  *
  * Bt setting autoCreate to "true", this method will attempt to create the file
  * with default permissions if the file does not already exists.
@@ -22,8 +22,7 @@ GREUtils.define('GREUtils.Dir');
  * @function
  * @param {String} aPath                This is the file path
  * @param {Boolean} autoCreate          This flag indicates whether to create the file if it does not exist; false by default
- * @return {nsILocalFile}               The file, or null if the file does not exist and is not/cannot be created
- * @type                                nsILocalFile
+ * @return {nsILocalFile}               The given file, or null if the file does not exist and is not/cannot be created
  */
 GREUtils.Dir.getFile = function(aPath){
     var autoCreate = arguments[1] || false;
@@ -61,7 +60,6 @@ GREUtils.Dir.getFile = function(aPath){
  * @function
  * @param {String} aPath                This is the file path
  * @return {nsILocalFile}               The file, or null if the file does not exist and is not/cannot be created
- * @type                                nsILocalFile
  */
 GREUtils.Dir.create = function(aPath){
 	return GREUtils.Dir.getFile(aPath, true);
@@ -71,18 +69,17 @@ GREUtils.Dir.create = function(aPath){
 /**
  * Removes a directory.
  *
- * If aRecursive is false, then the directory must be empty before it can be deleted.
+ * If "aRecursive" is false, then the directory must be empty before it can be deleted.
  *
  * @public
  * @static
  * @function
  * @param {String} aPath                This is the directory path
  * @param {Boolean} aRecursive          This flag indicates if directory is to be deleted if it is not empty
- * @return {Number}                     void  : directory is successfully removed
+ * @return {Number}                    void  : directory is successfully removed
  *                                      -1    : path does not exist
  *                                      -2    : aPath is not a directory
  *                                      -3    : delete fails
- * @type                                Int
  */
 GREUtils.Dir.remove = function(aPath, aRecursive){
 	var dir = GREUtils.Dir.getFile(aPath);
@@ -110,7 +107,6 @@ GREUtils.Dir.remove = function(aPath, aRecursive){
  * @param {String} aPath                This is the directory to test
  * @param {String} aFile                This is the full path of the file to test
  * @return {Boolean}                    Returns true if the file is a descendant of the directory, false otherwise
- * @type                                Boolean
  */
 GREUtils.Dir.contains = function(aPath, aFile){
 	var dir = GREUtils.Dir.getFile(aPath);
@@ -132,11 +128,11 @@ GREUtils.Dir.contains = function(aPath, aFile){
 
 
 /**
- * Reads directory entries.
+ * Reads directory entries recursively.
  *
  * This method returns the directory entries as an array. Each array
- * element can be a string representing a file path, or an array of representing
- * a sub-directory.
+ * element can be a string representing a file, or an array representing
+ * a sub-directory. Directory entries are read recursively.
  *
  * If the given path is not a directory an empty array is returned.
  *
@@ -145,7 +141,6 @@ GREUtils.Dir.contains = function(aPath, aFile){
  * @function
  * @param {String} aPath                This is the directory path
  * @return {Object}                     Returns the directory entries as an array of strings containing file paths
- * @type                                Object
  */
 GREUtils.Dir.readDir = function(aPath){
 

@@ -1,5 +1,5 @@
 /**
- * A set of utility functions for playing sounds.
+ * This is a set of utility functions for playing sounds through XPCOM.
  *
  * @public
  * @name GREUtils.Sound
@@ -9,13 +9,12 @@ GREUtils.define('GREUtils.Sound');
 
 
 /**
- * Returns the XPCOM service that implements the nsISound interface
+ * Returns the XPCOM service that implements the nsISound interface.
  *
  * @public
  * @static
  * @function
- * @return {Object}                       The nsISound service
- * @type                                  nsISound
+ * @return {nsISound}                     The nsISound service
  */
 GREUtils.Sound.getSoundService = function() {
     return GREUtils.XPCOM.getUsefulService("sound");
@@ -29,8 +28,6 @@ GREUtils.Sound.getSoundService = function() {
  * @static
  * @function
  * @param {String} sURL                   This is the URL pointing to the location of the sound file
- * @return
- * @type                                  void
  */
 GREUtils.Sound.play = function(sURL) {
     mURL = GREUtils.File.getURL(sURL);
@@ -46,8 +43,6 @@ GREUtils.Sound.play = function(sURL) {
  * @public
  * @static
  * @function
- * @return
- * @type                                  void
  */
 GREUtils.Sound.beep = function() {
     return GREUtils.Sound.getSoundService().beep();
@@ -55,14 +50,12 @@ GREUtils.Sound.beep = function() {
 
 
 /**
- * Plays a system sound.
+ * Plays the specified system sound.
  *
  * @public
  * @static
  * @function
- * @param {String} sURL                   This is the system sound identifier
- * @return
- * @type                                  void
+ * @param {String} sURL                   This is the system sound identifier.
  */
 GREUtils.Sound.playSystemSound = function(sURL) {
     mURL = GREUtils.File.getURL(sURL);

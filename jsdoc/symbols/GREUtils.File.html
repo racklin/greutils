@@ -195,8 +195,6 @@ ul.inheritsList
 	
 	<li><a href="../symbols/GREUtils.Charset.html">GREUtils.Charset</a></li>
 	
-	<li><a href="../symbols/GREUtils.ControllerAdapter.html">GREUtils.ControllerAdapter</a></li>
-	
 	<li><a href="../symbols/GREUtils.CryptoHash.html">GREUtils.CryptoHash</a></li>
 	
 	<li><a href="../symbols/GREUtils.Dialog.html">GREUtils.Dialog</a></li>
@@ -236,7 +234,7 @@ ul.inheritsList
 				
 			
 				GREUtils.File
-A set of convenience functions for manipulating files.
+This is a set of functions for common file operations.
 				
 				
 					<br /><i>Defined in: </i> <a href="../symbols/src/_home_rack_workspace_greutils_dist_GREUtils.js.html">GREUtils.js</a>.
@@ -260,7 +258,7 @@ A set of convenience functions for manipulating files.
 							<div class="fixedFont">
 								<b><a href="../symbols/GREUtils.File.html#constructor">GREUtils.File</a></b>
 							</div>
-							<div class="description">A set of convenience functions for manipulating files.</div>
+							<div class="description">This is a set of functions for common file operations.</div>
 						</td>
 					</tr>
 				</tbody>
@@ -360,7 +358,7 @@ that new file path.</div>
 						<tr>
 							<td class="attributes">&lt;static&gt; &nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont">GREUtils.File.<b><a href="../symbols/GREUtils.File.html#.getFile">getFile</a></b>(sFile, autoCreate)
+								<div class="fixedFont">GREUtils.File.<b><a href="../symbols/GREUtils.File.html#.getFile">getFile</a></b>(sFile, autoCreate, notCheckExists)
 								</div>
 								<div class="description">Returns a reference object to a local file location.</div>
 							</td>
@@ -416,7 +414,7 @@ that new file path.</div>
 							<td class="nameDescription">
 								<div class="fixedFont">GREUtils.File.<b><a href="../symbols/GREUtils.File.html#.isDir">isDir</a></b>(aPath)
 								</div>
-								<div class="description">Checks if a file path points to a regular file.</div>
+								<div class="description">Checks if a file path points to a directory.</div>
 							</td>
 						</tr>
 					
@@ -504,6 +502,15 @@ that new file path.</div>
 						<tr>
 							<td class="attributes">&lt;static&gt; &nbsp;</td>
 							<td class="nameDescription">
+								<div class="fixedFont">GREUtils.File.<b><a href="../symbols/GREUtils.File.html#.pathToURL">pathToURL</a></b>(aPath)
+								</div>
+								<div class="description">Resolves a File URL into a loadable URL using local file path.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
 								<div class="fixedFont">GREUtils.File.<b><a href="../symbols/GREUtils.File.html#.permissions">permissions</a></b>(aPath)
 								</div>
 								<div class="description">Returns the Unix style permission bits of a file or directory.</div>
@@ -558,6 +565,15 @@ that new file path.</div>
 						<tr>
 							<td class="attributes">&lt;static&gt; &nbsp;</td>
 							<td class="nameDescription">
+								<div class="fixedFont">GREUtils.File.<b><a href="../symbols/GREUtils.File.html#.urlToPath">urlToPath</a></b>(aUrl)
+								</div>
+								<div class="description">Resolves a URL into a file path using file path.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
 								<div class="fixedFont">GREUtils.File.<b><a href="../symbols/GREUtils.File.html#.writeAllBytes">writeAllBytes</a></b>(file, buf)
 								</div>
 								<div class="description">Writes a binary data to a file.</div>
@@ -592,7 +608,7 @@ that new file path.</div>
 				</div>
 				
 				<div class="description">
-					A set of convenience functions for manipulating files.
+					This is a set of functions for common file operations.
 					
 				</div>
 				
@@ -661,7 +677,7 @@ if the directory path given does not point to an actual directory.
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd><span class="light fixedFont">{String}</span> filePath      The new file path, empty String if error</dd>
+								<dd><span class="light fixedFont">{String}</span> filePath      The new file path, empty if error</dd>
 							
 							</dl>
 						
@@ -852,7 +868,7 @@ directory does not exist.
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd><span class="light fixedFont">{Date}</span> The modification date</dd>
+								<dd><span class="light fixedFont">{String}</span> The modification date</dd>
 							
 							</dl>
 						
@@ -864,7 +880,7 @@ directory does not exist.
 					<a name=".exec"> </a>
 					<div class="fixedFont">&lt;static&gt; 
 					
-					<span class="light">{void}</span>
+					
 					<span class="light">GREUtils.File.</span><b>exec</b>(nsFile, aArgs, blocking)
 					
 					</div>
@@ -907,13 +923,6 @@ parameter controls whether to block until the process terminates.
 						
 						
 						
-						
-							<dl class="detailList">
-							<dt class="heading">Returns:</dt>
-							
-								<dd></dd>
-							
-							</dl>
 						
 						
 						
@@ -998,7 +1007,7 @@ or if the file extension cannot be determined.
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd><span class="light fixedFont">{String}</span> filePath      The file extension, empty String if error.</dd>
+								<dd><span class="light fixedFont">{String}</span> The file extension, empty if error.</dd>
 							
 							</dl>
 						
@@ -1011,7 +1020,7 @@ or if the file extension cannot be determined.
 					<div class="fixedFont">&lt;static&gt; 
 					
 					<span class="light">{nsILocalFile}</span>
-					<span class="light">GREUtils.File.</span><b>getFile</b>(sFile, autoCreate)
+					<span class="light">GREUtils.File.</span><b>getFile</b>(sFile, autoCreate, notCheckExists)
 					
 					</div>
 					<div class="description">
@@ -1041,10 +1050,16 @@ null is returned.
 								<dd>This is the full path to the file</dd>
 							
 								<dt>
-									<span class="light fixedFont">{String}</span> <b>autoCreate</b>
+									<span class="light fixedFont">{Boolean}</span> <b>autoCreate</b>
 									
 								</dt>
 								<dd>This flag indicates whether the file should be created if it does not exist; defaults to false</dd>
+							
+								<dt>
+									<span class="light fixedFont">{Boolean}</span> <b>notCheckExists</b>
+									
+								</dt>
+								<dd>This flag indicates whether the file does not exist; defaults to false</dd>
 							
 							</dl>
 						
@@ -1055,7 +1070,7 @@ null is returned.
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd>The file location reference</dd>
+								<dd><span class="light fixedFont">{nsILocalFile}</span> The file location reference</dd>
 							
 							</dl>
 						
@@ -1121,7 +1136,7 @@ object instead.
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd>A file output stream</dd>
+								<dd><span class="light fixedFont">{nsIScritableInputStream|nsIBinaryInputStream}</span> A file output stream</dd>
 							
 							</dl>
 						
@@ -1171,7 +1186,7 @@ for reading.
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd>A file output stream</dd>
+								<dd><span class="light fixedFont">{nsIScritableInputStream|nsIBinaryInputStream}</span> A file output stream</dd>
 							
 							</dl>
 						
@@ -1243,7 +1258,7 @@ Returns null if the local file cannot be read or if it cannot be created.
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd>A file output stream</dd>
+								<dd><span class="light fixedFont">{nsIFileOutputStream|nsIBinaryOutputStream}</span> A file output stream</dd>
 							
 							</dl>
 						
@@ -1290,7 +1305,7 @@ an nsIFileURL. Otherwise an nsIURL is returned.
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd>An URL object</dd>
+								<dd><span class="light fixedFont">{nsIURL|nsIFileURL}</span> An URL object</dd>
 							
 							</dl>
 						
@@ -1337,7 +1352,7 @@ retrieved, an empty string is returned.
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd>The URL content as a String</dd>
+								<dd><span class="light fixedFont">{String}</span> The URL content as a String</dd>
 							
 							</dl>
 						
@@ -1354,7 +1369,7 @@ retrieved, an empty string is returned.
 					
 					</div>
 					<div class="description">
-						Checks if a file path points to a regular file.
+						Checks if a file path points to a directory.
 						
 						
 					</div>
@@ -1380,7 +1395,7 @@ retrieved, an empty string is returned.
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd><span class="light fixedFont">{Boolean}</span> "true" if the path is a file; "false" otherwise</dd>
+								<dd><span class="light fixedFont">{Boolean}</span> "true" if the path is a directory; "false" otherwise</dd>
 							
 							</dl>
 						
@@ -1412,7 +1427,7 @@ retrieved, an empty string is returned.
 									<span class="light fixedFont">{String}</span> <b>aPath</b>
 									
 								</dt>
-								<dd>This is the file</dd>
+								<dd>This is the file path</dd>
 							
 							</dl>
 						
@@ -1498,7 +1513,7 @@ retrieved, an empty string is returned.
 									<span class="light fixedFont">{String}</span> <b>aPath</b>
 									
 								</dt>
-								<dd>This is the file or directory</dd>
+								<dd>This is the file path</dd>
 							
 							</dl>
 						
@@ -1541,7 +1556,7 @@ retrieved, an empty string is returned.
 									<span class="light fixedFont">{String}</span> <b>aPath</b>
 									
 								</dt>
-								<dd>This is the file or directory</dd>
+								<dd>This is the file path</dd>
 							
 							</dl>
 						
@@ -1670,7 +1685,7 @@ retrieved, an empty string is returned.
 									<span class="light fixedFont">{String}</span> <b>aPath</b>
 									
 								</dt>
-								<dd>This is the file or directory</dd>
+								<dd>This is the file path</dd>
 							
 							</dl>
 						
@@ -1727,7 +1742,7 @@ component of the path prefix.
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd>The normalized file path</dd>
+								<dd><span class="light fixedFont">{String}</span> The normalized file path</dd>
 							
 							</dl>
 						
@@ -1775,7 +1790,52 @@ Returns an empty string if "aPath" does not exist.
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd><span class="light fixedFont">{String}</span> filePath      The parent path, empty String if error</dd>
+								<dd><span class="light fixedFont">{String}</span> filePath      The parent path, empty if error</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name=".pathToURL"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					<span class="light">{String}</span>
+					<span class="light">GREUtils.File.</span><b>pathToURL</b>(aPath)
+					
+					</div>
+					<div class="description">
+						Resolves a File URL into a loadable URL using local file path.
+Returns a string representation of the loadable URL if successful; otherwise null
+is returned.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{String}</span> <b>aPath</b>
+									
+								</dt>
+								<dd>This is the file path</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{String}</span> url            The URL</dd>
 							
 							</dl>
 						
@@ -1841,7 +1901,7 @@ file or directory does not exist.
 This method reads in the specified file as a binary stream containing untagged,
 big-endian binary data.
 
-This method returns the content of the file as a String.
+This method returns the content of the file as a binary String.
 						
 						
 					</div>
@@ -1867,7 +1927,7 @@ This method returns the content of the file as a String.
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd>The file content as a String</dd>
+								<dd><span class="light fixedFont">{String}</span> The file content as a binary String</dd>
 							
 							</dl>
 						
@@ -1917,7 +1977,7 @@ terminators stripped out.
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd>The file content as an array of lines</dd>
+								<dd><span class="light fixedFont">{Array of String}</span> The file content as an array of lines</dd>
 							
 							</dl>
 						
@@ -1975,7 +2035,7 @@ This method removes a file if it exists. Does not remove directories. Returns
 					<a name=".run"> </a>
 					<div class="fixedFont">&lt;static&gt; 
 					
-					<span class="light">{Int}</span>
+					<span class="light">{Number}</span>
 					<span class="light">GREUtils.File.</span><b>run</b>(nsFile, aArgs, blocking)
 					
 					</div>
@@ -2040,7 +2100,7 @@ value indicates an error condition:
 					<a name=".size"> </a>
 					<div class="fixedFont">&lt;static&gt; 
 					
-					<span class="light">{Int}</span>
+					<span class="light">{Number}</span>
 					<span class="light">GREUtils.File.</span><b>size</b>(aPath)
 					
 					</div>
@@ -2081,10 +2141,54 @@ file size cannot be determined.
 
 					<hr />
 				
+					<a name=".urlToPath"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					<span class="light">{String}</span>
+					<span class="light">GREUtils.File.</span><b>urlToPath</b>(aUrl)
+					
+					</div>
+					<div class="description">
+						Resolves a URL into a file path using file path.
+Returns null if resolution fails.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{String}</span> <b>aUrl</b>
+									
+								</dt>
+								<dd>This is the URL</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{String}</span> path          The file path</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
 					<a name=".writeAllBytes"> </a>
 					<div class="fixedFont">&lt;static&gt; 
 					
-					<span class="light">{void}</span>
+					
 					<span class="light">GREUtils.File.</span><b>writeAllBytes</b>(file, buf)
 					
 					</div>
@@ -2118,13 +2222,6 @@ file size cannot be determined.
 						
 						
 						
-							<dl class="detailList">
-							<dt class="heading">Returns:</dt>
-							
-								<dd></dd>
-							
-							</dl>
-						
 						
 						
 
@@ -2133,7 +2230,7 @@ file size cannot be determined.
 					<a name=".writeAllLine"> </a>
 					<div class="fixedFont">&lt;static&gt; 
 					
-					<span class="light">{void}</span>
+					
 					<span class="light">GREUtils.File.</span><b>writeAllLine</b>(file, lines)
 					
 					</div>
@@ -2170,13 +2267,6 @@ A newline character ('\n') is appended to each string before writing.
 						
 						
 						
-							<dl class="detailList">
-							<dt class="heading">Returns:</dt>
-							
-								<dd></dd>
-							
-							</dl>
-						
 						
 						
 
@@ -2190,7 +2280,7 @@ A newline character ('\n') is appended to each string before writing.
 <!-- ============================== footer ================================= -->
 		<div class="fineprint" style="clear:both">
 			
-			Documentation generated by <a href="http://www.jsdoctoolkit.org/" target="_blank">JsDoc Toolkit</a> 2.0.1 on Wed Sep 17 2008 09:30:30 GMT+0800 (CST)
+			Documentation generated by <a href="http://www.jsdoctoolkit.org/" target="_blank">JsDoc Toolkit</a> 2.0.1 on Thu Sep 25 2008 17:38:59 GMT+0800 (CST)
 		</div>
 	</body>
 </html>

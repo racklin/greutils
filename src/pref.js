@@ -1,5 +1,5 @@
 /**
- * A set of utility functions used to manipulate preference data.
+ * This is set of utility functions for manipulating preferences.
  *
  * @public
  * @name GREUtils.Pref
@@ -14,8 +14,7 @@ GREUtils.define('GREUtils.Pref');
  * @public
  * @static
  * @function
- * @return {Object} nsIPrefBranch2      The preference service
- * @type                                nsIPrefBranch2
+ * @return {nsIPrefBranch2}             The preference service
  */
 GREUtils.Pref.getPrefService = function () {
     return GREUtils.XPCOM.getService("@mozilla.org/preferences-service;1", "nsIPrefBranch2");
@@ -23,7 +22,7 @@ GREUtils.Pref.getPrefService = function () {
 
 
 /**
- * Returns preference value by key.
+ * Returns a preference value by key.
  *
  * This method will automatically detect the type of preference (string, int, boolean)
  * and return the preference value accordingly.
@@ -34,7 +33,6 @@ GREUtils.Pref.getPrefService = function () {
  * @param {String} prefName             This is the name of the preference
  * @param {Object} prefService          This is the preferences service to use; if null, the default preferences service will be used
  * @return {Object}                     The preference value
- * @type                                Object
  */
 GREUtils.Pref.getPref = function() {
     var prefName = arguments[0] ;
@@ -53,17 +51,15 @@ GREUtils.Pref.getPref = function() {
 /**
  * Sets the state of individual preferences
  *
- * This method will automatically detect the type of preference (string, int, boolean)
- * and set the preference value accordingly.
+ * This method will automatically detect the type of preference (string, number,
+ * boolean) and set the preference value accordingly.
  *
  * @public
  * @static
  * @function
  * @param {String} prefName             This is the name of the preference
- * @param {Object} prefValue            This is the value to which to set the preference
+ * @param {Object} prefValue            This is the preference value to set
  * @param {Object} prefService          This is the preferences service to use; if null, the default preferences service will be used
- * @return
- * @type                                void
  */
 
 GREUtils.Pref.setPref = function() {
