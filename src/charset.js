@@ -1,5 +1,5 @@
 /**
- * A set of utility functions for character set conversions.
+ * This is a set of utility functions for character set conversions.
  * 
  * @public
  * @name GREUtils.Charset
@@ -17,7 +17,7 @@ GREUtils.define('GREUtils.Charset');
  * @static
  * @function
  * @param {String} text         This is the string to convert to Unicode
- * @param {String} charset      This is the character set the string is encoded in. 
+ * @param {String} charset      This is the character set encoding of the string
  * @return {String}             The string encoded in Unicode if conversion succeeds; otherwise the original string is returned
  */
 GREUtils.Charset.convertToUnicode = function(text, charset) {
@@ -36,15 +36,16 @@ GREUtils.Charset.convertToUnicode = function(text, charset) {
 /**
  * Converts a Unicode string to the given character set encoding.
  *
- * This method takes a string encoded in Unicode, and returns the corresponding string encoded in "charset".
- * If "charset" is not given then the string will be converted to "UTF-8".
+ * This method takes a string encoded in Unicode, and returns the corresponding
+ * string encoded in the given character set encoding. If a character set
+ * encoding is not specified then the string will be converted to "UTF-8".
  *  
  * @public
  * @static
  * @function
  * @param {String} text         This is the Unicode string to convert
  * @param {String} charset      This is the character set encoding to convert to
- * @return {String}             The string encoded in "charset" if conversion succeeds; otherwise the original string is returned
+ * @return {String}             The string in the given encoding if conversion succeeds; otherwise the original string is returned
  */
 GREUtils.Charset.convertFromUnicode = function(text, charset) {
     try {
@@ -61,16 +62,16 @@ GREUtils.Charset.convertFromUnicode = function(text, charset) {
 /**
  * Converts a string from one character set encoding to another.
  * 
- * This method takes a string encoded in character set "in_charset"
- * and returns the corresponding string encoded in character set "out_charset".
+ * This method takes a string encoded in encoding "in_charset"
+ * and returns the corresponding string in encoding "out_charset".
  *
  * @public
  * @static
  * @function
  * @param {String} text         This is the string to convert
- * @param {String} in_charset   This is the character set used to encode the string
- * @param {String} out_charset  This is the character set encoding the string is to be converted to
- * @return {String}             A string encoded using the given character set "out_charset" if conversion succeeds; otherwise the original string is returned
+ * @param {String} in_charset   This is the character set encoding of the string
+ * @param {String} out_charset  This is the character set encoding to convert the string to
+ * @return {String}             A string encoded in "out_charset" if conversion succeeds; otherwise the original string is returned
  */
 GREUtils.Charset.convertCharset = function (text, in_charset, out_charset) {
     return this.convertFromUnicode(this.convertToUnicode(text, in_charset), out_charset);

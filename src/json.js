@@ -1,8 +1,8 @@
 /**
- * A set of utility functions to encode and decode JSON strings.
+ * This is a set of utility functions to encode and decode JSON strings.
  *
- *  XPCOM BASE Native JSON Services
- *  It is very faster then javascript implemention.
+ * The functions are based on XPCOM Native JSON Services and are much faster
+ * than JavaScript implemention.
  *
  * @public
  * @name GREUtils.JSON
@@ -21,8 +21,7 @@ GREUtils.JSON = {
  * @public
  * @static
  * @function
- * @return {Object}                       The nsIJSON service
- * @type                                  nsIJSON
+ * @return {nsIJSON}                       The nsIJSON service
  */
 GREUtils.JSON.getJSONService = function() {
 
@@ -41,14 +40,13 @@ GREUtils.JSON.getJSONService = function() {
 
 
 /**
- * Decodes a JSON string, returning the JavaScript object it represents.
+ * Decodes a JSON string and returns the JavaScript object it represents.
  *
  * @public
  * @static
  * @function
  * @param {String} aJSONString            This is the JSON string
  * @return {Object}                       The JavaScript object represented by the JSON string
- * @type                                  Object
  */
 GREUtils.JSON.decode = function(aJSONString) {
  	return GREUtils.JSON.getJSONService().decode(aJSONString);
@@ -62,8 +60,7 @@ GREUtils.JSON.decode = function(aJSONString) {
  * @static
  * @function
  * @param {Object} aJSObject              This is the JavaScript object to encode
- * @return {String} JSON string           The JSON representation of the JavaScript object
- * @type                                  Object
+ * @return {String}                       The JSON representation of the JavaScript object
  */
 GREUtils.JSON.encode = function(aJSObject) {
 	return GREUtils.JSON.getJSONService().encode(aJSObject);
@@ -71,15 +68,14 @@ GREUtils.JSON.encode = function(aJSObject) {
 
 
 /**
- * Decodes a JSON string read from an input stream, returning the JavaScript object it represents.
+ * Decodes a JSON string read from an input stream and returns the JavaScript object it represents.
  *
  * @public
  * @static
  * @function
  * @param {nsIInputStream} stream         This is the input stream from which to read the JSON string
- * @param {Number} contentLength          This is the length of the JSON string to read from the input stream
+ * @param {Integer} contentLength         This is the length of the JSON string to read from the input stream
  * @return {Object}                       The JavaScript object represented by the JSON string
- * @type                                  Object
  */
 GREUtils.JSON.decodeFromStream = function(stream, contentLength) {
 	return GREUtils.JSON.getJSONService().decodeFromStream(stream, contentLength);
@@ -87,7 +83,7 @@ GREUtils.JSON.decodeFromStream = function(stream, contentLength) {
 
 
 /**
- * Encodes a JavaScript object into JSON format, writing it to a stream.
+ * Encodes a JavaScript object into JSON format and writes it to a stream.
  *
  * If byte-order mark (BOM) is desired, set writeBOM to true; otherwise set writeBOM to false.
  *
@@ -98,8 +94,6 @@ GREUtils.JSON.decodeFromStream = function(stream, contentLength) {
  * @param {Object} value                  This is the JavaScript object to encode
  * @param {String} charset                This is the character set encoding to use on the JSON string; defaults to "UTF-8"
  * @param {Boolean} writeBOM              This flag indicates whether to write a byte-order mark (BOM) into the stream; defaults to "false"
- * @return
- * @type                                  void
  */
 GREUtils.JSON.encodeToStream = function(stream, value, charset, writeBOM) {
 	charset = charset || 'UTF-8';
@@ -110,7 +104,7 @@ GREUtils.JSON.encodeToStream = function(stream, value, charset, writeBOM) {
 
 
 /**
- * Decodes a JSON string read from a file, returning the JavaScript object it represents.
+ * Decodes a JSON string read from a file and returns the JavaScript object it represents.
  *
  * If the file cannot be read, null is returned.
  *
@@ -119,7 +113,6 @@ GREUtils.JSON.encodeToStream = function(stream, value, charset, writeBOM) {
  * @function
  * @param {String} filename               This is the file path from which to read the JSON string
  * @return {Object}                       The JavaScript object represented by the JSON string
- * @type                                  Object
  */
 GREUtils.JSON.decodeFromFile = function(filename) {
     var fileInputStream = GREUtils.File.getInputStream(filename, "rb");
@@ -137,7 +130,7 @@ GREUtils.JSON.decodeFromFile = function(filename) {
 
 
 /**
- * Encodes a JavaScript object into JSON format, writing it to a file.
+ * Encodes a JavaScript object into JSON format and writes it to a file.
  *
  * The JSON string will first be encoded in "UTF-8" before being written to the file.
  *
@@ -146,8 +139,6 @@ GREUtils.JSON.decodeFromFile = function(filename) {
  * @function
  * @param {nsIOutputStream} filename      This is the output file to which to write the JSON string
  * @param {Object} value                  This is the JavaScript object to encode
- * @return
- * @type                                  void
  */
 GREUtils.JSON.encodeToFile = function(filename, value) {
 

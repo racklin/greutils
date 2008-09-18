@@ -1,5 +1,6 @@
 /**
- * A set of utility functions to create various types of dialogs and specialize windows.
+ * This is a set of utility functions to render common types of dialogs and
+ * windows.
  *
  * @public
  * @name GREUtils.Dialog
@@ -255,7 +256,7 @@ GREUtils.Dialog.select = function(dialogTitle, dialogText, list, selected) {
  * Returns a ChromeWindow object representing the most recent window of the
  * type given by "windowName".
  *
- * If there are no windows open, null is returned.
+ * If there are no windows of the given type open, null is returned.
  *
  * @public
  * @static
@@ -271,7 +272,7 @@ GREUtils.Dialog.getMostRecentWindow = function(windowName) {
 /**
  * Returns all open windows of a given type in an array of ChromeWindow objects.
  *
- * Returns an empty array [] if there are no windows of the given type open.
+ * Returns an empty array if there are no windows of the given type open.
  *
  * @public
  * @static

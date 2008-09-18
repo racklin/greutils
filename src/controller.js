@@ -7,8 +7,10 @@
  * $Rev: 1 $
  */
 /**
- *  GREUtils - is simple and easy use APIs libraries for GRE (Gecko Runtime Environment).
  * Controller and CommandDispatcher Helper
+ *  
+ *@private
+ * 
  */
 GREUtils.ControllerHelper = GREUtils.extend({}, {
 
@@ -61,6 +63,8 @@ GREUtils.ControllerHelper = GREUtils.extend({}, {
  * @classDescription ControllerAdapter
  * @id ControllerAdapter
  * @alias GREUtils.ControllerAdapter
+ * 
+ * @private  
  */
 GREUtils.ControllerAdapter = GREUtils.extend({}, {
     _app: null,

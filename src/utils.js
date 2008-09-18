@@ -5,14 +5,16 @@ GREUtils._data = {};
 
 
 /**
- * Get Application Infomation.
+ * Returns the XPCOM service that implements the nsIXULAppInfo interface.
  *
- * see nsIXULAppInfo Interface.
+ * For more information, please see nsIXULAppInfo Interface.
  *
  * @public
  * @static
- * @function 
- * @return {Object}
+ *  
+ * @function
+ *   
+ * @return {Object}                   An nsIXULAppInfo service instance
  */
 GREUtils.getAppInfo = function () {
     return GREUtils.XPCOM.getUsefulService("app-info");
@@ -20,14 +22,16 @@ GREUtils.getAppInfo = function () {
 
 
 /**
- * Get Runtime Infomation.
+ * Returns the XPCOM service that implements the nsIXULRuntime interface.
  *
- * see nsIXULRuntime Interface.
+ * For more information, please see nsIXULRuntime Interface.
  *
  * @public
  * @static
- * @function 
- * @return {Object}
+ *  
+ * @function
+ *  
+ * @return {Object}                   An nsIXULRuntime service instance
  */
 GREUtils.getRuntimeInfo = function() {
     return GREUtils.XPCOM.getUsefulService("runtime-info");
@@ -35,14 +39,16 @@ GREUtils.getRuntimeInfo = function() {
 
 
 /**
- * Get OS Infomation.
+ * Returns the tag identifying the current operating system.
  *
- * see nsIXULRuntime Interface.
+ * For more information, please see nsIXULRuntime Interface.
  *
  * @public
  * @static
- * @function 
- * @return {Object}
+ *  
+ * @function
+ *  
+ * @return {String}                   A string tag identifying the current operating system
  */
 GREUtils.getOSInfo = function() {
     return GREUtils.getRuntimeInfo().OS;
@@ -51,12 +57,14 @@ GREUtils.getOSInfo = function() {
 
  
 /**
- * is Linux OS
+ * Checks if the current operating system is Linux-based.
  *
  * @public
  * @static
+ *  
  * @function 
- * @return {Boolean}
+ *  
+ * @return {Boolean}                  "true" if current operating system is Linux-based; "false" otherwise
  */
 GREUtils.isLinux = function(){
     return (GREUtils.getOSInfo().match(/Linux/,"i").length > 0);
@@ -64,12 +72,14 @@ GREUtils.isLinux = function(){
 
 
 /**
- * is Window OS
+ * Checks if the current operating system is Windows-based.
  *
  * @public
  * @static
+ *  
  * @function 
- * @return {Boolean}
+ *  
+ * @return {Boolean}                  "true" if current operating system is Windows-based; "false" otherwise
  */
 GREUtils.isWindow = function() {
     return (GREUtils.getOSInfo().match(/Win/,"i").length > 0);
@@ -77,12 +87,14 @@ GREUtils.isWindow = function() {
 
 
 /**
- * is Mac OS
+ * Checks if the current operating system is MacOS-based.
  *
  * @public
  * @static
+ *  
  * @function 
- * @return {Boolean}
+ *  
+ * @return {Boolean}                  "true" if current operating system is MacOS-based; "false" otherwise
  */
 GREUtils.isMac =function() {
     return (GREUtils.getOSInfo().match(/Mac|Darwin/,"i").length > 0);
@@ -90,15 +102,22 @@ GREUtils.isMac =function() {
 
 
 /**
- * Synchronously loads and executes the script from the specified URL.
+ * Synchronously loads and executes the script from the specified URL in a given
+ * scope.
+ * 
+ * The default scope is the GREUtils.global. 
  *
- * default scope is window.
- *
+ * If the script is executed successfully, this method returns the NS_OK result code;
+ * otherwise NS_ERROR_INVALID_ARG is returned.
+ * 
  * @public
  * @static
+ *  
  * @function 
- * @param {Object} scriptSrc
- * @param {Object} scope
+ * @param {String} scriptSrc          This is a URL specifying the location of the script
+ * @param {Object} scope              This is the scope in which to execute the script
+ * 
+ * @return {Object}                   a NSResult return code
  */
 GREUtils.include = function (scriptSrc, scope) {
 
@@ -122,17 +141,22 @@ GREUtils.include = function (scriptSrc, scope) {
 
 
 /**
- * Synchronously loads and executes the script from the specified URL.
+ * Synchronously loads and executes the script from the specified URL in a given
+ * scope. The default scope is the GREUtils.global. 
  *
- * Specified URL will loads and executes once.
- *
- * default scope is window.
+ * If the script is executed successfully, this method returns the NS_OK result code;
+ * otherwise NS_ERROR_INVALID_ARG is returned. Once thes cript has been successfully
+ * executed, this method will not execute the script again on subsequent calls; it will
+ * simply return NS_OK.   
  *
  * @public
  * @static
+ *  
  * @function 
- * @param {Object} scriptSrc
- * @param {Object} scope
+ * @param {String} scriptSrc          This is the URL specifying the location of the script
+ * @param {Object} scope              This is the the scope in which to execute the script
+ * 
+ * @return {Object}                   A NSResult return code  
  */
 GREUtils.include_once = function(scriptSrc, scope) {
 
@@ -152,15 +176,33 @@ GREUtils.include_once = function(scriptSrc, scope) {
 
 
 /**
- * This method was introduced in Firefox 3.
- * Is used for sharing code between different scopes easily.
+ * Loads a script from the specified URL into a specific scope. The URL must be
+ * either a file: or resource: URL pointing to a file on the disk. chrome: URLs
+ * are not valid. 
+ * 
+ * Note that the script is cached when loaded and subsequent imports do not reload
+ * a new version of the module, but instead use the previously cached version.
+ * This means that a given module will be shared when imported multiple times.
+ * Any modifications to data, objects or functions will be available in any scope
+ * that has imported the module. For example, if the simple module were imported
+ * into two different JavaScript scopes, changes in one scope can be observed in
+ * the other scope. This provides an efficient and simple means of sharing code
+ * between different scopes. 
+ *
+ * Default scope is the global object.
+ * 
+ * If the script is executed successfully, this method returns the NS_OK result code;
+ * otherwise NS_ERROR_INVALID_ARG is returned. Once thescript has been successfully
+ * executed, this method will not execute the script again on subsequent calls; it will
+ * simply return NS_OK.   
  *
  * @public
  * @static
- * @function 
  * @name GREUtils.import
- * @param {Object} url
- * @param {Object} scope
+ *  
+ * @function 
+ * @param {String} url                This is the URL of the script to be loaded; The URL must be either a file: or resource: URL, pointing to a file on the disk. In particular, chrome: URLs are not valid
+ * @param {Object} scope              This is the scope into which to import; defaults to the global object
  */
 GREUtils.import_ = function(url, scope) {
 
@@ -174,17 +216,21 @@ GREUtils.import_ = function(url, scope) {
 GREUtils['import'] = GREUtils.import_;
 
 /**
- * Convert XUL String to DOM Elements.
- *
- * XUL String namespace is http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul
- * You can specified your custom namespace.
- *
+ * Parses a string containing XUL code into an DOM object.
+ * 
+ * This method returns the document element from the DOM tree. In the case where
+ * the document element has a single child node, that child node is returned
+ * instead.
+ * 
+ * If parsing fails, null is returned.
+ *        
  * @public
  * @static
  * @function 
- * @param {String} xulString
- * @param {String} xmlns
- * @return {Object}
+ * @param {String} urlString      This is the string containing XUL
+ * @param {Object} xmlns          This is the XUL namespace; defaults to the standard XUL namespace
+ * 
+ * @return {Object}               An nsIDOMElement|nsIDOMNodeDOM object
  */
 GREUtils.domXULString = function (xulString, xmlns) {
 
@@ -210,17 +256,22 @@ GREUtils.domXULString = function (xulString, xmlns) {
 
 
 /**
- * Convert HTML String to DOM Elements.
- *
- * HTML String namespace is http://www.w3.org/1999/xhtml
- * You can specified your custom namespace.
- *
+ * Parses a string containing XHTML into an DOM object.
+ * 
+ * This method returns the document element from the DOM tree. In the case where
+ * the document element has a single child node, that child node is returned
+ * instead.
+ * 
+ * If parsing fails, null is returned.      
+ *  
  * @public
  * @static
+ *  
  * @function 
- * @param {String} htmlString
- * @param {String} xmlns
- * @return {Object}
+ * @param {String} urlString          This is the string containing XUL
+ * @param {Object} xmlns              This is the XUL namespace; defaults to the standard XHTML namespace
+ *  
+ * @return {Object}                   An nsIDOMElement|nsIDOMNode DOM object
  */
 GREUtils.domHTMLString = function (htmlString, xmlns) {
 
@@ -245,14 +296,18 @@ GREUtils.domHTMLString = function (htmlString, xmlns) {
 
 
 /**
- * Quit Application
+ * Exits the event loop, and shut down the application.
+ * 
+ * This method takes an optional mode parameter which modifies how the application
+ * is shutdown. For more details, please refer to the XPCOM nsIAppStartup interface. 
  *
- * see nsIAppStartup
+ * For more information, please see nsIAppStartup
  *
  * @public
  * @static
+ *  
  * @function 
- * @param {Number} mode
+ * @param {Int} mode                  This is the application shutdown mode; defaults to eAttemptQuit
  */
 GREUtils.quitApplication = function() {
     var mode = arguments[0] || Components.interfaces.nsIAppStartup.eAttemptQuit;
@@ -261,12 +316,16 @@ GREUtils.quitApplication = function() {
 
 
 /**
- * Restart Application
- *
- * see nsIAppStartup
+ * Restarts the application after quitting.
+ * 
+ * This method attempts to shut down and then restart the application. The application
+ * will be restarted with the same profile and an empty command line. 
+ * 
+ * For more information, please see nsIAppStartup
  *
  * @public
  * @static
+ *  
  * @function 
  */
 GREUtils.restartApplication = function() {
@@ -275,12 +334,15 @@ GREUtils.restartApplication = function() {
 
 
 /**
- * Ram Back  notifyObservers memory-pressure
- *
- * see memory-pressure
+ * Attempts to reclaim memory by shrinking the heap.
+ * 
+ * This memory notifies registered observers of the "memory-pressure" topic of a 
+ * "heap-minimize" condition. The pressure observers should subsequently schedule
+ * a memory flush. 
  *
  * @public
  * @static
+ *  
  * @function 
  */
 GREUtils.ramback = function() {
@@ -295,12 +357,13 @@ GREUtils.ramback = function() {
 
     
 /**
- * Use Console.logStringMessage(msg);
- *
+ * Logs a message to the JavaScript console.
+ * 
  * @public
  * @static
- * @function
- * @param {String} log message 
+ *  
+ * @function 
+ * @param {String} sMsg               This is the message to log. 
  */
 GREUtils.log = function (sMsg) {
     GREUtils.XPCOM.getUsefulService("consoleservice").logStringMessage(sMsg);
@@ -308,12 +371,14 @@ GREUtils.log = function (sMsg) {
 
 
 /**
- * UUID Generator -  use XPCOM base for fast uuid generate.
+ * Generates a globally unique ID.
  * 
  * @public
  * @static
- * @function
- * @return {String} uuid string 
+ *  
+ * @function 
+ *  
+ * @return {String}                   A globally unique ID
  */
 GREUtils.uuid  = function () {
 	var uuid = GREUtils.XPCOM.getService("@mozilla.org/uuid-generator;1","nsIUUIDGenerator").generateUUID().number;
@@ -323,14 +388,15 @@ GREUtils.uuid  = function () {
 
 
 /**
- * Get Idle Time - 
- * The amount of time in milliseconds that has passed since the last user activity.
- * Firefox3 and XULrunner 1.9 above only.
+ * Returns the amount of time in milliseconds that has passed since the last user
+ * activity (i.e. mouse clicks or key presses).
  * 
  * @public
  * @static
+ *  
  * @function 
- * @return {Number} idle time
+ *  
+ * @return {Integer}                  The user idle time
  */
 GREUtils.getIdleTime = function() {
     return GREUtils.XPCOM.getUsefulService("idleservice").idleTime;
@@ -338,19 +404,27 @@ GREUtils.getIdleTime = function() {
 
 
 /**
- * getIdleObserver Helper
+ * Constructs an idleObserver object.
  * 
- * call register for Register IdleObserver 
- * call unregister for Remove IdleObserver
+ * This method constructs an idle observer with the given function and idle time.
+ * The idle observer implements the nsIObserver interface, and is activated through
+ * the register() call. When registered, an idle notification will be generated and
+ * passed to the given function by the XPCOM nsIIdleService when the user has been
+ * idle for the given amount of time. When idle notifications are no longer needed,
+ * the idle observer can be deactivated by calling unregister(). 
  * 
+ * For details on the idle service, please refer to the XPCOM nsIIdleService interface.
+ *   
  * Firefox3 and XULrunner 1.9 above only.
  * 
  * @public
  * @static
+ *  
  * @function 
- * @param {Function} func
- * @param {Integer} time
- * @return {Object} idle Observer Object
+ * @param {Function} func             This is the function that is invoked when there is an idle notification
+ * @param {Int} time                  This is the idle time  
+ *  
+ * @return {Object}                   The idle observer object
  */
 GREUtils.getIdleObserver = function(func, time) {
 	
@@ -379,39 +453,44 @@ GREUtils.getIdleObserver = function(func, time) {
 
 
 /**
- * base-64 encode of a string
+ * Generates a base-64 encoding of a string.
  * 
  * @public
  * @static
+ *  
  * @function 
- * @param {String} str
- * @return {String} base64 string
+ * @param {String} str                This is the string to encode
+ *  
+ * @return {String}                   The base-64 encoded ASCII string
  */
 GREUtils.base64Encode = function(str){
 	return btoa(str);
 };
 
 /**
- * base-64 decode of a string
+ * Decodes a string of data which has been encoded using base-64 encoding.
  * 
  * @public
  * @static
- * @function 
- * @param {String} str
- * @return {String}
+ *  
+ * @param {String} str                This is the base-64 encoded string to decode
+ *  
+ * @return {String}                   The decoded string
  */
 GREUtils.base64Decode = function(str){
 	return atob(str);
 };
 
 /** 
- * Uppercase the first character of each word in a string
+ * Converts the first character of each word in a string to upper case.
  *
  * @public
  * @static
+ *  
  * @function 
- * @param {String} word
- * @return {String}
+ * @param {String} word               This is the string of words
+ *  
+ * @return {String}                   The string with first character of each word converted to upper case
  */
 GREUtils.ucwords = function(word) {
     return word.replace(/^(.)|\s(.)/g, function ( $1 ) { return $1.toUpperCase ( ); } );
@@ -419,13 +498,15 @@ GREUtils.ucwords = function(word) {
 
 
 /**
- * Make a string's first character uppercase
+ * Converts the first character of a string to upper case.
  *
  * @public
  * @static
+ *  
  * @function 
- * @param {String} word
- * @return {String}
+ * @param {String} word               This is the string
+ *  
+ * @return {String}                   The string with the first character converted to upper case
  */
 GREUtils.ucfirst = function(word) {
     var f = word.charAt(0).toUpperCase();

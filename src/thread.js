@@ -1,9 +1,8 @@
 /**
- * A set of utility functions that applications and extensions can easily use to
- * create and manage threads within the Gecko Runtime Environment.
+ * This is a set of utility functions that applications and extensions can
+ * use to easily create and manage threads within the Gecko Runtime Environment.
  *
  * Each thread is represented by an nsIThread object.
- * ONLY Work with Firefox 3 or XULRunner 1.9
  *
  * @public
  * @name GREUtils.Thread
@@ -31,8 +30,7 @@ GREUtils.Thread = {
  * @public
  * @static
  * @function
- * @return {Object}                     The nsIThreadManager service
- * @type                                nsIThreadManager
+ * @return {nsIThreadManager}           The nsIThreadManager service
  */
 GREUtils.Thread.getThreadManager = function(){
     return this._threadManager;
@@ -45,8 +43,7 @@ GREUtils.Thread.getThreadManager = function(){
  * @public
  * @static
  * @function
- * @return {Object}                     The main thread
- * @type                                nsIThread
+ * @return {nsIThread}                  The main thread
  */
 GREUtils.Thread.getMainThread = function(){
     if (this._mainThread == null) {
@@ -59,16 +56,6 @@ GREUtils.Thread.getMainThread = function(){
 };
 
 
-/**
- * dispatchMainThread
- *
- * @public
- * @static
- * @function
- * @return {Object} nsIThreadManager
- * @param {Object} aRunnable
- * @param {Object} aType
- */
 /**
  * Dispatches an event to the main thread.
  *
@@ -84,8 +71,6 @@ GREUtils.Thread.getMainThread = function(){
  * @function
  * @parameter {nsIRunnable} aRunnable   This is the event to dispatch to the main thread
  * @parameter {int} aType               This is the dispatch mode
- * @return {Object} nsIThreadManager
- * @type                                void
  */
 GREUtils.Thread.dispatchMainThread = function(aRunnable, aType) {
     var mainThread = GREUtils.Thread.getMainThread();
@@ -98,17 +83,6 @@ GREUtils.Thread.dispatchMainThread = function(aRunnable, aType) {
 };
 
 
-/**
- * dispatchWorkerThread
- *
- * @public
- * @static
- * @function
- * @return {Object} nsIThreadManager
- * @param {Object} workerThread
- * @param {Object} aRunnable
- * @param {Object} aType
- */
 /**
  * Dispatches an event to a worker thread.
  *
@@ -125,8 +99,6 @@ GREUtils.Thread.dispatchMainThread = function(aRunnable, aType) {
  * @parameter {nsIThread} workerThread  This is the Worker thread to which to dispatch the event
  * @parameter {nsIRunnable} aRunnable   This is the event to dispatch to the Worker thread
  * @parameter {int} aType               This is the dispatch mode
- * @return {Object} nsIThreadManager
- * @type                                void
  */
 GREUtils.Thread.dispatchWorkerThread = function(workerThread, aRunnable, aType) {
     var aType = aType || workerThread.DISPATCH_NORMAL;
@@ -145,8 +117,8 @@ GREUtils.Thread.dispatchWorkerThread = function(workerThread, aRunnable, aType) 
  * @public
  * @static
  * @function
- * @return {Object} nsIThread           The worker thread
- * @type                                nsIThread
+ * @return {nsIThread}            The worker thread
+ * @type                                
  */
 GREUtils.Thread.getWorkerThread = function(){
     // get presist work thread
@@ -168,8 +140,7 @@ GREUtils.Thread.getWorkerThread = function(){
  * @public
  * @static
  * @function
- * @return {Object} nsIThread           The new worker thread
- * @type                                nsIThread
+ * @return {nsIThread}                  The new worker thread
  */
 GREUtils.Thread.createWorkerThread = function(){
     // create new worker thread

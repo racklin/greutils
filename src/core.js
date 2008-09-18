@@ -1,6 +1,10 @@
 /**
- * GREUtils - A set of convenience packages and functions useful for developing applications for
- * the Gecko Runtime Environment (XULRunner / FireFox).
+ * GREUtils is a set of convenience packages and functions useful for developing
+ * applications for the Gecko Runtime Environment (XULRunner/FireFox).
+ * 
+ * GREUtils is built as a Javascript code module, so when it it loaded into
+ * different JavaScript scopes, any modifications to data, objects, or functions
+ * defined in GREUtils are visible to all the scopes.   
  * 
  * @public
  * @name GREUtils
@@ -16,16 +20,19 @@ GREUtils.global = (typeof window != 'undefined') ? window : this;
 /**
  * Extends an object by merging properties from other objects.
  * 
- * Properties in the target object (the object being extended) are overridden by
- * properties from the objects used for extending the target object.  
+ * Properties in the target object (the object being extended) will be overridden
+ * by properties of the same name from the objects used for extending the target
+ * object.  
  *
  * @public
  * @static
- * @function
+ *  
+ * @function 
  * @param {Object} target                     This is the object being extended
  * @param {Object} source                     This is the object used to extend the target
- * @param {Object} extras                     This object, if provided, is also used to extend the target
- * @return {Object}                           The original but modified object
+ * @param {Object} extras                     This object, if provided, is also used to extend the target object
+ *  
+ * @return {Object}                           The original, extended target object
  */
 GREUtils.extend = function () {
     // copy reference to target object
@@ -61,17 +68,18 @@ GREUtils.extend = function () {
 
 
 /**
- *  Extends any object or function with a getInstance() method to support the
+ *  Extends an object or a function with a getInstance() method to support the
  *  Singleton pattern. Invoking the getInstance() method on the extended
- *  target will always return the same instance of the target.
+ *  object will always return the same instance of the object.
  *  
  *  The intent of the Singleton pattern as defined in Design Patterns is to
- *  "ensure a class has only one instance, and provide a global point of access to it".
+ *  "ensure that a class has only one instance, and provide a global point of access to it".
  *
  * @public
  * @static
+ *  
  * @function
- * @param {Object|Function} target            This is the object or function to extend to support Singleton pattern
+ * @param {Object|Function} target            This is the object or function to extend as a Singleton
  */
 GREUtils.singleton = function(target) {
 	
@@ -95,14 +103,15 @@ GREUtils.singleton = function(target) {
  * Establishes an inheritance relationship between two classes.
  * 
  * The child class inherits methods and attributes from the parent class. After
- * inheritance has been established, instance of the child class can use
- * this._super to call parent methods.
+ * inheritance has been established, an instance of the child class can use
+ * this._super to invoke parent methods.
  * 
  * @public
  * @static
+ *  
  * @function
- * @param {Function} childFunc                This is the child class.
- * @param {Function} parentFunc               This is the parent class.
+ * @param {Function} childFunc                This is the child class
+ * @param {Function} parentFunc               This is the parent class
  */
 GREUtils.inherits = function(childFunc, parentFunc) {
 
@@ -129,13 +138,16 @@ GREUtils.inherits = function(childFunc, parentFunc) {
 
 
 /**
- * Creates a namespace, optionally associating a context with the namespace.
+ * Creates a namespace in a context. The namespace is also declared in the
+ * GREUtils global context, overriding any previously declared namespace of the
+ * same name.  
  * 
  * @public
  * @static
+ *  
  * @function
- * @param {Function} name                     This is the name of the namespace
- * @param {Function} context                  This is the namespace context; defaults to the global context
+ * @param {String} name                    This is the name of the namespace
+ * @param {Object} context                 This is the context in which to declare the namespace; defaults to the GREUtils global context
  */
 GREUtils.define = function(name, context) {
 
@@ -145,17 +157,23 @@ GREUtils.define = function(name, context) {
 
 
 /**
- * Using a namespace, optionally associating a context with the namespace.
+ * Declares in current scope's global context a namespace that has been declared
+ * in another scope. After this declaration, objects in the source namespace will
+ * become available in the current scope. 
  * 
+ * If the source namespace is not found in the specified context, an attempt will
+ * be made to locate it in the GREUtils global context.  
+ *      
  * @public
  * @static
+ *  
  * @function
- * @param {Function} name                     This is the name of the namespace
- * @param {Function} context                  This is the namespace context; defaults to the global context
+ * @param {String} name                     This is the name of the source namespace
+ * @param {Object} context                  This is the context in which the source namespace has been declared
  */
 GREUtils.using = function(name, context) {
 
-  GREUtils.createNamespace(name,  GREUtils.getObjectByNamespace(name), context);
+  GREUtils.createNamespace(name,  GREUtils.getObjectByNamespace(name, context));
 
 };
 
@@ -167,9 +185,10 @@ GREUtils.using = function(name, context) {
  * Used by GREUtils.namespace
  * 
  * @private
- * @function
  * @static
- * @param {string} name 			Name of the object that this file defines.
+ *   
+ * @function
+ * @param {string} name 			  Name of the object that this file defines.
  * @param {Object} object 			Object to expose at the end of the path.
  * @param {Object} context			Create Namespace in context.
  */
@@ -191,12 +210,17 @@ GREUtils.createNamespace = function(name, object, context) {
 };
 
 /**
- * Returns an object based on its fully qualified name (by GREUtils.createNamespace)
- *
- * @param {Object} name  The fully qualified name.
- * @param {Object} context
- * @return {Object?} The object or, if not found, null. 
- */
+ * Returns a namespace object based on its fully qualified name in the specified context.
+ *  
+ * @public
+ * @static
+ *   
+ * @function 
+ * @param {String}      name          The fully qualified name of the namespace.
+ * @param {Object}      context       The context in which the namespace was declared
+ * @ 
+ * @return {Object}                   The namespace object or, if not found, null.
+ * @type                              Object  */
 GREUtils.getObjectByNamespace = function(name, context){
 	
   var parts = name.split('.');
@@ -215,27 +239,31 @@ GREUtils.getObjectByNamespace = function(name, context){
 
 
 /**
- * Checks if the type is defined
+ * Checks if an object is defined
  * 
  * @public
  * @static
+ *  
  * @function
- * @param {String} type           			This is the value to check
- * @return {Boolean}            			"true" if parameter is defined; "false" otherwise
- */
+ * @param {Object} type               This is the object to check
+ *  
+ * @return {Boolean}                  "true" if the object is defined; "false" otherwise
+ * @type                              Boolean  */
 GREUtils.isDefined = function(type) {
     return typeof type != 'undefined';
 };
 
 
 /**
- * Checks if the type is function.
+ * Checks if an object is a function.
  * 
  * @public
  * @static
+ *  
  * @function
- * @param {Object|Function} type			This is the value to check
- * @return {Boolean}						"true" if the value is a function; "false" otherwise
+ * @param {Object} type               This is the object to check
+ *  
+ * @return {Boolean}                  "true" if the object is a function; "false" otherwise
  */
 GREUtils.isFunction = function(type) {
   return typeof type == "function";
@@ -243,13 +271,14 @@ GREUtils.isFunction = function(type) {
 
 
 /**
- * Checks if the value is null.
+ * Checks if an object is null.
  * 
  * @public
  * @static
+ *  
  * @function
- * @param {Object} type           This is the value to check
- * @return {Boolean}              "true" if the value is null; "false" otherwise
+ * @param {Object} type               This is the object to check
+ * @return {Boolean}                  "true" if the object is null; "false" otherwise
  */
 GREUtils.isNull = function(type) {
   return type === null;
@@ -257,13 +286,14 @@ GREUtils.isNull = function(type) {
 
 
 /**
- * Checks if the value is defined and not null.
+ * Checks if an object is defined and not null.
  * 
  * @public
  * @static
+ *  
  * @function
- * @param {Object} type			          This is the value to check
- * @return {Boolean}                      "true" if the value is defined and not null; "false" otherwise
+ * @param {Object} type			          This is the object to check
+ * @return {Boolean}                  "true" if the object is defined and not null; "false" otherwise
  */
 GREUtils.isDefineAndNotNull = function(type) {
   return GREUtils.isDefined(type) && !GREUtils.isNull(type);
@@ -271,26 +301,30 @@ GREUtils.isDefineAndNotNull = function(type) {
 
 
 /**
- * Checks if the value is an array.
+ * Checks if an object is an array.
  * 
  * @public
  * @static
+ *  
  * @function
- * @param {Object} type           This is the value to check
- * @return {Boolean}              "true" if the value is an array; "false" otherwise
+ * @param {Object} type               This is the object to check
+ *  
+ * @return {Boolean}                  "true" if the object is an array; "false" otherwise
  */
 GREUtils.isArray = function(type) {
   return typeof type == 'array';
 };
 
 /**
- * Checks if the value is a string.
+ * Checks if an object is a string.
  * 
  * @public
  * @static
+ *  
  * @function
- * @param {Object} type           This is the value to check
- * @return {Boolean}              "true" if the value is a string; "false" otherwise
+ * @param {Object} type               This is the object to check
+ *  
+ * @return {Boolean}                  "true" if the object is a string; "false" otherwise
  */
 GREUtils.isString = function(type) {
   return typeof type == 'string';
@@ -298,13 +332,15 @@ GREUtils.isString = function(type) {
 
 
 /**
- * Checks if the value is a boolean.
+ * Checks if an object is a boolean.
  * 
  * @public
  * @static
+ *  
  * @function
- * @param {Object} type           This is the value to check
- * @return {Boolean}              "true" if the value is a boolean; "false" otherwise
+ * @param {Object} type               This is the object to check
+ *  
+ * @return {Boolean}                  "true" if the object is a boolean; "false" otherwise
  */
 GREUtils.isBoolean = function(type) {
   return typeof type == 'boolean';
@@ -312,13 +348,15 @@ GREUtils.isBoolean = function(type) {
 
 
 /**
- * Checks if the value is a number.
+ * Checks if an object is a number.
  * 
  * @public
  * @static
+ *  
  * @function
- * @param {String} type           This is the value to check
- * @return {Boolean}              "true" if the value is a number; "false" otherwise
+ * @param {String} type               This is the object to check
+ *  
+ * @return {Boolean}                  "true" if the object is a number; "false" otherwise
  */
 GREUtils.isNumber = function(type) {
   return typeof type == 'number';
@@ -326,13 +364,15 @@ GREUtils.isNumber = function(type) {
 
 
 /**
- * Checks if the value is an object (including functions and arrays).
+ * Checks if the parameter is an object, a function, or an array.
  * 
  * @public
  * @static
+ *  
  * @function
- * @param {String} type           This is the value to check
- * @return {Boolean}              "true" if the value is an object; "false" otherwise
+ * @param {Object} type               This is the parameter to check
+ *  
+ * @return {Boolean}                  "true" if the parameter is an object, function, or array; "false" otherwise
  */
 GREUtils.isObject = function(type) {
   var type = typeof type;
@@ -340,14 +380,16 @@ GREUtils.isObject = function(type) {
 };
 
 /**
- * Gets the current time.
+ * Returns the current time.
  * 
  * This method returns the current time expressed as the number of milliseconds since
  * January 1, 1970, 00:00:00 UTC.
  * 
  * @public
  * @static
+ *  
  * @function
+ *  
  * @return {Number}                       The current time
  */
 GREUtils.now = Date.now || (function() {
