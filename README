@@ -1,0 +1,28 @@
+= GREUtils
+
+== Description
+
+A set of convenience packages and functions useful for developing applications for the Gecko Runtime Environment (XULRunner / FireFox).
+
+== Requirement
+
+XULRunner 1.9 or above
+
+== Contains
+
+    * Object extend function
+    * include / include_once specified URL script.
+    * XPCOM utilities
+    * Charset Convert
+    * Preferences Services
+    * File IO
+    * Dialog utilities
+    * Controller and CommandDispatcher Helper
+    * Cryphto Hash Utilities – md5 / sha1 /sha256
+    * JSON encode / decode use XPCOM implemented
+    * Threading – Native Multi-Threading support 
+
+== Author & License
+Author: Rack Lin (mailto: racklin@gmail.com)
+Licensed under the Apache License, Version 2.0: http://www.apache.org/licenses/LICENSE-2.0
+

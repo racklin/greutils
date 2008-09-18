@@ -1,0 +1,7 @@
+#!/bin/sh
+APPDIR=`dirname $0`
+OUT=`dirname $1`/../jsdoc
+if [ ! -d $OUT ]; then
+	mkdir $OUT
+fi;
+java -jar $APPDIR/jsrun.jar $APPDIR/app/run.js $1 -t=$APPDIR/templates/jsdoc -d=$OUT

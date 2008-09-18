@@ -1,0 +1,4 @@
+#!/bin/sh
+APPDIR=`dirname $0`
+
+java -jar $APPDIR/yuicompressor-2.3.5.jar --line-break 800 --preserve-semi $@
