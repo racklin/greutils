@@ -201,12 +201,17 @@ GREUtils.createNamespace = function(name, object, context) {
     if (!parts.length && GREUtils.isDefined(object)) {
       // last part and we have an object; use it
       cur[part] = object;
+      
+      // add to GREUtils jsm context
+      GREUtils.context[name] = object;
+
     } else if (cur[part]) {
       cur = cur[part];
     } else {
       cur = cur[part] = {};
     }
   }
+
 };
 
 /**
@@ -230,9 +235,15 @@ GREUtils.getObjectByNamespace = function(name, context){
     if (cur[part]) {
       cur = cur[part];
     } else {
-      return null;
+      cur = null;
     }
   }
+  
+  if (cur == null) {
+      // try to get from greutils.context
+      cur = GREUtils.context[name] || null;
+  }
+
   return cur;
 
 };
