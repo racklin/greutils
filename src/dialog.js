@@ -22,13 +22,13 @@ GREUtils.define('GREUtils.Dialog');
  */
 GREUtils.Dialog.openWindow =  function(aParent, aUrl, aName, aFeatures, aArguments) {
 
-	var parent = aParent || null;
-	var name = aName || "_blank";
-	var args = aArguments || null;
-	var features = aFeatures || "chrome,centerscreen";
+    var parent = aParent || null;
+    var name = aName || "_blank";
+    var args = aArguments || null;
+    var features = aFeatures || "chrome,centerscreen";
 
-	var ww = GREUtils.XPCOM.getUsefulService("window-watcher");
-	return ww.openWindow(null, aUrl, name, features, args);
+    var ww = GREUtils.XPCOM.getUsefulService("window-watcher");
+    return ww.openWindow(null, aUrl, name, features, args);
 
 };
 
@@ -52,21 +52,21 @@ GREUtils.Dialog.openWindow =  function(aParent, aUrl, aName, aFeatures, aArgumen
 GREUtils.Dialog.openDialog = function(aURL, aName, aArguments, posX, posY, width, height) {
 
     var features = "chrome,dialog,dependent=yes,resize=yes";
-	if (arguments.length <= 3 ) {
-		features += ",centerscreen";
-	}
-	else {
-		if (posX)
-			features += ",screenX=" + posX;
-		if (posY)
-			features += ",screenY=" + posY;
-		if (width)
-			features += ",width=" + width;
-		if (height)
-			features += ",height=" + height;
-	}
+    if (arguments.length <= 3 ) {
+        features += ",centerscreen";
+    }
+    else {
+        if (posX)
+            features += ",screenX=" + posX;
+        if (posY)
+            features += ",screenY=" + posY;
+        if (width)
+            features += ",width=" + width;
+        if (height)
+            features += ",height=" + height;
+    }
 
-	return GREUtils.Dialog.openWindow(null, aURL, aName, features, aArguments);
+    return GREUtils.Dialog.openWindow(null, aURL, aName, features, aArguments);
 
 };
 
@@ -90,17 +90,17 @@ GREUtils.Dialog.openDialog = function(aURL, aName, aArguments, posX, posY, width
 GREUtils.Dialog.openModalDialog = function(aURL, aName, aArguments, posX, posY, width, height) {
 
     var features = "chrome,dialog,dependent=no,modal,resize=yes";
-	if (arguments.length <= 3) {
-		features += ",centerscreen";
-	}
-	else {
-	    if(posX) features += ",screenX="+posX;
-	    if(posY) features += ",screenY="+posY;
-	    if(width) features += ",width="+width;
-	    if(height) features += ",height="+height;
-	}
+    if (arguments.length <= 3) {
+        features += ",centerscreen";
+    }
+    else {
+        if(posX) features += ",screenX="+posX;
+        if(posY) features += ",screenY="+posY;
+        if(width) features += ",width="+width;
+        if(height) features += ",height="+height;
+    }
 
-	return GREUtils.Dialog.openWindow(null, aURL, aName, features, aArguments);
+    return GREUtils.Dialog.openWindow(null, aURL, aName, features, aArguments);
 
 };
 
@@ -123,7 +123,7 @@ GREUtils.Dialog.openFullScreen = function (aURL, aName, aArguments) {
     features += ",screenX="+0;
     features += ",screenY="+0;
 
-	return GREUtils.Dialog.openWindow(null, aURL, aName, features, aArguments);
+    return GREUtils.Dialog.openWindow(null, aURL, aName, features, aArguments);
 };
 
 
@@ -137,7 +137,7 @@ GREUtils.Dialog.openFullScreen = function (aURL, aName, aArguments) {
  * @type                                            nsIFilePicker
  */
 GREUtils.Dialog.getFilePicker = function() {
-    return GREUtils.XPCOM.getService("@mozilla.org/filepicker;1", "nsIFilePicker");
+    return GREUtils.XPCOM.createInstance("@mozilla.org/filepicker;1", "nsIFilePicker");
 };
 
 /**
@@ -151,21 +151,35 @@ GREUtils.Dialog.getFilePicker = function() {
  * @static
  * @function
  * @param {String|nsILocalFile} sDir                This is the directory that the file open/save dialog initially displays
+ * @param {String} title
  * @return {String}                                         The path of the selected file, or null if no file is selected
  * @type                                            String
  */
-GREUtils.Dialog.openFilePicker = function(sDir){
-    var filePicker = this.getFilePicker();
-    if(sDir) {
-        if (typeof(sDir)=="object" && GREUtils.XPCOM.queryInterface(sDir, "nsIFile")) {
-            filePicker.displayDirectory = sDir;
+GREUtils.Dialog.openFilePicker = function(sDir, title){
+    
+    // Get filepicker component.
+    try {
+        const nsIFilePicker = Components.interfaces.nsIFilePicker;
+        var fp = this.getFilePicker();
+
+        fp.init(GREUtils.global, title, nsIFilePicker.modeOpen);
+        fp.appendFilters(nsIFilePicker.filterAll | nsIFilePicker.filterText | nsIFilePicker.filterImages |
+            nsIFilePicker.filterXML | nsIFilePicker.filterHTML);
+
+        if(sDir) {
+            if (typeof(sDir)=="object" && GREUtils.XPCOM.queryInterface(sDir, "nsIFile")) {
+                fp.displayDirectory = sDir;
+            }
+            if (typeof(sDir)=="string") {
+                fp.displayDirectory = GREUtils.File.getFile(sDir);
+            }
         }
-        if (typeof(sDir)=="string") {
-            filePicker.displayDirectory = GREUtils.File.getFile(sDir);
-        }
+
+        if (fp.show() == nsIFilePicker.returnOK) return fp.fileURL.spec;
+        else return null;
+
+    } catch (ex) {
     }
-    filePicker.show();
-    return (filePicker.file.path.length > 0 ? filePicker.file.path : null);
 };
 
 /**
@@ -266,7 +280,7 @@ GREUtils.Dialog.select = function(dialogTitle, dialogText, list, selected) {
  * @type                                            ChromeWindow
  */
 GREUtils.Dialog.getMostRecentWindow = function(windowName) {
-	return GREUtils.XPCOM.getUsefulService("window-mediator").getMostRecentWindow(windowName);
+    return GREUtils.XPCOM.getUsefulService("window-mediator").getMostRecentWindow(windowName);
 };
 
 /**
@@ -282,10 +296,10 @@ GREUtils.Dialog.getMostRecentWindow = function(windowName) {
  * @type                                            ChromeWindow[]
  */
 GREUtils.Dialog.getWindowArray = function(windowName) {
-	var enumerator = GREUtils.XPCOM.getUsefulService("window-mediator").getEnumerator(windowName);
-	var wins = [];
-	while(enumerator.hasMoreElements()) {
-	  wins.push(enumerator.getNext());
-	}
-	return wins;
+    var enumerator = GREUtils.XPCOM.getUsefulService("window-mediator").getEnumerator(windowName);
+    var wins = [];
+    while(enumerator.hasMoreElements()) {
+        wins.push(enumerator.getNext());
+    }
+    return wins;
 };

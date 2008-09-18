@@ -195,8 +195,6 @@ ul.inheritsList
 	
 	<li><a href="../symbols/GREUtils.Charset.html">GREUtils.Charset</a></li>
 	
-	<li><a href="../symbols/GREUtils.ControllerAdapter.html">GREUtils.ControllerAdapter</a></li>
-	
 	<li><a href="../symbols/GREUtils.CryptoHash.html">GREUtils.CryptoHash</a></li>
 	
 	<li><a href="../symbols/GREUtils.Dialog.html">GREUtils.Dialog</a></li>
@@ -236,10 +234,10 @@ ul.inheritsList
 				
 			
 				GREUtils.JSON
-A set of utility functions to encode and decode JSON strings.
+This is a set of utility functions to encode and decode JSON strings.
 
- XPCOM BASE Native JSON Services
- It is very faster then javascript implemention.
+The functions are based on XPCOM Native JSON Services and are much faster
+than JavaScript implemention.
 				
 				
 					<br /><i>Defined in: </i> <a href="../symbols/src/_home_rack_workspace_greutils_dist_GREUtils.js.html">GREUtils.js</a>.
@@ -263,7 +261,7 @@ A set of utility functions to encode and decode JSON strings.
 							<div class="fixedFont">
 								<b><a href="../symbols/GREUtils.JSON.html#constructor">GREUtils.JSON</a></b>
 							</div>
-							<div class="description">A set of utility functions to encode and decode JSON strings.</div>
+							<div class="description">This is a set of utility functions to encode and decode JSON strings.</div>
 						</td>
 					</tr>
 				</tbody>
@@ -292,7 +290,7 @@ A set of utility functions to encode and decode JSON strings.
 							<td class="nameDescription">
 								<div class="fixedFont">GREUtils.JSON.<b><a href="../symbols/GREUtils.JSON.html#.decode">decode</a></b>(aJSONString)
 								</div>
-								<div class="description">Decodes a JSON string, returning the JavaScript object it represents.</div>
+								<div class="description">Decodes a JSON string and returns the JavaScript object it represents.</div>
 							</td>
 						</tr>
 					
@@ -301,7 +299,7 @@ A set of utility functions to encode and decode JSON strings.
 							<td class="nameDescription">
 								<div class="fixedFont">GREUtils.JSON.<b><a href="../symbols/GREUtils.JSON.html#.decodeFromFile">decodeFromFile</a></b>(filename)
 								</div>
-								<div class="description">Decodes a JSON string read from a file, returning the JavaScript object it represents.</div>
+								<div class="description">Decodes a JSON string read from a file and returns the JavaScript object it represents.</div>
 							</td>
 						</tr>
 					
@@ -310,7 +308,7 @@ A set of utility functions to encode and decode JSON strings.
 							<td class="nameDescription">
 								<div class="fixedFont">GREUtils.JSON.<b><a href="../symbols/GREUtils.JSON.html#.decodeFromStream">decodeFromStream</a></b>(stream, contentLength)
 								</div>
-								<div class="description">Decodes a JSON string read from an input stream, returning the JavaScript object it represents.</div>
+								<div class="description">Decodes a JSON string read from an input stream and returns the JavaScript object it represents.</div>
 							</td>
 						</tr>
 					
@@ -328,7 +326,7 @@ A set of utility functions to encode and decode JSON strings.
 							<td class="nameDescription">
 								<div class="fixedFont">GREUtils.JSON.<b><a href="../symbols/GREUtils.JSON.html#.encodeToFile">encodeToFile</a></b>(filename, value)
 								</div>
-								<div class="description">Encodes a JavaScript object into JSON format, writing it to a file.</div>
+								<div class="description">Encodes a JavaScript object into JSON format and writes it to a file.</div>
 							</td>
 						</tr>
 					
@@ -337,7 +335,7 @@ A set of utility functions to encode and decode JSON strings.
 							<td class="nameDescription">
 								<div class="fixedFont">GREUtils.JSON.<b><a href="../symbols/GREUtils.JSON.html#.encodeToStream">encodeToStream</a></b>(stream, value, charset, writeBOM)
 								</div>
-								<div class="description">Encodes a JavaScript object into JSON format, writing it to a stream.</div>
+								<div class="description">Encodes a JavaScript object into JSON format and writes it to a stream.</div>
 							</td>
 						</tr>
 					
@@ -369,10 +367,10 @@ A set of utility functions to encode and decode JSON strings.
 				</div>
 				
 				<div class="description">
-					A set of utility functions to encode and decode JSON strings.
+					This is a set of utility functions to encode and decode JSON strings.
 
- XPCOM BASE Native JSON Services
- It is very faster then javascript implemention.
+The functions are based on XPCOM Native JSON Services and are much faster
+than JavaScript implemention.
 					
 				</div>
 				
@@ -407,7 +405,7 @@ A set of utility functions to encode and decode JSON strings.
 					
 					</div>
 					<div class="description">
-						Decodes a JSON string, returning the JavaScript object it represents.
+						Decodes a JSON string and returns the JavaScript object it represents.
 						
 						
 					</div>
@@ -450,7 +448,7 @@ A set of utility functions to encode and decode JSON strings.
 					
 					</div>
 					<div class="description">
-						Decodes a JSON string read from a file, returning the JavaScript object it represents.
+						Decodes a JSON string read from a file and returns the JavaScript object it represents.
 
 If the file cannot be read, null is returned.
 						
@@ -495,7 +493,7 @@ If the file cannot be read, null is returned.
 					
 					</div>
 					<div class="description">
-						Decodes a JSON string read from an input stream, returning the JavaScript object it represents.
+						Decodes a JSON string read from an input stream and returns the JavaScript object it represents.
 						
 						
 					</div>
@@ -513,7 +511,7 @@ If the file cannot be read, null is returned.
 								<dd>This is the input stream from which to read the JSON string</dd>
 							
 								<dt>
-									<span class="light fixedFont">{Number}</span> <b>contentLength</b>
+									<span class="light fixedFont">{Integer}</span> <b>contentLength</b>
 									
 								</dt>
 								<dd>This is the length of the JSON string to read from the input stream</dd>
@@ -539,7 +537,7 @@ If the file cannot be read, null is returned.
 					<a name=".encode"> </a>
 					<div class="fixedFont">&lt;static&gt; 
 					
-					<span class="light">{Object}</span>
+					<span class="light">{String}</span>
 					<span class="light">GREUtils.JSON.</span><b>encode</b>(aJSObject)
 					
 					</div>
@@ -570,7 +568,7 @@ If the file cannot be read, null is returned.
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd><span class="light fixedFont">{String}</span> JSON string           The JSON representation of the JavaScript object</dd>
+								<dd><span class="light fixedFont">{String}</span> The JSON representation of the JavaScript object</dd>
 							
 							</dl>
 						
@@ -582,12 +580,12 @@ If the file cannot be read, null is returned.
 					<a name=".encodeToFile"> </a>
 					<div class="fixedFont">&lt;static&gt; 
 					
-					<span class="light">{void}</span>
+					
 					<span class="light">GREUtils.JSON.</span><b>encodeToFile</b>(filename, value)
 					
 					</div>
 					<div class="description">
-						Encodes a JavaScript object into JSON format, writing it to a file.
+						Encodes a JavaScript object into JSON format and writes it to a file.
 
 The JSON string will first be encoded in "UTF-8" before being written to the file.
 						
@@ -618,13 +616,6 @@ The JSON string will first be encoded in "UTF-8" before being written to the fil
 						
 						
 						
-							<dl class="detailList">
-							<dt class="heading">Returns:</dt>
-							
-								<dd></dd>
-							
-							</dl>
-						
 						
 						
 
@@ -633,12 +624,12 @@ The JSON string will first be encoded in "UTF-8" before being written to the fil
 					<a name=".encodeToStream"> </a>
 					<div class="fixedFont">&lt;static&gt; 
 					
-					<span class="light">{void}</span>
+					
 					<span class="light">GREUtils.JSON.</span><b>encodeToStream</b>(stream, value, charset, writeBOM)
 					
 					</div>
 					<div class="description">
-						Encodes a JavaScript object into JSON format, writing it to a stream.
+						Encodes a JavaScript object into JSON format and writes it to a stream.
 
 If byte-order mark (BOM) is desired, set writeBOM to true; otherwise set writeBOM to false.
 						
@@ -681,13 +672,6 @@ If byte-order mark (BOM) is desired, set writeBOM to true; otherwise set writeBO
 						
 						
 						
-							<dl class="detailList">
-							<dt class="heading">Returns:</dt>
-							
-								<dd></dd>
-							
-							</dl>
-						
 						
 						
 
@@ -716,7 +700,7 @@ If byte-order mark (BOM) is desired, set writeBOM to true; otherwise set writeBO
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd><span class="light fixedFont">{Object}</span> The nsIJSON service</dd>
+								<dd><span class="light fixedFont">{nsIJSON}</span> The nsIJSON service</dd>
 							
 							</dl>
 						
@@ -733,7 +717,7 @@ If byte-order mark (BOM) is desired, set writeBOM to true; otherwise set writeBO
 <!-- ============================== footer ================================= -->
 		<div class="fineprint" style="clear:both">
 			
-			Documentation generated by <a href="http://www.jsdoctoolkit.org/" target="_blank">JsDoc Toolkit</a> 2.0.1 on Wed Sep 17 2008 09:30:30 GMT+0800 (CST)
+			Documentation generated by <a href="http://www.jsdoctoolkit.org/" target="_blank">JsDoc Toolkit</a> 2.0.1 on Thu Sep 18 2008 18:39:20 GMT+0800 (CST)
 		</div>
 	</body>
 </html>
