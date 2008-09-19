@@ -287,7 +287,7 @@ GREUtils.domHTMLString = function (htmlString, xmlns) {
  * @static
  *  
  * @function 
- * @param {Integer} mode              This is the application shutdown mode; defaults to eAttemptQuit
+ * @param {Number} mode               This is the application shutdown mode; defaults to eAttemptQuit
  */
 GREUtils.quitApplication = function() {
     var mode = arguments[0] || Components.interfaces.nsIAppStartup.eAttemptQuit;
@@ -369,7 +369,7 @@ GREUtils.uuid  = function () {
  * @public
  * @static
  * @function 
- * @return {Integer}                  The user idle time
+ * @return {Number}                   The user idle time
  */
 GREUtils.getIdleTime = function() {
     return GREUtils.XPCOM.getUsefulService("idleservice").idleTime;
@@ -394,7 +394,7 @@ GREUtils.getIdleTime = function() {
  * @static
  * @function 
  * @param {Function} func             This is the function that is invoked when there is an idle notification
- * @param {Integer} time              This is the idle time  
+ * @param {Number} time               This is the idle time  
  * @return {Object}                   The idle observer object
  */
 GREUtils.getIdleObserver = function(func, time) {

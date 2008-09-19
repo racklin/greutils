@@ -128,7 +128,7 @@ GREUtils.File.getURL = function(sURL){
  * @function
  * @param {Object} file           This is the file. It can be a string containing the file path or a file location reference
  * @param {String} mode           This is the mode flag
- * @param {Integer} perm          This is the permission with which to create the file (if needed)
+ * @param {Number} perm           This is the permission with which to create the file (if needed)
  * @return {nsIFileOutputStream|nsIBinaryOutputStream}                       A file output stream
  */
 GREUtils.File.getOutputStream = function(file, mode, perm){
@@ -181,7 +181,7 @@ GREUtils.File.getOutputStream = function(file, mode, perm){
  * @function
  * @param {Object} file           This is the file. It can be a string containing the file path or a file location reference
  * @param {String} mode           This is the mode flag
- * @param {Integer} perm          This is the permission with which to create the file (if needed); defaults to FILE_DEFAULT_PERMS
+ * @param {Number} perm           This is the permission with which to create the file (if needed); defaults to FILE_DEFAULT_PERMS
  * @return {nsIScritableInputStream|nsIBinaryInputStream}                   A file output stream
  */
 GREUtils.File.getInputStream = function(file, mode, perm){
@@ -400,7 +400,7 @@ GREUtils.File.writeAllBytes = function(file, buf){
  * @param {Object} nsFile         This is the executable file. It can be a string containing the file path or a file location reference
  * @param {String} aArgs          This is the array of arguments to pass to the executable
  * @param {Boolean} blocking      If "true", the method blocks until the process terminates; defaults to false
- * @return {Integer}              The process ID
+ * @return {Number}               The process ID
  */
 GREUtils.File.run = function(nsFile, aArgs, blocking){
     var nsIFile = (typeof(nsFile) == "string") ? this.getFile(nsFile) : nsFile;
@@ -746,7 +746,7 @@ GREUtils.File.dateModified = function(aPath){
  * @static
  * @function
  * @param {String} aPath          This is the file path
- * @return {Integer}              The file size
+ * @return {Number}               The file size
  */
 GREUtils.File.size = function(aPath){
 
