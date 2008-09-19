@@ -9,14 +9,14 @@ GREUtils.define('GREUtils.File');
 
 GREUtils.File = {
 
-	FILE_RDONLY:       0x01,
-	FILE_WRONLY:       0x02,
-	FILE_RDWR:         0x04,
-	FILE_CREATE_FILE:  0x08,
-	FILE_APPEND:       0x10,
-	FILE_TRUNCATE:     0x20,
-	FILE_SYNC:         0x40,
-	FILE_EXCL:         0x80,
+    FILE_RDONLY:       0x01,
+    FILE_WRONLY:       0x02,
+    FILE_RDWR:         0x04,
+    FILE_CREATE_FILE:  0x08,
+    FILE_APPEND:       0x10,
+    FILE_TRUNCATE:     0x20,
+    FILE_SYNC:         0x40,
+    FILE_EXCL:         0x80,
 
     FILE_READ_MODE: "r",
     FILE_WRITE_MODE: "w",
@@ -24,11 +24,11 @@ GREUtils.File = {
     FILE_BINARY_MODE: "b",
 
     NORMAL_FILE_TYPE: 0x00,
-	DIRECTORY_TYPE:   0x01,
+    DIRECTORY_TYPE:   0x01,
 
     FILE_CHUNK: 1024, // buffer for readline => set to 1k
     FILE_DEFAULT_PERMS: 0644,
-	DIR_DEFAULT_PERMS:  0755
+    DIR_DEFAULT_PERMS:  0755
 };
 
 
@@ -48,29 +48,31 @@ GREUtils.File = {
  * @function
  * @param {String} sFile          This is the full path to the file
  * @param {Boolean} autoCreate    This flag indicates whether the file should be created if it does not exist; defaults to false
+ * @param {Boolean} notCheckExists This flag indicates whether the file does not exist; defaults to false
  * @return {nsILocalFile}         The file location reference
  */
 GREUtils.File.getFile = function(sFile){
     var autoCreate = arguments[1] || false;
+    var notcheckExists = arguments[2] || false;
     if (/^file:/.test(sFile))
         sFile = sFile.replace("file://", "");
     var obj = GREUtils.XPCOM.createInstance('@mozilla.org/file/local;1', 'nsILocalFile');
     obj.initWithPath(sFile);
-    if (obj.exists())
+    if (obj.exists() || notcheckExists)
         return obj;
     else
-        if (autoCreate) {
-            try {
-                obj.create(GREUtils.File.NORMAL_FILE_TYPE, GREUtils.File.FILE_DEFAULT_PERMS);
-                return obj;
-            }
-            catch (ex) {
-                return null;
-            }
+    if (autoCreate) {
+        try {
+            obj.create(GREUtils.File.NORMAL_FILE_TYPE, GREUtils.File.FILE_DEFAULT_PERMS);
+            return obj;
         }
-        else {
+        catch (ex) {
             return null;
         }
+    }
+    else {
+        return null;
+    }
 };
 
 
@@ -311,25 +313,25 @@ GREUtils.File.readAllBytes = function(file){
  */
 GREUtils.File.getURLContents = function(aURL) {
 
-	var ioService=GREUtils.XPCOM.getService("@mozilla.org/network/io-service;1", "nsIIOService");
-	var scriptableStream=GREUtils.XPCOM.getService("@mozilla.org/scriptableinputstream;1", "nsIScriptableInputStream");
+    var ioService=GREUtils.XPCOM.getService("@mozilla.org/network/io-service;1", "nsIIOService");
+    var scriptableStream=GREUtils.XPCOM.getService("@mozilla.org/scriptableinputstream;1", "nsIScriptableInputStream");
 
-	var str = "";
-	try {
-      var channel=ioService.newChannel(aURL,null,null);
-      var input=channel.open();
-      scriptableStream.init(input);
+    var str = "";
+    try {
+        var channel=ioService.newChannel(aURL,null,null);
+        var input=channel.open();
+        scriptableStream.init(input);
 
-      while ((bytes = input.available()) > 0) {
-		str += scriptableStream.read(bytes);
-      }
-      scriptableStream.close();
-      input.close();
+        while ((bytes = input.available()) > 0) {
+            str += scriptableStream.read(bytes);
+        }
+        scriptableStream.close();
+        input.close();
 
-	}catch(e) {
+    }catch(e) {
 
-	}
-	return str;
+    }
+    return str;
 };
 
 /**
@@ -423,7 +425,7 @@ GREUtils.File.run = function(nsFile, aArgs, blocking){
         rv = process.run(blocking, aArgs, len);
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.run: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.run: '+e.message);
         rv = -3
     }
     return rv;
@@ -472,7 +474,7 @@ GREUtils.File.chromeToURL = function(chromePath){
         }
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.chromeToURL: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.chromeToURL: '+e.message);
         rv = null;
     }
     return rv;
@@ -506,7 +508,7 @@ GREUtils.File.chromeToPath = function(chromePath){
 
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.chromeToPath: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.chromeToPath: '+e.message);
         rv = null;
     }
     return rv;
@@ -532,7 +534,7 @@ GREUtils.File.exists = function(aFile){
         rv = GREUtils.File.getFile(aFile).exists();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.exists: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.exists: '+e.message);
         rv = false;
     }
 
@@ -570,7 +572,7 @@ GREUtils.File.remove = function(aFile){
 
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.remove: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.remove: '+e.message);
         rv = false;
     }
 
@@ -607,7 +609,7 @@ GREUtils.File.copy = function(aSource, aDest){
     var rv;
     try {
         var fileInst = GREUtils.File.getFile(aSource);
-        var dir = GREUtils.File.getFile(aDest);
+        var dir = GREUtils.File.getFile(aDest, false, true);
         var copyName = fileInst.leafName;
 
         if (fileInst.isDirectory())
@@ -631,14 +633,14 @@ GREUtils.File.copy = function(aSource, aDest){
         rv = true;
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.copy: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.copy: '+e.message);
         return false;
     }
 
     return rv;
 };
 
- /**
+/**
  * Creates a new file path by appending a file name to a directory path and returns
  * that new file path.  Returns an empty string if the directory does not exist or
  * if the directory path given does not point to an actual directory.
@@ -669,7 +671,7 @@ GREUtils.File.append = function(aDirPath, aFileName){
         delete fileInst;
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.append: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.append: '+e.message);
         return "";
     }
 
@@ -700,7 +702,7 @@ GREUtils.File.permissions = function(aPath){
         rv = (GREUtils.File.getFile(aPath)).permissions.toString(8);
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.permissions: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.permissions: '+e.message);
         rv = 0;
     }
 
@@ -729,7 +731,7 @@ GREUtils.File.dateModified = function(aPath){
         rv = new Date((GREUtils.File.getFile(aPath)).lastModifiedTime).toLocaleString();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.dateModified: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.dateModified: '+e.message);
         rv = null;
     }
 
@@ -759,7 +761,7 @@ GREUtils.File.size = function(aPath){
         rv = (GREUtils.File.getFile(aPath)).fileSize;
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.size: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.size: '+e.message);
         rv = -1;
     }
 
@@ -791,7 +793,7 @@ GREUtils.File.ext = function(aPath){
         rv = (dotIndex >= 0) ? leafName.substring(dotIndex + 1) : "";
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.ext: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.ext: '+e.message);
         return ""
     }
 
@@ -827,14 +829,14 @@ GREUtils.File.parent = function(aPath){
             rv = fileInst.parent.path;
 
         else
-            if (fileInst.isDirectory())
-                rv = fileInst.path;
+        if (fileInst.isDirectory())
+            rv = fileInst.path;
 
-            else
-                rv = "";
+        else
+            rv = "";
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.parent: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.parent: '+e.message);
         rv = "";
     }
 
@@ -853,13 +855,13 @@ GREUtils.File.parent = function(aPath){
  */
 GREUtils.File.isDir = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isDirectory();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isDirectory();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isDir: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isDir: '+e.message);
         rv = false;
     }
     return rv;
@@ -876,13 +878,13 @@ GREUtils.File.isDir = function(aPath){
  */
 GREUtils.File.isFile = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isFile();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isFile();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isFile: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isFile: '+e.message);
         rv = false;
     }
     return rv;
@@ -899,13 +901,13 @@ GREUtils.File.isFile = function(aPath){
  */
 GREUtils.File.isExecutable = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isExecutable();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isExecutable();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isExecutable: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isExecutable: '+e.message);
         rv = false;
     }
     return rv;
@@ -924,13 +926,13 @@ GREUtils.File.isExecutable = function(aPath){
  */
 GREUtils.File.isSymlink = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isSymlink();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isSymlink();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isSymlink: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isSymlink: '+e.message);
         rv = false;
     }
     return rv;
@@ -948,13 +950,13 @@ GREUtils.File.isSymlink = function(aPath){
  */
 GREUtils.File.isWritable = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isWritable();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isWritable();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isWritable: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isWritable: '+e.message);
         rv = false;
     }
     return rv;
@@ -971,13 +973,13 @@ GREUtils.File.isWritable = function(aPath){
  */
 GREUtils.File.isHidden = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isHidden();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isHidden();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isHidden: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isHidden: '+e.message);
         rv = false;
     }
     return rv;
@@ -996,13 +998,13 @@ GREUtils.File.isHidden = function(aPath){
  */
 GREUtils.File.isReadable = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isReadable();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isReadable();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isReadable: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isReadable: '+e.message);
         rv = false;
     }
     return rv;
@@ -1021,13 +1023,13 @@ GREUtils.File.isReadable = function(aPath){
  */
 GREUtils.File.isSpecial = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isSpecial();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isSpecial();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isSpecial: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isSpecial: '+e.message);
         rv = false;
     }
     return rv;
@@ -1048,13 +1050,13 @@ GREUtils.File.isSpecial = function(aPath){
  */
 GREUtils.File.normalize = function(aPath){
 
-	var rv;
+    var rv;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.normalize();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.normalize();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.normalize: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.normalize: '+e.message);
         rv = -1;
     }
     return rv;

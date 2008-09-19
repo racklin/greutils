@@ -36,12 +36,10 @@ GREUtils.global = (typeof window != 'undefined') ? window : this;
  *
  * @public
  * @static
- *  
  * @function 
  * @param {Object} target                     This is the object being extended
  * @param {Object} source                     This is the object used to extend the target
  * @param {Object} extras                     This object, if provided, is also used to extend the target object
- *  
  * @return {Object}                           The original, extended target object
  */
 GREUtils.extend = function () {
@@ -87,7 +85,6 @@ GREUtils.extend = function () {
  *
  * @public
  * @static
- *  
  * @function
  * @param {Object|Function} target            This is the object or function to extend as a Singleton
  */
@@ -118,7 +115,6 @@ GREUtils.singleton = function(target) {
  * 
  * @public
  * @static
- *  
  * @function
  * @param {Function} childFunc                This is the child class
  * @param {Function} parentFunc               This is the parent class
@@ -154,7 +150,6 @@ GREUtils.inherits = function(childFunc, parentFunc) {
  * 
  * @public
  * @static
- *  
  * @function
  * @param {String} name                    This is the name of the namespace
  * @param {Object} context                 This is the context in which to declare the namespace; defaults to the GREUtils global context
@@ -176,7 +171,6 @@ GREUtils.define = function(name, context) {
  *      
  * @public
  * @static
- *  
  * @function
  * @param {String} name                     This is the name of the source namespace
  * @param {Object} context                  This is the context in which the source namespace has been declared
@@ -196,7 +190,6 @@ GREUtils.using = function(name, context) {
  * 
  * @private
  * @static
- *   
  * @function
  * @param {string} name 			  Name of the object that this file defines.
  * @param {Object} object 			Object to expose at the end of the path.
@@ -228,14 +221,12 @@ GREUtils.createNamespace = function(name, object, context) {
  * Returns a namespace object based on its fully qualified name in the specified context.
  *  
  * @public
- * @static
- *   
+ * @static  
  * @function 
  * @param {String}      name          The fully qualified name of the namespace.
  * @param {Object}      context       The context in which the namespace was declared
- * @ 
  * @return {Object}                   The namespace object or, if not found, null.
- * @type                              Object  */
+ */
 GREUtils.getObjectByNamespace = function(name, context){
 	
   var parts = name.split('.');
@@ -264,12 +255,10 @@ GREUtils.getObjectByNamespace = function(name, context){
  * 
  * @public
  * @static
- *  
  * @function
  * @param {Object} type               This is the object to check
- *  
  * @return {Boolean}                  "true" if the object is defined; "false" otherwise
- * @type                              Boolean  */
+ */
 GREUtils.isDefined = function(type) {
     return typeof type != 'undefined';
 };
@@ -280,10 +269,8 @@ GREUtils.isDefined = function(type) {
  * 
  * @public
  * @static
- *  
  * @function
  * @param {Object} type               This is the object to check
- *  
  * @return {Boolean}                  "true" if the object is a function; "false" otherwise
  */
 GREUtils.isFunction = function(type) {
@@ -296,7 +283,6 @@ GREUtils.isFunction = function(type) {
  * 
  * @public
  * @static
- *  
  * @function
  * @param {Object} type               This is the object to check
  * @return {Boolean}                  "true" if the object is null; "false" otherwise
@@ -311,7 +297,6 @@ GREUtils.isNull = function(type) {
  * 
  * @public
  * @static
- *  
  * @function
  * @param {Object} type			          This is the object to check
  * @return {Boolean}                  "true" if the object is defined and not null; "false" otherwise
@@ -326,10 +311,8 @@ GREUtils.isDefineAndNotNull = function(type) {
  * 
  * @public
  * @static
- *  
  * @function
  * @param {Object} type               This is the object to check
- *  
  * @return {Boolean}                  "true" if the object is an array; "false" otherwise
  */
 GREUtils.isArray = function(type) {
@@ -341,10 +324,8 @@ GREUtils.isArray = function(type) {
  * 
  * @public
  * @static
- *  
  * @function
  * @param {Object} type               This is the object to check
- *  
  * @return {Boolean}                  "true" if the object is a string; "false" otherwise
  */
 GREUtils.isString = function(type) {
@@ -357,10 +338,8 @@ GREUtils.isString = function(type) {
  * 
  * @public
  * @static
- *  
  * @function
  * @param {Object} type               This is the object to check
- *  
  * @return {Boolean}                  "true" if the object is a boolean; "false" otherwise
  */
 GREUtils.isBoolean = function(type) {
@@ -373,10 +352,8 @@ GREUtils.isBoolean = function(type) {
  * 
  * @public
  * @static
- *  
  * @function
  * @param {String} type               This is the object to check
- *  
  * @return {Boolean}                  "true" if the object is a number; "false" otherwise
  */
 GREUtils.isNumber = function(type) {
@@ -389,10 +366,8 @@ GREUtils.isNumber = function(type) {
  * 
  * @public
  * @static
- *  
  * @function
  * @param {Object} type               This is the parameter to check
- *  
  * @return {Boolean}                  "true" if the parameter is an object, function, or array; "false" otherwise
  */
 GREUtils.isObject = function(type) {
@@ -408,9 +383,7 @@ GREUtils.isObject = function(type) {
  * 
  * @public
  * @static
- *  
  * @function
- *  
  * @return {Number}                       The current time
  */
 GREUtils.now = Date.now || (function() {
@@ -737,9 +710,7 @@ GREUtils._data = {};
  *
  * @public
  * @static
- *  
  * @function
- *   
  * @return {Object}                   An nsIXULAppInfo service instance
  */
 GREUtils.getAppInfo = function () {
@@ -754,9 +725,7 @@ GREUtils.getAppInfo = function () {
  *
  * @public
  * @static
- *  
  * @function
- *  
  * @return {Object}                   An nsIXULRuntime service instance
  */
 GREUtils.getRuntimeInfo = function() {
@@ -771,9 +740,7 @@ GREUtils.getRuntimeInfo = function() {
  *
  * @public
  * @static
- *  
  * @function
- *  
  * @return {String}                   A string tag identifying the current operating system
  */
 GREUtils.getOSInfo = function() {
@@ -787,9 +754,7 @@ GREUtils.getOSInfo = function() {
  *
  * @public
  * @static
- *  
  * @function 
- *  
  * @return {Boolean}                  "true" if current operating system is Linux-based; "false" otherwise
  */
 GREUtils.isLinux = function(){
@@ -802,9 +767,7 @@ GREUtils.isLinux = function(){
  *
  * @public
  * @static
- *  
  * @function 
- *  
  * @return {Boolean}                  "true" if current operating system is Windows-based; "false" otherwise
  */
 GREUtils.isWindow = function() {
@@ -817,9 +780,7 @@ GREUtils.isWindow = function() {
  *
  * @public
  * @static
- *  
  * @function 
- *  
  * @return {Boolean}                  "true" if current operating system is MacOS-based; "false" otherwise
  */
 GREUtils.isMac =function() {
@@ -838,11 +799,9 @@ GREUtils.isMac =function() {
  * 
  * @public
  * @static
- *  
  * @function 
  * @param {String} scriptSrc          This is a URL specifying the location of the script
  * @param {Object} scope              This is the scope in which to execute the script
- * 
  * @return {Object}                   a NSResult return code
  */
 GREUtils.include = function (scriptSrc, scope) {
@@ -877,12 +836,10 @@ GREUtils.include = function (scriptSrc, scope) {
  *
  * @public
  * @static
- *  
  * @function 
  * @param {String} scriptSrc          This is the URL specifying the location of the script
  * @param {Object} scope              This is the the scope in which to execute the script
- * 
- * @return {Object}                   A NSResult return code  
+ * @return {Object}                   An NSResult return code  
  */
 GREUtils.include_once = function(scriptSrc, scope) {
 
@@ -925,7 +882,6 @@ GREUtils.include_once = function(scriptSrc, scope) {
  * @public
  * @static
  * @name GREUtils.import
- *  
  * @function 
  * @param {String} url                This is the URL of the script to be loaded; The URL must be either a file: or resource: URL, pointing to a file on the disk. In particular, chrome: URLs are not valid
  * @param {Object} scope              This is the scope into which to import; defaults to the global object
@@ -955,7 +911,6 @@ GREUtils['import'] = GREUtils.import_;
  * @function 
  * @param {String} urlString      This is the string containing XUL
  * @param {Object} xmlns          This is the XUL namespace; defaults to the standard XUL namespace
- * 
  * @return {Object}               An nsIDOMElement|nsIDOMNodeDOM object
  */
 GREUtils.domXULString = function (xulString, xmlns) {
@@ -992,11 +947,9 @@ GREUtils.domXULString = function (xulString, xmlns) {
  *  
  * @public
  * @static
- *  
  * @function 
  * @param {String} urlString          This is the string containing XUL
  * @param {Object} xmlns              This is the XUL namespace; defaults to the standard XHTML namespace
- *  
  * @return {Object}                   An nsIDOMElement|nsIDOMNode DOM object
  */
 GREUtils.domHTMLString = function (htmlString, xmlns) {
@@ -1033,7 +986,7 @@ GREUtils.domHTMLString = function (htmlString, xmlns) {
  * @static
  *  
  * @function 
- * @param {Int} mode                  This is the application shutdown mode; defaults to eAttemptQuit
+ * @param {Integer} mode              This is the application shutdown mode; defaults to eAttemptQuit
  */
 GREUtils.quitApplication = function() {
     var mode = arguments[0] || Components.interfaces.nsIAppStartup.eAttemptQuit;
@@ -1051,7 +1004,6 @@ GREUtils.quitApplication = function() {
  *
  * @public
  * @static
- *  
  * @function 
  */
 GREUtils.restartApplication = function() {
@@ -1068,7 +1020,6 @@ GREUtils.restartApplication = function() {
  *
  * @public
  * @static
- *  
  * @function 
  */
 GREUtils.ramback = function() {
@@ -1087,7 +1038,6 @@ GREUtils.ramback = function() {
  * 
  * @public
  * @static
- *  
  * @function 
  * @param {String} sMsg               This is the message to log. 
  */
@@ -1101,9 +1051,7 @@ GREUtils.log = function (sMsg) {
  * 
  * @public
  * @static
- *  
  * @function 
- *  
  * @return {String}                   A globally unique ID
  */
 GREUtils.uuid  = function () {
@@ -1119,9 +1067,7 @@ GREUtils.uuid  = function () {
  * 
  * @public
  * @static
- *  
  * @function 
- *  
  * @return {Integer}                  The user idle time
  */
 GREUtils.getIdleTime = function() {
@@ -1145,11 +1091,9 @@ GREUtils.getIdleTime = function() {
  * 
  * @public
  * @static
- *  
  * @function 
  * @param {Function} func             This is the function that is invoked when there is an idle notification
- * @param {Int} time                  This is the idle time  
- *  
+ * @param {Integer} time              This is the idle time  
  * @return {Object}                   The idle observer object
  */
 GREUtils.getIdleObserver = function(func, time) {
@@ -1183,10 +1127,8 @@ GREUtils.getIdleObserver = function(func, time) {
  * 
  * @public
  * @static
- *  
  * @function 
  * @param {String} str                This is the string to encode
- *  
  * @return {String}                   The base-64 encoded ASCII string
  */
 GREUtils.base64Encode = function(str){
@@ -1198,9 +1140,7 @@ GREUtils.base64Encode = function(str){
  * 
  * @public
  * @static
- *  
  * @param {String} str                This is the base-64 encoded string to decode
- *  
  * @return {String}                   The decoded string
  */
 GREUtils.base64Decode = function(str){
@@ -1212,10 +1152,8 @@ GREUtils.base64Decode = function(str){
  *
  * @public
  * @static
- *  
  * @function 
  * @param {String} word               This is the string of words
- *  
  * @return {String}                   The string with first character of each word converted to upper case
  */
 GREUtils.ucwords = function(word) {
@@ -1228,10 +1166,8 @@ GREUtils.ucwords = function(word) {
  *
  * @public
  * @static
- *  
  * @function 
  * @param {String} word               This is the string
- *  
  * @return {String}                   The string with the first character converted to upper case
  */
 GREUtils.ucfirst = function(word) {
@@ -1249,14 +1185,14 @@ GREUtils.define('GREUtils.File');
 
 GREUtils.File = {
 
-	FILE_RDONLY:       0x01,
-	FILE_WRONLY:       0x02,
-	FILE_RDWR:         0x04,
-	FILE_CREATE_FILE:  0x08,
-	FILE_APPEND:       0x10,
-	FILE_TRUNCATE:     0x20,
-	FILE_SYNC:         0x40,
-	FILE_EXCL:         0x80,
+    FILE_RDONLY:       0x01,
+    FILE_WRONLY:       0x02,
+    FILE_RDWR:         0x04,
+    FILE_CREATE_FILE:  0x08,
+    FILE_APPEND:       0x10,
+    FILE_TRUNCATE:     0x20,
+    FILE_SYNC:         0x40,
+    FILE_EXCL:         0x80,
 
     FILE_READ_MODE: "r",
     FILE_WRITE_MODE: "w",
@@ -1264,11 +1200,11 @@ GREUtils.File = {
     FILE_BINARY_MODE: "b",
 
     NORMAL_FILE_TYPE: 0x00,
-	DIRECTORY_TYPE:   0x01,
+    DIRECTORY_TYPE:   0x01,
 
     FILE_CHUNK: 1024, // buffer for readline => set to 1k
     FILE_DEFAULT_PERMS: 0644,
-	DIR_DEFAULT_PERMS:  0755
+    DIR_DEFAULT_PERMS:  0755
 };
 
 
@@ -1288,29 +1224,31 @@ GREUtils.File = {
  * @function
  * @param {String} sFile          This is the full path to the file
  * @param {Boolean} autoCreate    This flag indicates whether the file should be created if it does not exist; defaults to false
+ * @param {Boolean} notCheckExists This flag indicates whether the file does not exist; defaults to false
  * @return {nsILocalFile}         The file location reference
  */
 GREUtils.File.getFile = function(sFile){
     var autoCreate = arguments[1] || false;
+    var notcheckExists = arguments[2] || false;
     if (/^file:/.test(sFile))
         sFile = sFile.replace("file://", "");
     var obj = GREUtils.XPCOM.createInstance('@mozilla.org/file/local;1', 'nsILocalFile');
     obj.initWithPath(sFile);
-    if (obj.exists())
+    if (obj.exists() || notcheckExists)
         return obj;
     else
-        if (autoCreate) {
-            try {
-                obj.create(GREUtils.File.NORMAL_FILE_TYPE, GREUtils.File.FILE_DEFAULT_PERMS);
-                return obj;
-            }
-            catch (ex) {
-                return null;
-            }
+    if (autoCreate) {
+        try {
+            obj.create(GREUtils.File.NORMAL_FILE_TYPE, GREUtils.File.FILE_DEFAULT_PERMS);
+            return obj;
         }
-        else {
+        catch (ex) {
             return null;
         }
+    }
+    else {
+        return null;
+    }
 };
 
 
@@ -1551,25 +1489,25 @@ GREUtils.File.readAllBytes = function(file){
  */
 GREUtils.File.getURLContents = function(aURL) {
 
-	var ioService=GREUtils.XPCOM.getService("@mozilla.org/network/io-service;1", "nsIIOService");
-	var scriptableStream=GREUtils.XPCOM.getService("@mozilla.org/scriptableinputstream;1", "nsIScriptableInputStream");
+    var ioService=GREUtils.XPCOM.getService("@mozilla.org/network/io-service;1", "nsIIOService");
+    var scriptableStream=GREUtils.XPCOM.getService("@mozilla.org/scriptableinputstream;1", "nsIScriptableInputStream");
 
-	var str = "";
-	try {
-      var channel=ioService.newChannel(aURL,null,null);
-      var input=channel.open();
-      scriptableStream.init(input);
+    var str = "";
+    try {
+        var channel=ioService.newChannel(aURL,null,null);
+        var input=channel.open();
+        scriptableStream.init(input);
 
-      while ((bytes = input.available()) > 0) {
-		str += scriptableStream.read(bytes);
-      }
-      scriptableStream.close();
-      input.close();
+        while ((bytes = input.available()) > 0) {
+            str += scriptableStream.read(bytes);
+        }
+        scriptableStream.close();
+        input.close();
 
-	}catch(e) {
+    }catch(e) {
 
-	}
-	return str;
+    }
+    return str;
 };
 
 /**
@@ -1663,7 +1601,7 @@ GREUtils.File.run = function(nsFile, aArgs, blocking){
         rv = process.run(blocking, aArgs, len);
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.run: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.run: '+e.message);
         rv = -3
     }
     return rv;
@@ -1712,7 +1650,7 @@ GREUtils.File.chromeToURL = function(chromePath){
         }
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.chromeToURL: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.chromeToURL: '+e.message);
         rv = null;
     }
     return rv;
@@ -1746,7 +1684,7 @@ GREUtils.File.chromeToPath = function(chromePath){
 
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.chromeToPath: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.chromeToPath: '+e.message);
         rv = null;
     }
     return rv;
@@ -1772,7 +1710,7 @@ GREUtils.File.exists = function(aFile){
         rv = GREUtils.File.getFile(aFile).exists();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.exists: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.exists: '+e.message);
         rv = false;
     }
 
@@ -1810,7 +1748,7 @@ GREUtils.File.remove = function(aFile){
 
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.remove: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.remove: '+e.message);
         rv = false;
     }
 
@@ -1847,7 +1785,7 @@ GREUtils.File.copy = function(aSource, aDest){
     var rv;
     try {
         var fileInst = GREUtils.File.getFile(aSource);
-        var dir = GREUtils.File.getFile(aDest);
+        var dir = GREUtils.File.getFile(aDest, false, true);
         var copyName = fileInst.leafName;
 
         if (fileInst.isDirectory())
@@ -1871,14 +1809,14 @@ GREUtils.File.copy = function(aSource, aDest){
         rv = true;
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.copy: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.copy: '+e.message);
         return false;
     }
 
     return rv;
 };
 
- /**
+/**
  * Creates a new file path by appending a file name to a directory path and returns
  * that new file path.  Returns an empty string if the directory does not exist or
  * if the directory path given does not point to an actual directory.
@@ -1909,7 +1847,7 @@ GREUtils.File.append = function(aDirPath, aFileName){
         delete fileInst;
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.append: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.append: '+e.message);
         return "";
     }
 
@@ -1940,7 +1878,7 @@ GREUtils.File.permissions = function(aPath){
         rv = (GREUtils.File.getFile(aPath)).permissions.toString(8);
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.permissions: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.permissions: '+e.message);
         rv = 0;
     }
 
@@ -1969,7 +1907,7 @@ GREUtils.File.dateModified = function(aPath){
         rv = new Date((GREUtils.File.getFile(aPath)).lastModifiedTime).toLocaleString();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.dateModified: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.dateModified: '+e.message);
         rv = null;
     }
 
@@ -1999,7 +1937,7 @@ GREUtils.File.size = function(aPath){
         rv = (GREUtils.File.getFile(aPath)).fileSize;
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.size: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.size: '+e.message);
         rv = -1;
     }
 
@@ -2031,7 +1969,7 @@ GREUtils.File.ext = function(aPath){
         rv = (dotIndex >= 0) ? leafName.substring(dotIndex + 1) : "";
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.ext: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.ext: '+e.message);
         return ""
     }
 
@@ -2067,14 +2005,14 @@ GREUtils.File.parent = function(aPath){
             rv = fileInst.parent.path;
 
         else
-            if (fileInst.isDirectory())
-                rv = fileInst.path;
+        if (fileInst.isDirectory())
+            rv = fileInst.path;
 
-            else
-                rv = "";
+        else
+            rv = "";
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.parent: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.parent: '+e.message);
         rv = "";
     }
 
@@ -2093,13 +2031,13 @@ GREUtils.File.parent = function(aPath){
  */
 GREUtils.File.isDir = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isDirectory();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isDirectory();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isDir: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isDir: '+e.message);
         rv = false;
     }
     return rv;
@@ -2116,13 +2054,13 @@ GREUtils.File.isDir = function(aPath){
  */
 GREUtils.File.isFile = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isFile();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isFile();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isFile: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isFile: '+e.message);
         rv = false;
     }
     return rv;
@@ -2139,13 +2077,13 @@ GREUtils.File.isFile = function(aPath){
  */
 GREUtils.File.isExecutable = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isExecutable();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isExecutable();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isExecutable: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isExecutable: '+e.message);
         rv = false;
     }
     return rv;
@@ -2164,13 +2102,13 @@ GREUtils.File.isExecutable = function(aPath){
  */
 GREUtils.File.isSymlink = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isSymlink();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isSymlink();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isSymlink: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isSymlink: '+e.message);
         rv = false;
     }
     return rv;
@@ -2188,13 +2126,13 @@ GREUtils.File.isSymlink = function(aPath){
  */
 GREUtils.File.isWritable = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isWritable();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isWritable();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isWritable: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isWritable: '+e.message);
         rv = false;
     }
     return rv;
@@ -2211,13 +2149,13 @@ GREUtils.File.isWritable = function(aPath){
  */
 GREUtils.File.isHidden = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isHidden();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isHidden();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isHidden: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isHidden: '+e.message);
         rv = false;
     }
     return rv;
@@ -2236,13 +2174,13 @@ GREUtils.File.isHidden = function(aPath){
  */
 GREUtils.File.isReadable = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isReadable();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isReadable();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isReadable: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isReadable: '+e.message);
         rv = false;
     }
     return rv;
@@ -2261,13 +2199,13 @@ GREUtils.File.isReadable = function(aPath){
  */
 GREUtils.File.isSpecial = function(aPath){
 
-	var rv = false;
+    var rv = false;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.isSpecial();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.isSpecial();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.isSpecial: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.isSpecial: '+e.message);
         rv = false;
     }
     return rv;
@@ -2288,13 +2226,13 @@ GREUtils.File.isSpecial = function(aPath){
  */
 GREUtils.File.normalize = function(aPath){
 
-	var rv;
+    var rv;
     try {
-		var fileInst = GREUtils.File.getFile(aPath);
-		rv = fileInst.normalize();
+        var fileInst = GREUtils.File.getFile(aPath);
+        rv = fileInst.normalize();
     }
     catch (e) {
-		GREUtils.log('[Error] GREUtils.File.normalize: '+e.message);
+        GREUtils.log('[Error] GREUtils.File.normalize: '+e.message);
         rv = -1;
     }
     return rv;
