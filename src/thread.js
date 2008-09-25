@@ -12,7 +12,7 @@ GREUtils.define('GREUtils.Thread');
 
 GREUtils.Thread = {
 
-    _threadManager: GREUtils.XPCOM.getUsefulService("thread-manager"),
+    _threadManager: null,
 
     _mainThread: null,
 
@@ -33,6 +33,7 @@ GREUtils.Thread = {
  * @return {nsIThreadManager}           The nsIThreadManager service
  */
 GREUtils.Thread.getThreadManager = function(){
+    if (this._threadManager == null ) this._threadManager = GREUtils.XPCOM.getUsefulService("thread-manager");
     return this._threadManager;
 };
 

@@ -502,6 +502,15 @@ that new file path.</div>
 						<tr>
 							<td class="attributes">&lt;static&gt; &nbsp;</td>
 							<td class="nameDescription">
+								<div class="fixedFont">GREUtils.File.<b><a href="../symbols/GREUtils.File.html#.pathToURL">pathToURL</a></b>(aPath)
+								</div>
+								<div class="description">Resolves a File URL into a loadable URL using local file path.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
 								<div class="fixedFont">GREUtils.File.<b><a href="../symbols/GREUtils.File.html#.permissions">permissions</a></b>(aPath)
 								</div>
 								<div class="description">Returns the Unix style permission bits of a file or directory.</div>
@@ -550,6 +559,15 @@ that new file path.</div>
 								<div class="fixedFont">GREUtils.File.<b><a href="../symbols/GREUtils.File.html#.size">size</a></b>(aPath)
 								</div>
 								<div class="description">Returns the size of a file.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">GREUtils.File.<b><a href="../symbols/GREUtils.File.html#.urlToPath">urlToPath</a></b>(aUrl)
+								</div>
+								<div class="description">Resolves a URL into a file path using file path.</div>
 							</td>
 						</tr>
 					
@@ -1104,7 +1122,7 @@ object instead.
 								<dd>This is the mode flag</dd>
 							
 								<dt>
-									<span class="light fixedFont">{Integer}</span> <b>perm</b>
+									<span class="light fixedFont">{Number}</span> <b>perm</b>
 									
 								</dt>
 								<dd>This is the permission with which to create the file (if needed); defaults to FILE_DEFAULT_PERMS</dd>
@@ -1226,7 +1244,7 @@ Returns null if the local file cannot be read or if it cannot be created.
 								<dd>This is the mode flag</dd>
 							
 								<dt>
-									<span class="light fixedFont">{Integer}</span> <b>perm</b>
+									<span class="light fixedFont">{Number}</span> <b>perm</b>
 									
 								</dt>
 								<dd>This is the permission with which to create the file (if needed)</dd>
@@ -1781,6 +1799,51 @@ Returns an empty string if "aPath" does not exist.
 
 					<hr />
 				
+					<a name=".pathToURL"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					<span class="light">{String}</span>
+					<span class="light">GREUtils.File.</span><b>pathToURL</b>(aPath)
+					
+					</div>
+					<div class="description">
+						Resolves a File URL into a loadable URL using local file path.
+Returns a string representation of the loadable URL if successful; otherwise null
+is returned.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{String}</span> <b>aPath</b>
+									
+								</dt>
+								<dd>This is the file path</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{String}</span> url            The URL</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
 					<a name=".permissions"> </a>
 					<div class="fixedFont">&lt;static&gt; 
 					
@@ -1972,7 +2035,7 @@ This method removes a file if it exists. Does not remove directories. Returns
 					<a name=".run"> </a>
 					<div class="fixedFont">&lt;static&gt; 
 					
-					<span class="light">{Integer}</span>
+					<span class="light">{Number}</span>
 					<span class="light">GREUtils.File.</span><b>run</b>(nsFile, aArgs, blocking)
 					
 					</div>
@@ -2025,7 +2088,7 @@ value indicates an error condition:
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd><span class="light fixedFont">{Integer}</span> The process ID</dd>
+								<dd><span class="light fixedFont">{Number}</span> The process ID</dd>
 							
 							</dl>
 						
@@ -2037,7 +2100,7 @@ value indicates an error condition:
 					<a name=".size"> </a>
 					<div class="fixedFont">&lt;static&gt; 
 					
-					<span class="light">{Integer}</span>
+					<span class="light">{Number}</span>
 					<span class="light">GREUtils.File.</span><b>size</b>(aPath)
 					
 					</div>
@@ -2069,7 +2132,51 @@ file size cannot be determined.
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd><span class="light fixedFont">{Integer}</span> The file size</dd>
+								<dd><span class="light fixedFont">{Number}</span> The file size</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name=".urlToPath"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					<span class="light">{String}</span>
+					<span class="light">GREUtils.File.</span><b>urlToPath</b>(aUrl)
+					
+					</div>
+					<div class="description">
+						Resolves a URL into a file path using file path.
+Returns null if resolution fails.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{String}</span> <b>aUrl</b>
+									
+								</dt>
+								<dd>This is the URL</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{String}</span> path          The file path</dd>
 							
 							</dl>
 						
@@ -2173,7 +2280,7 @@ A newline character ('\n') is appended to each string before writing.
 <!-- ============================== footer ================================= -->
 		<div class="fineprint" style="clear:both">
 			
-			Documentation generated by <a href="http://www.jsdoctoolkit.org/" target="_blank">JsDoc Toolkit</a> 2.0.1 on Fri Sep 19 2008 16:06:21 GMT+0800 (CST)
+			Documentation generated by <a href="http://www.jsdoctoolkit.org/" target="_blank">JsDoc Toolkit</a> 2.0.1 on Thu Sep 25 2008 17:38:59 GMT+0800 (CST)
 		</div>
 	</body>
 </html>

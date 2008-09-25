@@ -10,7 +10,7 @@
  * @name GREUtils
  * @namespace GREUtils
  */
-var GREUtils = GREUtils  ||  {version: "1.1"};
+var GREUtils = GREUtils  ||  {version: "1.1.0"};
 
 GREUtils.context = this;
 
@@ -190,18 +190,23 @@ GREUtils.createNamespace = function(name, object, context) {
   var cur = context || GREUtils.global;
   var part;
 
+  // keep localContext
+  var curLocal = GREUtils.context;
+
   while ((part = parts.shift())) {
     if (!parts.length && GREUtils.isDefined(object)) {
       // last part and we have an object; use it
       cur[part] = object;
       
       // add to GREUtils jsm context
-      GREUtils.context[name] = object;
+      curLocal[part] = object;
 
     } else if (cur[part]) {
       cur = cur[part];
+      curLocal = curLocal[part] = cur;
     } else {
       cur = cur[part] = {};
+      curLocal = curLocal[part] = cur;
     }
   }
 
@@ -221,24 +226,24 @@ GREUtils.getObjectByNamespace = function(name, context){
 	
   var parts = name.split('.');
   var cur = context || GREUtils.global;
+  var recursive = (cur == GREUtils.context);
   
   for (var part; part = parts.shift(); ) {
     if (cur[part]) {
       cur = cur[part];
     } else {
       cur = null;
+      break;
     }
   }
-  
-  if (cur == null) {
-      // try to get from greutils.context
-      cur = GREUtils.context[name] || null;
+
+  if (cur == null && !recursive) {
+    cur = GREUtils.getObjectByNamespace(name, GREUtils.context);
   }
 
   return cur;
 
 };
-
 
 /**
  * Checks if an object is defined

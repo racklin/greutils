@@ -20,7 +20,7 @@ let EXPORTED_SYMBOLS  = ['GREUtils'];
  * @name GREUtils
  * @namespace GREUtils
  */
-var GREUtils = GREUtils  ||  {version: "1.1"};
+var GREUtils = GREUtils  ||  {version: "1.1.0"};
 
 GREUtils.context = this;
 
@@ -200,18 +200,23 @@ GREUtils.createNamespace = function(name, object, context) {
   var cur = context || GREUtils.global;
   var part;
 
+  // keep localContext
+  var curLocal = GREUtils.context;
+
   while ((part = parts.shift())) {
     if (!parts.length && GREUtils.isDefined(object)) {
       // last part and we have an object; use it
       cur[part] = object;
       
       // add to GREUtils jsm context
-      GREUtils.context[name] = object;
+      curLocal[part] = object;
 
     } else if (cur[part]) {
       cur = cur[part];
+      curLocal = curLocal[part] = cur;
     } else {
       cur = cur[part] = {};
+      curLocal = curLocal[part] = cur;
     }
   }
 
@@ -231,24 +236,24 @@ GREUtils.getObjectByNamespace = function(name, context){
 	
   var parts = name.split('.');
   var cur = context || GREUtils.global;
+  var recursive = (cur == GREUtils.context);
   
   for (var part; part = parts.shift(); ) {
     if (cur[part]) {
       cur = cur[part];
     } else {
       cur = null;
+      break;
     }
   }
-  
-  if (cur == null) {
-      // try to get from greutils.context
-      cur = GREUtils.context[name] || null;
+
+  if (cur == null && !recursive) {
+    cur = GREUtils.getObjectByNamespace(name, GREUtils.context);
   }
 
   return cur;
 
 };
-
 
 /**
  * Checks if an object is defined
@@ -986,7 +991,7 @@ GREUtils.domHTMLString = function (htmlString, xmlns) {
  * @static
  *  
  * @function 
- * @param {Integer} mode              This is the application shutdown mode; defaults to eAttemptQuit
+ * @param {Number} mode               This is the application shutdown mode; defaults to eAttemptQuit
  */
 GREUtils.quitApplication = function() {
     var mode = arguments[0] || Components.interfaces.nsIAppStartup.eAttemptQuit;
@@ -1068,7 +1073,7 @@ GREUtils.uuid  = function () {
  * @public
  * @static
  * @function 
- * @return {Integer}                  The user idle time
+ * @return {Number}                   The user idle time
  */
 GREUtils.getIdleTime = function() {
     return GREUtils.XPCOM.getUsefulService("idleservice").idleTime;
@@ -1093,7 +1098,7 @@ GREUtils.getIdleTime = function() {
  * @static
  * @function 
  * @param {Function} func             This is the function that is invoked when there is an idle notification
- * @param {Integer} time              This is the idle time  
+ * @param {Number} time               This is the idle time  
  * @return {Object}                   The idle observer object
  */
 GREUtils.getIdleObserver = function(func, time) {
@@ -1228,12 +1233,15 @@ GREUtils.File = {
  * @return {nsILocalFile}         The file location reference
  */
 GREUtils.File.getFile = function(sFile){
+    
     var autoCreate = arguments[1] || false;
     var notcheckExists = arguments[2] || false;
     if (/^file:/.test(sFile))
         sFile = sFile.replace("file://", "");
+        
     var obj = GREUtils.XPCOM.createInstance('@mozilla.org/file/local;1', 'nsILocalFile');
     obj.initWithPath(sFile);
+    
     if (obj.exists() || notcheckExists)
         return obj;
     else
@@ -1304,7 +1312,7 @@ GREUtils.File.getURL = function(sURL){
  * @function
  * @param {Object} file           This is the file. It can be a string containing the file path or a file location reference
  * @param {String} mode           This is the mode flag
- * @param {Integer} perm          This is the permission with which to create the file (if needed)
+ * @param {Number} perm           This is the permission with which to create the file (if needed)
  * @return {nsIFileOutputStream|nsIBinaryOutputStream}                       A file output stream
  */
 GREUtils.File.getOutputStream = function(file, mode, perm){
@@ -1357,7 +1365,7 @@ GREUtils.File.getOutputStream = function(file, mode, perm){
  * @function
  * @param {Object} file           This is the file. It can be a string containing the file path or a file location reference
  * @param {String} mode           This is the mode flag
- * @param {Integer} perm          This is the permission with which to create the file (if needed); defaults to FILE_DEFAULT_PERMS
+ * @param {Number} perm           This is the permission with which to create the file (if needed); defaults to FILE_DEFAULT_PERMS
  * @return {nsIScritableInputStream|nsIBinaryInputStream}                   A file output stream
  */
 GREUtils.File.getInputStream = function(file, mode, perm){
@@ -1413,6 +1421,7 @@ GREUtils.File.getLineInputStream = function(file){
     fs.init(nsIFile, GREUtils.File.FILE_RDONLY, GREUtils.File.FILE_DEFAULT_PERMS, null);
     return GREUtils.XPCOM.queryInterface(fs, "nsILineInputStream");
 };
+
 
 /**
  * Reads in the entire content of a file as a series of lines.
@@ -1576,7 +1585,7 @@ GREUtils.File.writeAllBytes = function(file, buf){
  * @param {Object} nsFile         This is the executable file. It can be a string containing the file path or a file location reference
  * @param {String} aArgs          This is the array of arguments to pass to the executable
  * @param {Boolean} blocking      If "true", the method blocks until the process terminates; defaults to false
- * @return {Integer}              The process ID
+ * @return {Number}               The process ID
  */
 GREUtils.File.run = function(nsFile, aArgs, blocking){
     var nsIFile = (typeof(nsFile) == "string") ? this.getFile(nsFile) : nsFile;
@@ -1637,7 +1646,8 @@ GREUtils.File.exec = function(){
  * @return {String} url           The loadable URL
  */
 GREUtils.File.chromeToURL = function(chromePath){
-    var uri = this.getURL(chromePath);
+    
+    var uri = GREUtils.File.getURL(chromePath);
     var cr = GREUtils.XPCOM.getService("@mozilla.org/chrome/chrome-registry;1", "nsIChromeRegistry");
     var rv = null;
     try {
@@ -1667,7 +1677,8 @@ GREUtils.File.chromeToURL = function(chromePath){
  * @return {String} filepath      The file path
  */
 GREUtils.File.chromeToPath = function(chromePath){
-    var uri = this.getURL(chromePath);
+    
+    var uri = GREUtils.File.getURL(chromePath);
     var cr = GREUtils.XPCOM.getService("@mozilla.org/chrome/chrome-registry;1", "nsIChromeRegistry");
     var rv = null;
     try {
@@ -1692,6 +1703,60 @@ GREUtils.File.chromeToPath = function(chromePath){
 
 
 /**
+ * Resolves a File URL into a loadable URL using local file path.
+ * Returns a string representation of the loadable URL if successful; otherwise null
+ * is returned.
+ *
+ * @public
+ * @static
+ * @function
+ * @param {String} aPath           This is the file path
+ * @return {String} url            The URL
+ */
+GREUtils.File.pathToURL = function(aPath){
+    
+      if (!aPath)
+        return "";
+    
+      var rv;
+      try {
+        rv =GREUtils.XPCOM.createInstance("@mozilla.org/network/protocol;1?name=file",
+                                     "nsIFileProtocolHandler").getURLSpecFromFile(GREUtils.File(aPath));
+      } catch (e) { rv = ""; }
+
+      return rv;
+    
+};
+
+/**
+ * Resolves a URL into a file path using file path.
+ * Returns null if resolution fails.
+ *
+ * @public
+ * @static
+ * @function
+ * @param {String} aUrl           This is the URL
+ * @return {String} path          The file path
+ */
+GREUtils.File.urlToPath = function(aUrl){
+    
+      if (!aUrl || !/^file:/.test(aPath))
+        return "";
+    
+      var rv;
+      try {
+
+        rv = GREUtils.XPCOM.createInstance("@mozilla.org/network/protocol;1?name=file",
+                                     "nsIFileProtocolHandler").getFileFromURLSpec(aUrl).path;
+
+      } catch (e) { rv = ""; }
+
+      return rv;
+    
+};
+
+
+/**
  * Checks if a file exists.
  *
  * @public
@@ -1707,7 +1772,7 @@ GREUtils.File.exists = function(aFile){
 
     var rv;
     try {
-        rv = GREUtils.File.getFile(aFile).exists();
+        rv = GREUtils.File.getFile(aFile, false, true).exists();
     }
     catch (e) {
         GREUtils.log('[Error] GREUtils.File.exists: '+e.message);
@@ -1922,7 +1987,7 @@ GREUtils.File.dateModified = function(aPath){
  * @static
  * @function
  * @param {String} aPath          This is the file path
- * @return {Integer}              The file size
+ * @return {Number}               The file size
  */
 GREUtils.File.size = function(aPath){
 
@@ -2316,7 +2381,7 @@ GREUtils.Dir.create = function(aPath){
  * @function
  * @param {String} aPath                This is the directory path
  * @param {Boolean} aRecursive          This flag indicates if directory is to be deleted if it is not empty
- * @return {Integer}                    void  : directory is successfully removed
+ * @return {Number}                    void  : directory is successfully removed
  *                                      -1    : path does not exist
  *                                      -2    : aPath is not a directory
  *                                      -3    : delete fails
@@ -2777,7 +2842,7 @@ GREUtils.JSON.encode = function(aJSObject) {
  * @static
  * @function
  * @param {nsIInputStream} stream         This is the input stream from which to read the JSON string
- * @param {Integer} contentLength         This is the length of the JSON string to read from the input stream
+ * @param {Number} contentLength          This is the length of the JSON string to read from the input stream
  * @return {Object}                       The JavaScript object represented by the JSON string
  */
 GREUtils.JSON.decodeFromStream = function(stream, contentLength) {
@@ -3317,7 +3382,7 @@ GREUtils.define('GREUtils.Thread');
 
 GREUtils.Thread = {
 
-    _threadManager: GREUtils.XPCOM.getUsefulService("thread-manager"),
+    _threadManager: null,
 
     _mainThread: null,
 
@@ -3338,6 +3403,7 @@ GREUtils.Thread = {
  * @return {nsIThreadManager}           The nsIThreadManager service
  */
 GREUtils.Thread.getThreadManager = function(){
+    if (this._threadManager == null ) this._threadManager = GREUtils.XPCOM.getUsefulService("thread-manager");
     return this._threadManager;
 };
 

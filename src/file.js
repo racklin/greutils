@@ -52,12 +52,15 @@ GREUtils.File = {
  * @return {nsILocalFile}         The file location reference
  */
 GREUtils.File.getFile = function(sFile){
+    
     var autoCreate = arguments[1] || false;
     var notcheckExists = arguments[2] || false;
     if (/^file:/.test(sFile))
         sFile = sFile.replace("file://", "");
+        
     var obj = GREUtils.XPCOM.createInstance('@mozilla.org/file/local;1', 'nsILocalFile');
     obj.initWithPath(sFile);
+    
     if (obj.exists() || notcheckExists)
         return obj;
     else
@@ -237,6 +240,7 @@ GREUtils.File.getLineInputStream = function(file){
     fs.init(nsIFile, GREUtils.File.FILE_RDONLY, GREUtils.File.FILE_DEFAULT_PERMS, null);
     return GREUtils.XPCOM.queryInterface(fs, "nsILineInputStream");
 };
+
 
 /**
  * Reads in the entire content of a file as a series of lines.
@@ -461,7 +465,8 @@ GREUtils.File.exec = function(){
  * @return {String} url           The loadable URL
  */
 GREUtils.File.chromeToURL = function(chromePath){
-    var uri = this.getURL(chromePath);
+    
+    var uri = GREUtils.File.getURL(chromePath);
     var cr = GREUtils.XPCOM.getService("@mozilla.org/chrome/chrome-registry;1", "nsIChromeRegistry");
     var rv = null;
     try {
@@ -491,7 +496,8 @@ GREUtils.File.chromeToURL = function(chromePath){
  * @return {String} filepath      The file path
  */
 GREUtils.File.chromeToPath = function(chromePath){
-    var uri = this.getURL(chromePath);
+    
+    var uri = GREUtils.File.getURL(chromePath);
     var cr = GREUtils.XPCOM.getService("@mozilla.org/chrome/chrome-registry;1", "nsIChromeRegistry");
     var rv = null;
     try {
@@ -516,6 +522,60 @@ GREUtils.File.chromeToPath = function(chromePath){
 
 
 /**
+ * Resolves a File URL into a loadable URL using local file path.
+ * Returns a string representation of the loadable URL if successful; otherwise null
+ * is returned.
+ *
+ * @public
+ * @static
+ * @function
+ * @param {String} aPath           This is the file path
+ * @return {String} url            The URL
+ */
+GREUtils.File.pathToURL = function(aPath){
+    
+      if (!aPath)
+        return "";
+    
+      var rv;
+      try {
+        rv =GREUtils.XPCOM.createInstance("@mozilla.org/network/protocol;1?name=file",
+                                     "nsIFileProtocolHandler").getURLSpecFromFile(GREUtils.File(aPath));
+      } catch (e) { rv = ""; }
+
+      return rv;
+    
+};
+
+/**
+ * Resolves a URL into a file path using file path.
+ * Returns null if resolution fails.
+ *
+ * @public
+ * @static
+ * @function
+ * @param {String} aUrl           This is the URL
+ * @return {String} path          The file path
+ */
+GREUtils.File.urlToPath = function(aUrl){
+    
+      if (!aUrl || !/^file:/.test(aPath))
+        return "";
+    
+      var rv;
+      try {
+
+        rv = GREUtils.XPCOM.createInstance("@mozilla.org/network/protocol;1?name=file",
+                                     "nsIFileProtocolHandler").getFileFromURLSpec(aUrl).path;
+
+      } catch (e) { rv = ""; }
+
+      return rv;
+    
+};
+
+
+/**
  * Checks if a file exists.
  *
  * @public
@@ -531,7 +591,7 @@ GREUtils.File.exists = function(aFile){
 
     var rv;
     try {
-        rv = GREUtils.File.getFile(aFile).exists();
+        rv = GREUtils.File.getFile(aFile, false, true).exists();
     }
     catch (e) {
         GREUtils.log('[Error] GREUtils.File.exists: '+e.message);
