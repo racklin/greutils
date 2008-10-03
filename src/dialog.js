@@ -28,7 +28,7 @@ GREUtils.Dialog.openWindow =  function(aParent, aUrl, aName, aFeatures, aArgumen
     var features = aFeatures || "chrome,centerscreen";
 
     var ww = GREUtils.XPCOM.getUsefulService("window-watcher");
-    return ww.openWindow(null, aUrl, name, features, args);
+    return ww.openWindow(parent, aUrl, name, features, args);
 
 };
 
@@ -39,6 +39,7 @@ GREUtils.Dialog.openWindow =  function(aParent, aUrl, aName, aFeatures, aArgumen
  * @public
  * @static
  * @function
+ * @param {nsIDOMWindow} aParent                    This is the parent window, if any, or null if no parent window
  * @param {String} aUrl                             This is the URL to open in the newly created dialog window
  * @param {String} aName                            This is the name to assign to the dialog window
  * @param {nsISupportsArray|nsIArray} aArguments    This is the list of extra argument(s) to be attached to the new dialog window as the window.arguments property. An nsISupportsArray will be unwound into multiple arguments (but not recursively!). Can be null, in which case the window.arguments property will not be set on the new dialog window. Can also be an nsIArray.
@@ -49,8 +50,10 @@ GREUtils.Dialog.openWindow =  function(aParent, aUrl, aName, aFeatures, aArgumen
  * @return {nsIDOMWindow}                           The new dialog window
  * @type                                            nsIDOMWindow
  */
-GREUtils.Dialog.openDialog = function(aURL, aName, aArguments, posX, posY, width, height) {
+GREUtils.Dialog.openDialog = function(aParent, aURL, aName, aArguments, posX, posY, width, height) {
 
+    var parent = aParent || null;
+    
     var features = "chrome,dialog,dependent=yes,resize=yes";
     if (arguments.length <= 3 ) {
         features += ",centerscreen";
@@ -66,7 +69,7 @@ GREUtils.Dialog.openDialog = function(aURL, aName, aArguments, posX, posY, width
             features += ",height=" + height;
     }
 
-    return GREUtils.Dialog.openWindow(null, aURL, aName, features, aArguments);
+    return GREUtils.Dialog.openWindow(parent, aURL, aName, features, aArguments);
 
 };
 
@@ -77,6 +80,7 @@ GREUtils.Dialog.openDialog = function(aURL, aName, aArguments, posX, posY, width
  * @public
  * @static
  * @function
+ * @param {nsIDOMWindow} aParent                    This is the parent window, if any, or null if no parent window
  * @param {String} aUrl                             This is the URL to open in the newly created modal dialog
  * @param {String} aName                            This is the name to assign to the modal dialog
  * @param {nsISupportsArray|nsIArray} aArguments    This is the list of extra argument(s) to be attached to the new modal dialog as the window.arguments property. An nsISupportsArray will be unwound into multiple arguments (but not recursively!). Can be null, in which case the window.arguments property will not be set on the new modal dialog. Can also be an nsIArray.
@@ -87,8 +91,10 @@ GREUtils.Dialog.openDialog = function(aURL, aName, aArguments, posX, posY, width
  * @return {nsIDOMWindow}                           The new modal dialog
  * @type                                            nsIDOMWindow
  */
-GREUtils.Dialog.openModalDialog = function(aURL, aName, aArguments, posX, posY, width, height) {
+GREUtils.Dialog.openModalDialog = function(aParent, aURL, aName, aArguments, posX, posY, width, height) {
 
+    var parent = aParent || null;
+    
     var features = "chrome,dialog,dependent=no,modal,resize=yes";
     if (arguments.length <= 3) {
         features += ",centerscreen";
@@ -100,7 +106,7 @@ GREUtils.Dialog.openModalDialog = function(aURL, aName, aArguments, posX, posY, 
         if(height) features += ",height="+height;
     }
 
-    return GREUtils.Dialog.openWindow(null, aURL, aName, features, aArguments);
+    return GREUtils.Dialog.openWindow(parent, aURL, aName, features, aArguments);
 
 };
 
@@ -111,19 +117,23 @@ GREUtils.Dialog.openModalDialog = function(aURL, aName, aArguments, posX, posY, 
  * @public
  * @static
  * @function
+ * @param {nsIDOMWindow} aParent                    This is the parent window, if any, or null if no parent window
  * @param {String} aUrl                             This is the URL to open in the newly created modal dialog
  * @param {String} aName                            This is the name to assign to the modal dialog
  * @return {nsIDOMWindow}                           The new full-screen window
  * @type                                            nsIDOMWindow
  */
-GREUtils.Dialog.openFullScreen = function (aURL, aName, aArguments) {
+GREUtils.Dialog.openFullScreen = function (aParent, aURL, aName, aArguments) {
 
+    var parent = aParent || null;
+    
     var features = "chrome,dialog=no,resize=no,titlebar=no,fullscreen=yes";
     features += ",x=0,y=0";
     features += ",screenX="+0;
     features += ",screenY="+0;
 
-    return GREUtils.Dialog.openWindow(null, aURL, aName, features, aArguments);
+    return GREUtils.Dialog.openWindow(parent, aURL, aName, features, aArguments);
+
 };
 
 
@@ -180,6 +190,7 @@ GREUtils.Dialog.openFilePicker = function(sDir, title){
 
     } catch (ex) {
     }
+
 };
 
 /**
@@ -190,14 +201,19 @@ GREUtils.Dialog.openFilePicker = function(sDir, title){
  * @public
  * @static
  * @function
+ * @param {nsIDOMWindow} aParent                    This is the parent window, if any, or null if no parent window
  * @param {String} dialogTitle                      This is the title of the alert dialog
  * @param {String} dialogText                       This is the alert text
  * @return
  * @type                                            void
  */
-GREUtils.Dialog.alert = function(dialogTitle, dialogText) {
+GREUtils.Dialog.alert = function(aParent, dialogTitle, dialogText) {
+    
+    var parent = aParent || null;
+    
     // get a reference to the prompt service component.
-    GREUtils.XPCOM.getUsefulService("prompt-service").alert(null, dialogTitle, dialogText);
+    GREUtils.XPCOM.getUsefulService("prompt-service").alert(parent, dialogTitle, dialogText);
+
 };
 
 /**
@@ -208,14 +224,19 @@ GREUtils.Dialog.alert = function(dialogTitle, dialogText) {
  * @public
  * @static
  * @function
+ * @param {nsIDOMWindow} aParent                    This is the parent window, if any, or null if no parent window
  * @param {String} dialogTitle                      This is the title of the confirm dialog
  * @param {String} dialogText                       This is the confirm text
  * @return {Boolean}                                "true" if OK is clicked, and "false" if Cancel is clicked
  * @type                                            Boolean
  */
-GREUtils.Dialog.confirm = function(dialogTitle, dialogText) {
+GREUtils.Dialog.confirm = function(aParent, dialogTitle, dialogText) {
+    
+    var parent = aParent || null;
+    
     // get a reference to the prompt service component.
-    return GREUtils.XPCOM.getUsefulService("prompt-service").confirm(null, dialogTitle, dialogText);
+    return GREUtils.XPCOM.getUsefulService("prompt-service").confirm(parent, dialogTitle, dialogText);
+
 };
 
 /**
@@ -231,15 +252,20 @@ GREUtils.Dialog.confirm = function(dialogTitle, dialogText) {
  * @public
  * @static
  * @function
+ * @param {nsIDOMWindow} aParent                    This is the parent window, if any, or null if no parent window
  * @param {String} dialogTitle                      This is the title of the prompt dialog
  * @param {String} dialogText                       This is the prompt text
  * @param {Object} input                            This object holds the value of the edit field
  * @return {Boolean}                                "true" if OK is clicked, and "false" if Cancel is clicked
  * @type                                            Boolean
  */
-GREUtils.Dialog.prompt = function(dialogTitle, dialogText, input) {
+GREUtils.Dialog.prompt = function(aParent, dialogTitle, dialogText, input) {
+    
+    var parent = aParent || null;
+    
     // get a reference to the prompt service component.
-    return GREUtils.XPCOM.getUsefulService("prompt-service").prompt(null, dialogTitle, dialogText, input);
+    return GREUtils.XPCOM.getUsefulService("prompt-service").prompt(parent, dialogTitle, dialogText, input);
+
 };
 
 /**
@@ -254,6 +280,7 @@ GREUtils.Dialog.prompt = function(dialogTitle, dialogText, input) {
  * @public
  * @static
  * @function
+ * @param {nsIDOMWindow} aParent                    This is the parent window, if any, or null if no parent window
  * @param {String} dialogTitle                      This is the title of the select dialog
  * @param {String} dialogText                       This is the prompt text
  * @param {String[]} list                           This is an array of strings for selection
@@ -261,9 +288,13 @@ GREUtils.Dialog.prompt = function(dialogTitle, dialogText, input) {
  * @return {Boolean}                                "true" if OK is clicked, and "false" if Cancel is clicked
  * @type                                            Boolean
  */
-GREUtils.Dialog.select = function(dialogTitle, dialogText, list, selected) {
+GREUtils.Dialog.select = function(aParent, dialogTitle, dialogText, list, selected) {
+    
+    var parent = aParent || null;
+    
     // get a reference to the prompt service component.
-    return GREUtils.XPCOM.getUsefulService("prompt-service").select(null, dialogTitle, dialogText, list.length, list, selected);
+    return GREUtils.XPCOM.getUsefulService("prompt-service").select(parent, dialogTitle, dialogText, list.length, list, selected);
+    
 };
 
 /**

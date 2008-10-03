@@ -287,7 +287,7 @@ windows.</div>
 						<tr>
 							<td class="attributes">&lt;static&gt; &nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont">GREUtils.Dialog.<b><a href="../symbols/GREUtils.Dialog.html#.alert">alert</a></b>(dialogTitle, dialogText)
+								<div class="fixedFont">GREUtils.Dialog.<b><a href="../symbols/GREUtils.Dialog.html#.alert">alert</a></b>(aParent, dialogTitle, dialogText)
 								</div>
 								<div class="description">Displays an alert dialog.</div>
 							</td>
@@ -296,7 +296,7 @@ windows.</div>
 						<tr>
 							<td class="attributes">&lt;static&gt; &nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont">GREUtils.Dialog.<b><a href="../symbols/GREUtils.Dialog.html#.confirm">confirm</a></b>(dialogTitle, dialogText)
+								<div class="fixedFont">GREUtils.Dialog.<b><a href="../symbols/GREUtils.Dialog.html#.confirm">confirm</a></b>(aParent, dialogTitle, dialogText)
 								</div>
 								<div class="description">Displays a dialog prompting for user confirmation.</div>
 							</td>
@@ -333,7 +333,7 @@ type given by "windowName".</div>
 						<tr>
 							<td class="attributes">&lt;static&gt; &nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont">GREUtils.Dialog.<b><a href="../symbols/GREUtils.Dialog.html#.openDialog">openDialog</a></b>(aUrl, aName, aArguments, posX, posY, width, height)
+								<div class="fixedFont">GREUtils.Dialog.<b><a href="../symbols/GREUtils.Dialog.html#.openDialog">openDialog</a></b>(aParent, aUrl, aName, aArguments, posX, posY, width, height)
 								</div>
 								<div class="description">Creates a top-level Dialog window.</div>
 							</td>
@@ -351,7 +351,7 @@ type given by "windowName".</div>
 						<tr>
 							<td class="attributes">&lt;static&gt; &nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont">GREUtils.Dialog.<b><a href="../symbols/GREUtils.Dialog.html#.openFullScreen">openFullScreen</a></b>(aUrl, aName, aArguments)
+								<div class="fixedFont">GREUtils.Dialog.<b><a href="../symbols/GREUtils.Dialog.html#.openFullScreen">openFullScreen</a></b>(aParent, aUrl, aName, aArguments)
 								</div>
 								<div class="description">Creates a top-level, full screen window.</div>
 							</td>
@@ -360,7 +360,7 @@ type given by "windowName".</div>
 						<tr>
 							<td class="attributes">&lt;static&gt; &nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont">GREUtils.Dialog.<b><a href="../symbols/GREUtils.Dialog.html#.openModalDialog">openModalDialog</a></b>(aUrl, aName, aArguments, posX, posY, width, height)
+								<div class="fixedFont">GREUtils.Dialog.<b><a href="../symbols/GREUtils.Dialog.html#.openModalDialog">openModalDialog</a></b>(aParent, aUrl, aName, aArguments, posX, posY, width, height)
 								</div>
 								<div class="description">Creates a top-level modal dialog window.</div>
 							</td>
@@ -378,7 +378,7 @@ type given by "windowName".</div>
 						<tr>
 							<td class="attributes">&lt;static&gt; &nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont">GREUtils.Dialog.<b><a href="../symbols/GREUtils.Dialog.html#.prompt">prompt</a></b>(dialogTitle, dialogText, input)
+								<div class="fixedFont">GREUtils.Dialog.<b><a href="../symbols/GREUtils.Dialog.html#.prompt">prompt</a></b>(aParent, dialogTitle, dialogText, input)
 								</div>
 								<div class="description">Displays a dialog prompting for text input.</div>
 							</td>
@@ -387,7 +387,7 @@ type given by "windowName".</div>
 						<tr>
 							<td class="attributes">&lt;static&gt; &nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont">GREUtils.Dialog.<b><a href="../symbols/GREUtils.Dialog.html#.select">select</a></b>(dialogTitle, dialogText, list, selected)
+								<div class="fixedFont">GREUtils.Dialog.<b><a href="../symbols/GREUtils.Dialog.html#.select">select</a></b>(aParent, dialogTitle, dialogText, list, selected)
 								</div>
 								<div class="description">Displays a select dialog prompting user to make a selection.</div>
 							</td>
@@ -444,7 +444,7 @@ windows.
 					<div class="fixedFont">&lt;static&gt; 
 					
 					<span class="light">{void}</span>
-					<span class="light">GREUtils.Dialog.</span><b>alert</b>(dialogTitle, dialogText)
+					<span class="light">GREUtils.Dialog.</span><b>alert</b>(aParent, dialogTitle, dialogText)
 					
 					</div>
 					<div class="description">
@@ -460,6 +460,12 @@ Shows a top-level alert dialog with an OK button, a window title, and alert text
 						
 							<dl class="detailList">
 							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{nsIDOMWindow}</span> <b>aParent</b>
+									
+								</dt>
+								<dd>This is the parent window, if any, or null if no parent window</dd>
 							
 								<dt>
 									<span class="light fixedFont">{String}</span> <b>dialogTitle</b>
@@ -495,7 +501,7 @@ Shows a top-level alert dialog with an OK button, a window title, and alert text
 					<div class="fixedFont">&lt;static&gt; 
 					
 					<span class="light">{Boolean}</span>
-					<span class="light">GREUtils.Dialog.</span><b>confirm</b>(dialogTitle, dialogText)
+					<span class="light">GREUtils.Dialog.</span><b>confirm</b>(aParent, dialogTitle, dialogText)
 					
 					</div>
 					<div class="description">
@@ -511,6 +517,12 @@ Shows a top-level confirm dialog with OK and Cancel buttons, a window title, and
 						
 							<dl class="detailList">
 							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{nsIDOMWindow}</span> <b>aParent</b>
+									
+								</dt>
+								<dd>This is the parent window, if any, or null if no parent window</dd>
 							
 								<dt>
 									<span class="light fixedFont">{String}</span> <b>dialogTitle</b>
@@ -669,7 +681,7 @@ Returns an empty array if there are no windows of the given type open.
 					<div class="fixedFont">&lt;static&gt; 
 					
 					<span class="light">{nsIDOMWindow}</span>
-					<span class="light">GREUtils.Dialog.</span><b>openDialog</b>(aUrl, aName, aArguments, posX, posY, width, height)
+					<span class="light">GREUtils.Dialog.</span><b>openDialog</b>(aParent, aUrl, aName, aArguments, posX, posY, width, height)
 					
 					</div>
 					<div class="description">
@@ -683,6 +695,12 @@ Returns an empty array if there are no windows of the given type open.
 						
 							<dl class="detailList">
 							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{nsIDOMWindow}</span> <b>aParent</b>
+									
+								</dt>
+								<dd>This is the parent window, if any, or null if no parent window</dd>
 							
 								<dt>
 									<span class="light fixedFont">{String}</span> <b>aUrl</b>
@@ -801,7 +819,7 @@ directory path or a nsILocalFile object.
 					<div class="fixedFont">&lt;static&gt; 
 					
 					<span class="light">{nsIDOMWindow}</span>
-					<span class="light">GREUtils.Dialog.</span><b>openFullScreen</b>(aUrl, aName, aArguments)
+					<span class="light">GREUtils.Dialog.</span><b>openFullScreen</b>(aParent, aUrl, aName, aArguments)
 					
 					</div>
 					<div class="description">
@@ -815,6 +833,12 @@ directory path or a nsILocalFile object.
 						
 							<dl class="detailList">
 							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{nsIDOMWindow}</span> <b>aParent</b>
+									
+								</dt>
+								<dd>This is the parent window, if any, or null if no parent window</dd>
 							
 								<dt>
 									<span class="light fixedFont">{String}</span> <b>aUrl</b>
@@ -856,7 +880,7 @@ directory path or a nsILocalFile object.
 					<div class="fixedFont">&lt;static&gt; 
 					
 					<span class="light">{nsIDOMWindow}</span>
-					<span class="light">GREUtils.Dialog.</span><b>openModalDialog</b>(aUrl, aName, aArguments, posX, posY, width, height)
+					<span class="light">GREUtils.Dialog.</span><b>openModalDialog</b>(aParent, aUrl, aName, aArguments, posX, posY, width, height)
 					
 					</div>
 					<div class="description">
@@ -870,6 +894,12 @@ directory path or a nsILocalFile object.
 						
 							<dl class="detailList">
 							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{nsIDOMWindow}</span> <b>aParent</b>
+									
+								</dt>
+								<dd>This is the parent window, if any, or null if no parent window</dd>
 							
 								<dt>
 									<span class="light fixedFont">{String}</span> <b>aUrl</b>
@@ -1002,7 +1032,7 @@ directory path or a nsILocalFile object.
 					<div class="fixedFont">&lt;static&gt; 
 					
 					<span class="light">{Boolean}</span>
-					<span class="light">GREUtils.Dialog.</span><b>prompt</b>(dialogTitle, dialogText, input)
+					<span class="light">GREUtils.Dialog.</span><b>prompt</b>(aParent, dialogTitle, dialogText, input)
 					
 					</div>
 					<div class="description">
@@ -1023,6 +1053,12 @@ is stored in the "value" property of the "input" object before returning.
 						
 							<dl class="detailList">
 							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{nsIDOMWindow}</span> <b>aParent</b>
+									
+								</dt>
+								<dd>This is the parent window, if any, or null if no parent window</dd>
 							
 								<dt>
 									<span class="light fixedFont">{String}</span> <b>dialogTitle</b>
@@ -1064,7 +1100,7 @@ is stored in the "value" property of the "input" object before returning.
 					<div class="fixedFont">&lt;static&gt; 
 					
 					<span class="light">{Boolean}</span>
-					<span class="light">GREUtils.Dialog.</span><b>select</b>(dialogTitle, dialogText, list, selected)
+					<span class="light">GREUtils.Dialog.</span><b>select</b>(aParent, dialogTitle, dialogText, list, selected)
 					
 					</div>
 					<div class="description">
@@ -1084,6 +1120,12 @@ to the index of the the selected item before returning.
 						
 							<dl class="detailList">
 							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{nsIDOMWindow}</span> <b>aParent</b>
+									
+								</dt>
+								<dd>This is the parent window, if any, or null if no parent window</dd>
 							
 								<dt>
 									<span class="light fixedFont">{String}</span> <b>dialogTitle</b>
@@ -1135,7 +1177,7 @@ to the index of the the selected item before returning.
 <!-- ============================== footer ================================= -->
 		<div class="fineprint" style="clear:both">
 			
-			Documentation generated by <a href="http://www.jsdoctoolkit.org/" target="_blank">JsDoc Toolkit</a> 2.0.1 on Thu Sep 25 2008 17:38:58 GMT+0800 (CST)
+			Documentation generated by <a href="http://www.jsdoctoolkit.org/" target="_blank">JsDoc Toolkit</a> 2.0.1 on Fri Oct 03 2008 19:37:22 GMT+0800 (CST)
 		</div>
 	</body>
 </html>
