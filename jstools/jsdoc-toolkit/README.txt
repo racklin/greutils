@@ -2,13 +2,10 @@
 
 DESCRIPTION:
 
-** NOTICE ** THIS VERSION OF THE SOFTWARE IS "BETA," MEANING IT IS IS
-NOT YET READY FOR USE IN A PRODUCTION ENVIRONEMNT. IT IS MADE
-AVAILABLE FOR PREVIEW AND TESTING PURPOSES ONLY.
-
-This is Version 2 of JsDoc Toolkit, an automatic documentation
+This is the source code for JsDoc Toolkit, an automatic documentation
 generation tool for JavaScript. It is written in JavaScript and is run
-from a command line (or terminal) using the Java runtime engine.
+from a command line (or terminal) using the Java and Mozilla's Rhino
+JavaScript runtime engine.
 
 Using this tool you can automatically turn JavaDoc-like comments in
 your JavaScript source code into published output files, such as HTML
@@ -18,9 +15,8 @@ For more information, to report a bug, or to browse the technical
 documentation for this tool please visit the official JsDoc Toolkit
 project homepage at http://code.google.com/p/jsdoc-toolkit/
 
-For the most up-to-date documentation on Version 2 of JsDoc Toolkit
-see the Verion 2 wiki at http://jsdoctoolkit.org/wiki
-
+For the most up-to-date documentation on JsDoc Toolkit see the 
+official wiki at http://code.google.com/p/jsdoc-toolkit/w/list
 
 ======================================================================
 
@@ -74,6 +70,46 @@ Toolkit are available on the project wiki.
 
 ======================================================================
 
+RUNNING VIA SHELL SCRIPT
+
+Avi Deitcher has contributed the file jsrun.sh with the following usage notes:
+
+A script to simplify running jsdoc from the command-line, especially when
+running from within a development or build environment such as ant.
+
+Normally, to run jsdoc, you need a command-line as the following:
+java -Djsdoc.dir=/some/long/dir/path/to/jsdoc -jar
+/some/long/dir/path/to/jsdoc/jsrun.jar /some/long/dir/path/to/jsdoc/app/run.js
+-t=template -r=4 /some/long/dir/path/to/my/src/code
+
+This can get tedious to redo time and again, and difficult to use from within a
+build environment.
+
+To simplify the process, jsrun.sh will automatically run this path, as well as
+passing through any arguments.
+
+Usage: jsrun.sh <run.js arguments>
+
+All <run.js arguments> will be passed through.
+Additionally, jsrun.sh will take the following actions:
+1) If the environment variable JSDOCDIR is set, it will add
+"-Djsdoc.dir=$JSDOCDIR" to the command-line
+2) If the environment variable JSDOCTEMPLATEDIR is set, it will add
+"-Djsdoc.template.dir=$JSDOCTEMPLATEDIR" to the command-line
+3) java with the appropriate path to jsrun.jar and run.js will be instantiated
+
+If not variables are set, it is assumed that the path to jsrun.jar and app/ is
+in the current working directory.
+
+Example:
+# jsrun.sh ./src/
+Assuming JSDOCDIR=/some/path/to/my/jsdoc will cause the following command to
+execute:
+java -Djsdoc.dir=/some/path/to/my/jsdoc -jar /some/path/to/my/jsdoc/jsrun.jar
+/some/path/to/my/jsdoc/app/run.js ./src/
+
+======================================================================
+
 TESTING:
 
 To run the suite of unit tests included with JsDoc Toolkit enter this
@@ -85,7 +121,6 @@ To see a dump of the internal data structure that JsDoc Toolkit has
 built from your source files use this command:
 
 $ java -jar jsrun.jar app/run.js mycode.js -Z
-
 
 ======================================================================
 
@@ -127,7 +162,7 @@ JsDoc Toolkit
 All code specific to JsDoc Toolkit are free, open source and licensed
 for use under the X11/MIT License.
 
-JsDoc Toolkit is Copyright (c)2008 Michael Mathews <micmath@gmail.com>
+JsDoc Toolkit is Copyright (c)2009 Michael Mathews <micmath@gmail.com>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms below.

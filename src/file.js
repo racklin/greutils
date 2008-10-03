@@ -33,13 +33,16 @@ GREUtils.File = {
 
 
 /**
- * Returns a reference object to a local file location.
- *
+ * Returns a reference object to a local file location.<br/>
+ * <br/>
  * This method takes a string representing the full file path and returns an nsILocalFile
- * object representing that file location.
- *
- * If "autoCreate" is true then the file is created if it does not already exist.
- *
+ * object representing that file location.<br/>
+ * <br/>
+ * If "notCheckExists" is true, then the method returns the reference object
+ * even if no file exists at the given path. When "notCheckExists" is false,
+ * a file is created at the given path if it does not already exist and if
+ * "autoCreate" is true.<br/>
+ * <br/>
  * If no file exists at the location or cannot be created (if "autoCreate" is true),
  * null is returned.
  *
@@ -53,6 +56,8 @@ GREUtils.File = {
  */
 GREUtils.File.getFile = function(sFile){
     
+    if (sFile instanceof Components.interfaces.nsIFile ) return sFile;
+
     var autoCreate = arguments[1] || false;
     var notcheckExists = arguments[2] || false;
     if (/^file:/.test(sFile))
@@ -326,6 +331,7 @@ GREUtils.File.getURLContents = function(aURL) {
         var input=channel.open();
         scriptableStream.init(input);
 
+        var bytes;
         while ((bytes = input.available()) > 0) {
             str += scriptableStream.read(bytes);
         }
@@ -522,9 +528,10 @@ GREUtils.File.chromeToPath = function(chromePath){
 
 
 /**
- * Resolves a File URL into a loadable URL using local file path.
- * Returns a string representation of the loadable URL if successful; otherwise null
- * is returned.
+ * Resolves a file path into a loadable URL using local file path.<br/>
+ * <br/>
+ * Returns a string representation of the loadable URL if successful; otherwise
+ * null is returned.
  *
  * @public
  * @static
@@ -548,7 +555,8 @@ GREUtils.File.pathToURL = function(aPath){
 };
 
 /**
- * Resolves a URL into a file path using file path.
+ * Resolves a URL into a file path using file path.<br/>
+ * <br/>
  * Returns null if resolution fails.
  *
  * @public
@@ -591,7 +599,13 @@ GREUtils.File.exists = function(aFile){
 
     var rv;
     try {
-        rv = GREUtils.File.getFile(aFile, false, true).exists();
+        if (typeof aFile == "string") {
+            rv = GREUtils.File.getFile(aFile, false, true).exists();
+        }else if ( typeof aFile['exists'] == 'function'){
+            rv = aFile.exists();
+        }else {
+            rv = false;
+        }
     }
     catch (e) {
         GREUtils.log('[Error] GREUtils.File.exists: '+e.message);
@@ -668,8 +682,8 @@ GREUtils.File.copy = function(aSource, aDest){
 
     var rv;
     try {
-        var fileInst = GREUtils.File.getFile(aSource);
-        var dir = GREUtils.File.getFile(aDest, false, true);
+        var fileInst = (typeof aSource == 'string') ? GREUtils.File.getFile(aSource) : aSource;
+        var dir = (typeof aDest == 'string') ? GREUtils.File.getFile(aDest, false, true) : aDest ;
         var copyName = fileInst.leafName;
 
         if (fileInst.isDirectory())

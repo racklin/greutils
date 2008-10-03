@@ -7,7 +7,7 @@ yuicompressor=${CUR_DIR}/jstools/yuicompressor-2.3.5/yuicompressor
 packer=${CUR_DIR}/jstools/packer/packer
 jsdoc=${CUR_DIR}/jstools/jsdoc-toolkit/jsdoc
 
-NORMAL=core.js xpcom.js utils.js file.js dir.js cryptohash.js charset.js json.js sound.js pref.js \
+NORMAL=core.js xpcom.js utils.js file.js dir.js cryptohash.js charset.js json.js sound.js pref.js gzip.js \
  dialog.js thread.js controller.js
  
 all: clean packer doc
@@ -38,5 +38,5 @@ clean:
 
 doc:
 	@echo "create GREUtils docs"
-	${jsdoc} ${DIST_DIR}/GREUtils.js
+	${jsdoc} ${DIST_DIR}/GREUtils.js -s
 

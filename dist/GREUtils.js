@@ -199,7 +199,7 @@ GREUtils.createNamespace = function(name, object, context) {
   var part;
 
   // keep localContext
-  var curLocal = GREUtils.context;
+  // var curLocal = GREUtils.context;
 
   while ((part = parts.shift())) {
     if (!parts.length && GREUtils.isDefined(object)) {
@@ -207,14 +207,14 @@ GREUtils.createNamespace = function(name, object, context) {
       cur[part] = object;
       
       // add to GREUtils jsm context
-      curLocal[part] = object;
+      // curLocal[part] = object;
 
     } else if (cur[part]) {
       cur = cur[part];
-      curLocal = curLocal[part] = cur;
+      // curLocal = curLocal[part] = cur;
     } else {
       cur = cur[part] = {};
-      curLocal = curLocal[part] = cur;
+      // curLocal = curLocal[part] = cur;
     }
   }
 
@@ -234,7 +234,7 @@ GREUtils.getObjectByNamespace = function(name, context){
 	
   var parts = name.split('.');
   var cur = context || GREUtils.global;
-  var recursive = (cur == GREUtils.context);
+  // var recursive = (cur == GREUtils.context);
   
   for (var part; part = parts.shift(); ) {
     if (cur[part]) {
@@ -245,9 +245,10 @@ GREUtils.getObjectByNamespace = function(name, context){
     }
   }
 
+  /*
   if (cur == null && !recursive) {
     cur = GREUtils.getObjectByNamespace(name, GREUtils.context);
-  }
+  }*/
 
   return cur;
 
@@ -319,7 +320,7 @@ GREUtils.isDefineAndNotNull = function(type) {
  * @return {Boolean}                  "true" if the object is an array; "false" otherwise
  */
 GREUtils.isArray = function(type) {
-  return typeof type == 'array';
+  return (typeof type == 'object' && type.constructor.name == "Array");
 };
 
 /**
@@ -374,8 +375,7 @@ GREUtils.isNumber = function(type) {
  * @return {Boolean}                  "true" if the parameter is an object, function, or array; "false" otherwise
  */
 GREUtils.isObject = function(type) {
-  var type = typeof type;
-  return type == 'object' || type == 'array' || type == 'function';
+  return (typeof type == 'object' || typeof type == 'function');
 };
 
 /**
@@ -761,7 +761,8 @@ GREUtils.getOSInfo = function() {
  * @return {Boolean}                  "true" if current operating system is Linux-based; "false" otherwise
  */
 GREUtils.isLinux = function(){
-    return (GREUtils.getOSInfo().match(/Linux/,"i").length > 0);
+    if (GREUtils.getOSInfo().match(/Linux|SunOS|BSD/gi)) return true;
+    return false;
 };
 
 
@@ -774,7 +775,8 @@ GREUtils.isLinux = function(){
  * @return {Boolean}                  "true" if current operating system is Windows-based; "false" otherwise
  */
 GREUtils.isWindow = function() {
-    return (GREUtils.getOSInfo().match(/Win/,"i").length > 0);
+    if (GREUtils.getOSInfo().match(/Winnt/gi)) return true;
+    return false;
 };
 
 
@@ -787,7 +789,8 @@ GREUtils.isWindow = function() {
  * @return {Boolean}                  "true" if current operating system is MacOS-based; "false" otherwise
  */
 GREUtils.isMac =function() {
-    return (GREUtils.getOSInfo().match(/Mac|Darwin/,"i").length > 0);
+    if(GREUtils.getOSInfo().match(/Mac|Darwin/gi)) return true;
+    return false;
 };
 
 
@@ -1014,6 +1017,37 @@ GREUtils.restartApplication = function() {
 };
 
 
+
+/**
+ * Attempts to reclaim memory by shrinking the heap.
+ * 
+ * This memory notifies registered observers of the "memory-pressure" topic of a 
+ * "heap-minimize" condition. The pressure observers should subsequently schedule
+ * a memory flush. 
+ *
+ * @public
+ * @static
+ * @function 
+ */
+GREUtils.gc = function() {
+    var observerService = GREUtils.XPCOM.getUsefulService("observer-service"); 
+    
+    // since we don't know the order of how things are going to go, fire these multiple times
+    observerService.notifyObservers(null, "memory-pressure", "heap-minimize");
+    observerService.notifyObservers(null, "memory-pressure", "heap-minimize");
+    observerService.notifyObservers(null, "memory-pressure", "heap-minimize");
+
+	if(typeof window != 'undefined' ) {
+		try {
+		   window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+		  .getInterface(Components.interfaces.nsIDOMWindowUtils)
+		  .garbageCollect();
+		}catch(e) {}
+		}
+
+};
+
+
 /**
  * Attempts to reclaim memory by shrinking the heap.
  * 
@@ -1026,13 +1060,7 @@ GREUtils.restartApplication = function() {
  * @function 
  */
 GREUtils.ramback = function() {
-    var observerService = GREUtils.XPCOM.getUsefulService("observer-service"); 
-    
-    // since we don't know the order of how things are going to go, fire these multiple times
-    observerService.notifyObservers(null, "memory-pressure", "heap-minimize");
-    observerService.notifyObservers(null, "memory-pressure", "heap-minimize");
-    observerService.notifyObservers(null, "memory-pressure", "heap-minimize");
-
+	GREUtils.gc() ;
 };
 
     
@@ -1212,13 +1240,16 @@ GREUtils.File = {
 
 
 /**
- * Returns a reference object to a local file location.
- *
+ * Returns a reference object to a local file location.<br/>
+ * <br/>
  * This method takes a string representing the full file path and returns an nsILocalFile
- * object representing that file location.
- *
- * If "autoCreate" is true then the file is created if it does not already exist.
- *
+ * object representing that file location.<br/>
+ * <br/>
+ * If "notCheckExists" is true, then the method returns the reference object
+ * even if no file exists at the given path. When "notCheckExists" is false,
+ * a file is created at the given path if it does not already exist and if
+ * "autoCreate" is true.<br/>
+ * <br/>
  * If no file exists at the location or cannot be created (if "autoCreate" is true),
  * null is returned.
  *
@@ -1232,6 +1263,8 @@ GREUtils.File = {
  */
 GREUtils.File.getFile = function(sFile){
     
+    if (sFile instanceof Components.interfaces.nsIFile ) return sFile;
+
     var autoCreate = arguments[1] || false;
     var notcheckExists = arguments[2] || false;
     if (/^file:/.test(sFile))
@@ -1505,6 +1538,7 @@ GREUtils.File.getURLContents = function(aURL) {
         var input=channel.open();
         scriptableStream.init(input);
 
+        var bytes;
         while ((bytes = input.available()) > 0) {
             str += scriptableStream.read(bytes);
         }
@@ -1701,9 +1735,10 @@ GREUtils.File.chromeToPath = function(chromePath){
 
 
 /**
- * Resolves a File URL into a loadable URL using local file path.
- * Returns a string representation of the loadable URL if successful; otherwise null
- * is returned.
+ * Resolves a file path into a loadable URL using local file path.<br/>
+ * <br/>
+ * Returns a string representation of the loadable URL if successful; otherwise
+ * null is returned.
  *
  * @public
  * @static
@@ -1727,7 +1762,8 @@ GREUtils.File.pathToURL = function(aPath){
 };
 
 /**
- * Resolves a URL into a file path using file path.
+ * Resolves a URL into a file path using file path.<br/>
+ * <br/>
  * Returns null if resolution fails.
  *
  * @public
@@ -1770,7 +1806,13 @@ GREUtils.File.exists = function(aFile){
 
     var rv;
     try {
-        rv = GREUtils.File.getFile(aFile, false, true).exists();
+        if (typeof aFile == "string") {
+            rv = GREUtils.File.getFile(aFile, false, true).exists();
+        }else if ( typeof aFile['exists'] == 'function'){
+            rv = aFile.exists();
+        }else {
+            rv = false;
+        }
     }
     catch (e) {
         GREUtils.log('[Error] GREUtils.File.exists: '+e.message);
@@ -1847,8 +1889,8 @@ GREUtils.File.copy = function(aSource, aDest){
 
     var rv;
     try {
-        var fileInst = GREUtils.File.getFile(aSource);
-        var dir = GREUtils.File.getFile(aDest, false, true);
+        var fileInst = (typeof aSource == 'string') ? GREUtils.File.getFile(aSource) : aSource;
+        var dir = (typeof aDest == 'string') ? GREUtils.File.getFile(aDest, false, true) : aDest ;
         var copyName = fileInst.leafName;
 
         if (fileInst.isDirectory())
@@ -2328,6 +2370,9 @@ GREUtils.define('GREUtils.Dir');
  * @return {nsILocalFile}               The given file, or null if the file does not exist and is not/cannot be created
  */
 GREUtils.Dir.getFile = function(aPath){
+
+    if (aPath instanceof Components.interfaces.nsIFile ) return aPath;
+
     var autoCreate = arguments[1] || false;
     if (/^file:/.test(aPath))
         aPath = aPath.replace("file://", "");
@@ -2443,11 +2488,15 @@ GREUtils.Dir.contains = function(aPath, aFile){
  * @static
  * @function
  * @param {String} aPath                This is the directory path
+ * @param {Boolean} bRecursive          Recursive directory default false
  * @return {Object}                     Returns the directory entries as an array of strings containing file paths
  */
-GREUtils.Dir.readDir = function(aPath){
+GREUtils.Dir.readDir = function(aPath, bRecursive){
 
 	var fileInst = GREUtils.Dir.getFile(aPath);
+
+    bRecursive = bRecursive || false;
+
     var rv = [];
 	if (fileInst == null) return rv;
 
@@ -2460,15 +2509,18 @@ GREUtils.Dir.readDir = function(aPath){
       var files     = fileInst.directoryEntries;
       var file;
 
-      while (files.hasMoreElements())
-      {
+      while (files.hasMoreElements()) {
         file = files.getNext();
 		file = GREUtils.XPCOM.queryInterface(file, "nsILocalFile");
 
-		if (file.isFile()) rv.push(file.path);
-
-        if (file.isDirectory())
-          rv.push(GREUtils.Dir.readDir(file.path));
+		// if (file.isFile()) rv.push(file);
+        
+        if (file.isDirectory() && bRecursive) {
+            rv.push(GREUtils.Dir.readDir(file));
+        }else {
+            if (file.isFile() || file.isDirectory()) rv.push(file);
+        }
+        
       }
 
     } catch(e) {
@@ -3003,7 +3055,7 @@ GREUtils.define('GREUtils.Pref');
  * @return {nsIPrefBranch2}             The preference service
  */
 GREUtils.Pref.getPrefService = function () {
-    return GREUtils.XPCOM.getService("@mozilla.org/preferences-service;1", "nsIPrefBranch2");
+    return GREUtils.XPCOM.getService("@mozilla.org/preferences-service;1", "nsIPrefService").getBranch("");
 };
 
 
@@ -3025,12 +3077,17 @@ GREUtils.Pref.getPref = function() {
     var prefs = (arguments[1]) ? arguments[1] : GREUtils.Pref.getPrefService();
     var nsIPrefBranch = GREUtils.XPCOM.Ci("nsIPrefBranch");
     var type = prefs.getPrefType(prefName);
-    if (type == nsIPrefBranch.PREF_STRING)
-        return prefs.getCharPref(prefName);
-    else if (type == nsIPrefBranch.PREF_INT)
+    
+    if (type == nsIPrefBranch.PREF_STRING) {
+        return prefs.getComplexValue(prefName,Components.interfaces.nsISupportsString).data;
+    }else if (type == nsIPrefBranch.PREF_INT) {
         return prefs.getIntPref(prefName);
-    else if (type == nsIPrefBranch.PREF_BOOL)
+    }else if (type == nsIPrefBranch.PREF_BOOL) {
         return prefs.getBoolPref(prefName);
+    }else {
+        return null;
+    }
+
 };
 
 
@@ -3054,12 +3111,303 @@ GREUtils.Pref.setPref = function() {
     var prefs = (arguments[2]) ? arguments[2] : GREUtils.Pref.getPrefService();
     var nsIPrefBranch = GREUtils.XPCOM.Ci("nsIPrefBranch");
     var type = prefs.getPrefType(prefName);
-    if (type == nsIPrefBranch.PREF_STRING)
-        prefs.setCharPref(prefName, value);
-    else if (type == nsIPrefBranch.PREF_INT)
+
+    if (type == nsIPrefBranch.PREF_STRING) {
+        var str = Components.classes["@mozilla.org/supports-string;1"]
+                  .createInstance(Components.interfaces.nsISupportsString);
+        str.data = value;
+        prefs.setComplexValue(prefName, Components.interfaces.nsISupportsString, str);
+    }else if (type == nsIPrefBranch.PREF_INT) {
         prefs.setIntPref(prefName, value);
-    else if (type == nsIPrefBranch.PREF_BOOL)
+    }else if (type == nsIPrefBranch.PREF_BOOL) {
         prefs.setBoolPref(prefName, value);
+    }else {
+        // XXX
+    }
+};
+
+
+/**
+ * Add the state of individual preferences
+ *
+ * This method will automatically detect the type of value (string, number,
+ * boolean) and set the preference value accordingly.
+ *
+ * @public
+ * @static
+ * @function
+ * @param {String} prefName             This is the name of the preference
+ * @param {Object} prefValue            This is the preference value to set
+ * @param {Object} prefService          This is the preferences service to use; if null, the default preferences service will be used
+ */
+
+GREUtils.Pref.addPref = function() {
+    var prefName = arguments[0] ;
+    var value = arguments[1];
+    var prefs = (arguments[2]) ? arguments[2] : GREUtils.Pref.getPrefService();
+    var type = typeof value;
+
+    if (type == 'string') {
+        var str = Components.classes["@mozilla.org/supports-string;1"]
+                  .createInstance(Components.interfaces.nsISupportsString);
+        str.data = value;
+        prefs.setComplexValue(prefName, Components.interfaces.nsISupportsString, str);
+    }else if (type == 'number') {
+        prefs.setIntPref(prefName, value);
+    }else if (type == 'boolean') {
+        prefs.setBoolPref(prefName, value);
+    }else {
+        prefs.setCharPref(prefName, GREUtils.JSON.encode(value));
+    }
+
+};
+/**
+ * This is a set of Javascript wrappers around the XPCOM nsIStreamConverterService component
+ * that provides native implementation of gzip convert function.
+ *
+ * @public
+ * @name GREUtils.Gzip
+ * @namespace GREUtils.Gzip
+ */
+GREUtils.define('GREUtils.Gzip');
+
+
+/**
+ * Deflate a string
+ *
+ * This function compress the given string using the DEFLATE  data format.
+ *
+ * @public
+ * @static
+ * @function
+ * @param {String} data         The data to compress
+ * @return {String}             The compressed string or FALSE if an error occurred. 
+ */
+GREUtils.Gzip.deflate = function(data) {
+
+    try {
+
+        var encodedData = encodeURIComponent(data);
+
+        // Store data in an input stream
+        var inputStream = Components.classes["@mozilla.org/io/string-input-stream;1"].createInstance(Components.interfaces.nsIStringInputStream);
+        inputStream.setData(encodedData, encodedData.length);
+
+        // Load input stream onto a pump
+        var inputPump = Components.classes["@mozilla.org/network/input-stream-pump;1"].createInstance(Components.interfaces.nsIInputStreamPump);
+        inputPump.init(inputStream, -1, -1, 0, 0, true);
+
+        // Create a generic stream converter service
+        var streamConv = Components.classes["@mozilla.org/streamConverters;1"].createInstance(Components.interfaces.nsIStreamConverterService);
+
+        // Create a stream listener to accept gunzip'ed data
+        var gzipListener = {
+            first: true,
+            data: null,
+
+            onStartRequest: function(request, context){
+            //alert("gzip onStartRequest() called");
+            },
+
+            onDataAvailable: function(request, context, inputStream, offset, count){
+
+                var binInputStream = Components.classes["@mozilla.org/binaryinputstream;1"].createInstance(Components.interfaces.nsIBinaryInputStream);
+                binInputStream.setInputStream(inputStream);
+                if(this.first) {
+                    this.data = binInputStream.readBytes(count);
+                    this.first = false;
+                }else {
+                    this.data += binInputStream.readBytes(count);
+                }
+                binInputStream.close();
+
+            },
+
+            onStopRequest: function(request, context, statusCode){
+            // alert("gzip onStopRequest() called with status " + statusCode); alert("Data is '" + this.data + "'");
+            }
+
+        };
+
+        // Create a specific gunzipper with my listener
+        var converter = streamConv.asyncConvertData("uncompressed", "deflate", gzipListener, null);
+
+        // Set stream converter to read from input pump
+        //inputPump.asyncRead(converter,null);
+
+        // sync compress like PHP
+        converter.onStartRequest(inputPump, null);
+        converter.onDataAvailable(inputPump, null, inputStream, 0, inputStream.available() );
+        converter.onStopRequest(inputPump, null, 0);
+        
+        return gzipListener.data;
+
+    }catch(e) {
+        return false;
+    }
+    return false;
+
+};
+
+/**
+ * Inflate a deflated string
+ *
+ *  This function inflate a deflated string. 
+ *
+ * @public
+ * @static
+ * @function
+ * @param {String} data         The data compressed
+ * @return {String}             The original uncompressed data or FALSE if an error occurred.
+ */
+GREUtils.Gzip.inflate = function(data) {
+
+    try {
+
+        // Store data in an input stream
+        var inputStream = Components.classes["@mozilla.org/io/string-input-stream;1"].createInstance(Components.interfaces.nsIStringInputStream);
+        inputStream.setData(data, data.length);
+
+        // Load input stream onto a pump
+        var inputPump = Components.classes["@mozilla.org/network/input-stream-pump;1"].createInstance(Components.interfaces.nsIInputStreamPump);
+        inputPump.init(inputStream, -1, -1, 0, 0, true);
+
+        // Create a generic stream converter service
+        var streamConv = Components.classes["@mozilla.org/streamConverters;1"].createInstance(Components.interfaces.nsIStreamConverterService);
+
+        // Create a stream listener to accept gunzip'ed data
+        var gzipListener = {
+            first: true,
+            data: null,
+
+            onStartRequest: function(request, context){
+            //alert("gzip onStartRequest() called");
+            },
+
+            onDataAvailable: function(request, context, inputStream, offset, count){
+
+                var binInputStream = Components.classes["@mozilla.org/binaryinputstream;1"].createInstance(Components.interfaces.nsIBinaryInputStream);
+                binInputStream.setInputStream(inputStream);
+                if(this.first) {
+                    this.data = binInputStream.readBytes(count);
+                    this.first = false;
+                }else {
+                    this.data += binInputStream.readBytes(count);
+                }
+                binInputStream.close();
+
+            },
+
+            onStopRequest: function(request, context, statusCode){
+            // alert("gzip onStopRequest() called with status " + statusCode); alert("Data is '" + this.data + "'");
+            }
+
+        };
+
+
+
+        // Create a specific gunzipper with my listener
+        var converter = streamConv.asyncConvertData("deflate", "uncompressed", gzipListener, null);
+
+        // Set stream converter to read from input pump
+        //inputPump.asyncRead(converter,null);
+
+        // sync compress like PHP
+        converter.onStartRequest(inputPump, null);
+        converter.onDataAvailable(inputPump, null, inputStream, 0, inputStream.available() );
+        converter.onStopRequest(inputPump, null, 0);
+
+        var decodedData = decodeURIComponent(gzipListener.data);
+
+        return decodedData;
+
+    }catch(e) {
+        // alert(e);
+        return false;
+    }
+
+
+};
+
+
+/**
+ * Uncompress a compressed string
+ *
+ *  This function uncompress a gzcompressed string.
+ *
+ * @public
+ * @static
+ * @function
+ * @param {String} data         The data compressed
+ * @return {String}             The original uncompressed data or FALSE if an error occurred.
+ */
+GREUtils.Gzip.uncompress = function(data) {
+
+    try {
+
+        // Store data in an input stream
+        var inputStream = Components.classes["@mozilla.org/io/string-input-stream;1"].createInstance(Components.interfaces.nsIStringInputStream);
+        inputStream.setData(data, data.length);
+
+        // Load input stream onto a pump
+        var inputPump = Components.classes["@mozilla.org/network/input-stream-pump;1"].createInstance(Components.interfaces.nsIInputStreamPump);
+        inputPump.init(inputStream, -1, -1, 0, 0, true);
+
+        // Create a generic stream converter service
+        var streamConv = Components.classes["@mozilla.org/streamConverters;1"].createInstance(Components.interfaces.nsIStreamConverterService);
+
+        // Create a stream listener to accept gunzip'ed data
+        var gzipListener = {
+            first: true,
+            data: null,
+
+            onStartRequest: function(request, context){
+            //alert("gzip onStartRequest() called");
+            },
+
+            onDataAvailable: function(request, context, inputStream, offset, count){
+
+                var binInputStream = Components.classes["@mozilla.org/binaryinputstream;1"].createInstance(Components.interfaces.nsIBinaryInputStream);
+                binInputStream.setInputStream(inputStream);
+                if(this.first) {
+                    this.data = binInputStream.readBytes(count);
+                    this.first = false;
+                }else {
+                    this.data += binInputStream.readBytes(count);
+                }
+                binInputStream.close();
+
+            },
+
+            onStopRequest: function(request, context, statusCode){
+            // alert("gzip onStopRequest() called with status " + statusCode); alert("Data is '" + this.data + "'");
+            }
+
+        };
+
+
+
+        // Create a specific gunzipper with my listener
+        var converter = streamConv.asyncConvertData("gzip", "uncompressed", gzipListener, null);
+
+        // Set stream converter to read from input pump
+        //inputPump.asyncRead(converter,null);
+
+        // sync compress like PHP
+        converter.onStartRequest(inputPump, null);
+        converter.onDataAvailable(inputPump, null, inputStream, 0, inputStream.available() );
+        converter.onStopRequest(inputPump, null, 0);
+
+        var decodedData = decodeURIComponent(gzipListener.data);
+
+        return decodedData;
+
+    }catch(e) {
+        alert(e);
+        return false;
+    }
+
+
 };
 /**
  * This is a set of utility functions to render common types of dialogs and
@@ -3086,12 +3434,22 @@ GREUtils.define('GREUtils.Dialog');
 GREUtils.Dialog.openWindow =  function(aParent, aUrl, aName, aFeatures, aArguments) {
 
     var parent = aParent || null;
-    var name = aName || "_blank";
+    var windowName = aName || "_blank";
     var args = aArguments || null;
     var features = aFeatures || "chrome,centerscreen";
 
+    var array = Components.classes["@mozilla.org/array;1"]
+                          .createInstance(Components.interfaces.nsIMutableArray);
+    for (var i=4; i<arguments.length; i++)
+    {
+        var variant = Components.classes["@mozilla.org/variant;1"]
+                                .createInstance(Components.interfaces.nsIWritableVariant);
+        variant.setFromVariant(arguments[i]);
+        array.appendElement(variant, false);
+    }
+
     var ww = GREUtils.XPCOM.getUsefulService("window-watcher");
-    return ww.openWindow(null, aUrl, name, features, args);
+    return  ww.openWindow(parent, aUrl, windowName, features, array);
 
 };
 
@@ -3102,6 +3460,7 @@ GREUtils.Dialog.openWindow =  function(aParent, aUrl, aName, aFeatures, aArgumen
  * @public
  * @static
  * @function
+ * @param {nsIDOMWindow} aParent                    This is the parent window, if any, or null if no parent window
  * @param {String} aUrl                             This is the URL to open in the newly created dialog window
  * @param {String} aName                            This is the name to assign to the dialog window
  * @param {nsISupportsArray|nsIArray} aArguments    This is the list of extra argument(s) to be attached to the new dialog window as the window.arguments property. An nsISupportsArray will be unwound into multiple arguments (but not recursively!). Can be null, in which case the window.arguments property will not be set on the new dialog window. Can also be an nsIArray.
@@ -3112,8 +3471,10 @@ GREUtils.Dialog.openWindow =  function(aParent, aUrl, aName, aFeatures, aArgumen
  * @return {nsIDOMWindow}                           The new dialog window
  * @type                                            nsIDOMWindow
  */
-GREUtils.Dialog.openDialog = function(aURL, aName, aArguments, posX, posY, width, height) {
+GREUtils.Dialog.openDialog = function(aParent, aURL, aName, aArguments, posX, posY, width, height) {
 
+    var parent = aParent || null;
+    
     var features = "chrome,dialog,dependent=yes,resize=yes";
     if (arguments.length <= 3 ) {
         features += ",centerscreen";
@@ -3129,7 +3490,7 @@ GREUtils.Dialog.openDialog = function(aURL, aName, aArguments, posX, posY, width
             features += ",height=" + height;
     }
 
-    return GREUtils.Dialog.openWindow(null, aURL, aName, features, aArguments);
+    return GREUtils.Dialog.openWindow(parent, aURL, aName, features, aArguments);
 
 };
 
@@ -3140,6 +3501,7 @@ GREUtils.Dialog.openDialog = function(aURL, aName, aArguments, posX, posY, width
  * @public
  * @static
  * @function
+ * @param {nsIDOMWindow} aParent                    This is the parent window, if any, or null if no parent window
  * @param {String} aUrl                             This is the URL to open in the newly created modal dialog
  * @param {String} aName                            This is the name to assign to the modal dialog
  * @param {nsISupportsArray|nsIArray} aArguments    This is the list of extra argument(s) to be attached to the new modal dialog as the window.arguments property. An nsISupportsArray will be unwound into multiple arguments (but not recursively!). Can be null, in which case the window.arguments property will not be set on the new modal dialog. Can also be an nsIArray.
@@ -3150,8 +3512,10 @@ GREUtils.Dialog.openDialog = function(aURL, aName, aArguments, posX, posY, width
  * @return {nsIDOMWindow}                           The new modal dialog
  * @type                                            nsIDOMWindow
  */
-GREUtils.Dialog.openModalDialog = function(aURL, aName, aArguments, posX, posY, width, height) {
+GREUtils.Dialog.openModalDialog = function(aParent, aURL, aName, aArguments, posX, posY, width, height) {
 
+    var parent = aParent || null;
+    
     var features = "chrome,dialog,dependent=no,modal,resize=yes";
     if (arguments.length <= 3) {
         features += ",centerscreen";
@@ -3163,7 +3527,7 @@ GREUtils.Dialog.openModalDialog = function(aURL, aName, aArguments, posX, posY, 
         if(height) features += ",height="+height;
     }
 
-    return GREUtils.Dialog.openWindow(null, aURL, aName, features, aArguments);
+    return GREUtils.Dialog.openWindow(parent, aURL, aName, features, aArguments);
 
 };
 
@@ -3174,19 +3538,23 @@ GREUtils.Dialog.openModalDialog = function(aURL, aName, aArguments, posX, posY, 
  * @public
  * @static
  * @function
+ * @param {nsIDOMWindow} aParent                    This is the parent window, if any, or null if no parent window
  * @param {String} aUrl                             This is the URL to open in the newly created modal dialog
  * @param {String} aName                            This is the name to assign to the modal dialog
  * @return {nsIDOMWindow}                           The new full-screen window
  * @type                                            nsIDOMWindow
  */
-GREUtils.Dialog.openFullScreen = function (aURL, aName, aArguments) {
+GREUtils.Dialog.openFullScreen = function (aParent, aURL, aName, aArguments) {
 
+    var parent = aParent || null;
+    
     var features = "chrome,dialog=no,resize=no,titlebar=no,fullscreen=yes";
     features += ",x=0,y=0";
     features += ",screenX="+0;
     features += ",screenY="+0;
 
-    return GREUtils.Dialog.openWindow(null, aURL, aName, features, aArguments);
+    return GREUtils.Dialog.openWindow(parent, aURL, aName, features, aArguments);
+
 };
 
 
@@ -3243,6 +3611,7 @@ GREUtils.Dialog.openFilePicker = function(sDir, title){
 
     } catch (ex) {
     }
+
 };
 
 /**
@@ -3253,14 +3622,19 @@ GREUtils.Dialog.openFilePicker = function(sDir, title){
  * @public
  * @static
  * @function
+ * @param {nsIDOMWindow} aParent                    This is the parent window, if any, or null if no parent window
  * @param {String} dialogTitle                      This is the title of the alert dialog
  * @param {String} dialogText                       This is the alert text
  * @return
  * @type                                            void
  */
-GREUtils.Dialog.alert = function(dialogTitle, dialogText) {
+GREUtils.Dialog.alert = function(aParent, dialogTitle, dialogText) {
+    
+    var parent = aParent || null;
+    
     // get a reference to the prompt service component.
-    GREUtils.XPCOM.getUsefulService("prompt-service").alert(null, dialogTitle, dialogText);
+    GREUtils.XPCOM.getUsefulService("prompt-service").alert(parent, dialogTitle, dialogText);
+
 };
 
 /**
@@ -3271,14 +3645,19 @@ GREUtils.Dialog.alert = function(dialogTitle, dialogText) {
  * @public
  * @static
  * @function
+ * @param {nsIDOMWindow} aParent                    This is the parent window, if any, or null if no parent window
  * @param {String} dialogTitle                      This is the title of the confirm dialog
  * @param {String} dialogText                       This is the confirm text
  * @return {Boolean}                                "true" if OK is clicked, and "false" if Cancel is clicked
  * @type                                            Boolean
  */
-GREUtils.Dialog.confirm = function(dialogTitle, dialogText) {
+GREUtils.Dialog.confirm = function(aParent, dialogTitle, dialogText) {
+    
+    var parent = aParent || null;
+    
     // get a reference to the prompt service component.
-    return GREUtils.XPCOM.getUsefulService("prompt-service").confirm(null, dialogTitle, dialogText);
+    return GREUtils.XPCOM.getUsefulService("prompt-service").confirm(parent, dialogTitle, dialogText);
+
 };
 
 /**
@@ -3294,15 +3673,23 @@ GREUtils.Dialog.confirm = function(dialogTitle, dialogText) {
  * @public
  * @static
  * @function
+ * @param {nsIDOMWindow} aParent                    This is the parent window, if any, or null if no parent window
  * @param {String} dialogTitle                      This is the title of the prompt dialog
  * @param {String} dialogText                       This is the prompt text
  * @param {Object} input                            This object holds the value of the edit field
+ * @param {String} aCheckMsg                        aCheckMsg is the text for the checkbox. If null, the checkbox will be left out.
+ * @param {Object} aCheckState                      aCheckState is the initial state of the checkbox when this method is called, and the final state of the checkbox after this method returns. It is an object with its 'value' property set to a boolean (or an empty object).
  * @return {Boolean}                                "true" if OK is clicked, and "false" if Cancel is clicked
  * @type                                            Boolean
  */
-GREUtils.Dialog.prompt = function(dialogTitle, dialogText, input) {
+GREUtils.Dialog.prompt = function(aParent, dialogTitle, dialogText, input, aCheckMsg, aCheckState) {
+    
+    var parent = aParent || null;
+    var checkMsg = aCheckMsg || null;
+    var check = aCheckState || {value: false};
     // get a reference to the prompt service component.
-    return GREUtils.XPCOM.getUsefulService("prompt-service").prompt(null, dialogTitle, dialogText, input);
+    return GREUtils.XPCOM.getUsefulService("prompt-service").prompt(parent, dialogTitle, dialogText, input, null, check);
+
 };
 
 /**
@@ -3317,6 +3704,7 @@ GREUtils.Dialog.prompt = function(dialogTitle, dialogText, input) {
  * @public
  * @static
  * @function
+ * @param {nsIDOMWindow} aParent                    This is the parent window, if any, or null if no parent window
  * @param {String} dialogTitle                      This is the title of the select dialog
  * @param {String} dialogText                       This is the prompt text
  * @param {String[]} list                           This is an array of strings for selection
@@ -3324,9 +3712,13 @@ GREUtils.Dialog.prompt = function(dialogTitle, dialogText, input) {
  * @return {Boolean}                                "true" if OK is clicked, and "false" if Cancel is clicked
  * @type                                            Boolean
  */
-GREUtils.Dialog.select = function(dialogTitle, dialogText, list, selected) {
+GREUtils.Dialog.select = function(aParent, dialogTitle, dialogText, list, selected) {
+    
+    var parent = aParent || null;
+    
     // get a reference to the prompt service component.
-    return GREUtils.XPCOM.getUsefulService("prompt-service").select(null, dialogTitle, dialogText, list.length, list, selected);
+    return GREUtils.XPCOM.getUsefulService("prompt-service").select(parent, dialogTitle, dialogText, list.length, list, selected);
+    
 };
 
 /**

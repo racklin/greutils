@@ -1,33 +1,11 @@
 /**
 	@constructor
 	@param [opt] Used to override the commandline options. Useful for testing.
-	@version $Id: JsDoc.js 592 2008-05-09 07:43:33Z micmath $
+	@version $Id: JsDoc.js 773 2009-01-24 09:42:04Z micmath $
 */
 JSDOC.JsDoc = function(/**object*/ opt) {
 	if (opt) {
 		JSDOC.opt = opt;
-	}
-	
-	// the -c option: use a configuration file
-	if (JSDOC.opt.c) {
-		eval("JSDOC.conf = " + IO.readFile(JSDOC.opt.c));
-		
-		LOG.inform("Using configuration file at '"+JSDOC.opt.c+"'.");
-		
-		for (var c in JSDOC.conf) {
-			if (c !== "D" && !defined(JSDOC.opt[c])) { // commandline overrules config file
-				JSDOC.opt[c] = JSDOC.conf[c];
-			}
-		}
-		
-		if (typeof JSDOC.conf["_"] != "undefined") {
-			JSDOC.opt["_"] = JSDOC.opt["_"].concat(JSDOC.conf["_"]);
-		}
-		
-		LOG.inform("With configuration: ");
-		for (var o in JSDOC.opt) {
-			LOG.inform("    "+o+": "+JSDOC.opt[o]);
-		}
 	}
 	
 	if (JSDOC.opt.h) {
@@ -73,43 +51,23 @@ JSDOC.JsDoc = function(/**object*/ opt) {
  			JSDOC.opt.D[c] = JSDOC.conf.D[c];
  		}
  	}
-
-	// Load additional file handlers
-	// the -H option: filetype handlers
-	JSDOC.handlers = {};
-/*	
-	if (JSDOC.opt.H) {
-		for (var i = 0; i < JSDOC.opt.H.length; i++) {
-			var handlerDef = JSDOC.opt.H[i].split(":");
-			LOG.inform("Adding '." + handlerDef[0] + "' content handler from handlers/" + handlerDef[1] + ".js");
-			IO.include("handlers/" + handlerDef[1] + ".js");
-			if (!eval("typeof "+handlerDef[1])) {
-				LOG.warn(handlerDef[1] + "is not defined in "+handlerDef[1] + ".js");
-			}
-			else {
-				JSDOC.handlers[handlerDef[0]] = eval(handlerDef[1]);
-			}
-		}
-	}
-*/	
+	
 	// Give plugins a chance to initialize
 	if (defined(JSDOC.PluginManager)) {
-		JSDOC.PluginManager.run("onInit", this);
+		JSDOC.PluginManager.run("onInit", JSDOC.opt);
 	}
 
-	JSDOC.opt.srcFiles = this._getSrcFiles();
-	this._parseSrcFiles();
-	//var handler = symbols.handler;
-	this.symbolSet = JSDOC.Parser.symbols;
-	//this.symbolGroup.handler = handler;
+	JSDOC.opt.srcFiles = JSDOC.JsDoc._getSrcFiles();
+	JSDOC.JsDoc._parseSrcFiles();
+	JSDOC.JsDoc.symbolSet = JSDOC.Parser.symbols;
 }
 
 /**
 	Retrieve source file list.
 	@returns {String[]} The pathnames of the files to be parsed.
  */
-JSDOC.JsDoc.prototype._getSrcFiles = function() {
-	this.srcFiles = [];
+JSDOC.JsDoc._getSrcFiles = function() {
+	JSDOC.JsDoc.srcFiles = [];
 	
 	var ext = ["js"];
 	if (JSDOC.opt.x) {
@@ -117,23 +75,35 @@ JSDOC.JsDoc.prototype._getSrcFiles = function() {
 	}
 	
 	for (var i = 0; i < JSDOC.opt._.length; i++) {
-		this.srcFiles = this.srcFiles.concat(
+		JSDOC.JsDoc.srcFiles = JSDOC.JsDoc.srcFiles.concat(
 			IO.ls(JSDOC.opt._[i], JSDOC.opt.r).filter(
 				function($) {
 					var thisExt = $.split(".").pop().toLowerCase();
-					return (ext.indexOf(thisExt) > -1 || thisExt in JSDOC.handlers); // we're only interested in files with certain extensions
+					
+					if (JSDOC.opt.E) {
+						for(var n = 0; n < JSDOC.opt.E.length; n++) {
+							if ($.match(new RegExp(JSDOC.opt.E[n]))) {
+								LOG.inform("Excluding " + $);
+								return false; // if the file matches the regex then it's excluded.
+							}
+						}
+					}
+					
+					return (ext.indexOf(thisExt) > -1); // we're only interested in files with certain extensions
 				}
 			)
 		);
 	}
 	
-	return this.srcFiles;
+	return JSDOC.JsDoc.srcFiles;
 }
 
-JSDOC.JsDoc.prototype._parseSrcFiles = function() {
+JSDOC.JsDoc._parseSrcFiles = function() {
 	JSDOC.Parser.init();
-	for (var i = 0, l = this.srcFiles.length; i < l; i++) {
-		var srcFile = this.srcFiles[i];
+	for (var i = 0, l = JSDOC.JsDoc.srcFiles.length; i < l; i++) {
+		var srcFile = JSDOC.JsDoc.srcFiles[i];
+		
+		if (JSDOC.opt.v) LOG.inform("Parsing file: " + srcFile);
 		
 		try {
 			var src = IO.readFile(srcFile);
@@ -142,21 +112,15 @@ JSDOC.JsDoc.prototype._parseSrcFiles = function() {
 			LOG.warn("Can't read source file '"+srcFile+"': "+e.message);
 		}
 
-		// Check to see if there is a handler for this file type
-//		var ext = FilePath.fileExtension(srcFile);
-// 		if (JSDOC.handlers[ext]) {
-// 			LOG.inform(" Using external handler for '" + ext + "'");
-// 
-// 			symbols = symbols.concat(JSDOC.handlers[ext].handle(srcFile, src));
-// 			symbols.handler = JSDOC.handlers[ext];
-// 		}
-// 		else {
-			// The default (JSDOC) handler
-			var tr = new JSDOC.TokenReader();
-			var ts = new JSDOC.TokenStream(tr.tokenize(new JSDOC.TextStream(src)));
-	
-			JSDOC.Parser.parse(ts, srcFile);
-//		}
+		var tr = new JSDOC.TokenReader();
+		var ts = new JSDOC.TokenStream(tr.tokenize(new JSDOC.TextStream(src)));
+
+		JSDOC.Parser.parse(ts, srcFile);
+
 	}
 	JSDOC.Parser.finish();
+
+	if (JSDOC.PluginManager) {
+		JSDOC.PluginManager.run("onFinishedParsing", JSDOC.Parser.symbols);
+	}
 }

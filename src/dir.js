@@ -25,6 +25,9 @@ GREUtils.define('GREUtils.Dir');
  * @return {nsILocalFile}               The given file, or null if the file does not exist and is not/cannot be created
  */
 GREUtils.Dir.getFile = function(aPath){
+
+    if (aPath instanceof Components.interfaces.nsIFile ) return aPath;
+
     var autoCreate = arguments[1] || false;
     if (/^file:/.test(aPath))
         aPath = aPath.replace("file://", "");
@@ -140,11 +143,15 @@ GREUtils.Dir.contains = function(aPath, aFile){
  * @static
  * @function
  * @param {String} aPath                This is the directory path
+ * @param {Boolean} bRecursive          Recursive directory default false
  * @return {Object}                     Returns the directory entries as an array of strings containing file paths
  */
-GREUtils.Dir.readDir = function(aPath){
+GREUtils.Dir.readDir = function(aPath, bRecursive){
 
 	var fileInst = GREUtils.Dir.getFile(aPath);
+
+    bRecursive = bRecursive || false;
+
     var rv = [];
 	if (fileInst == null) return rv;
 
@@ -157,15 +164,18 @@ GREUtils.Dir.readDir = function(aPath){
       var files     = fileInst.directoryEntries;
       var file;
 
-      while (files.hasMoreElements())
-      {
+      while (files.hasMoreElements()) {
         file = files.getNext();
 		file = GREUtils.XPCOM.queryInterface(file, "nsILocalFile");
 
-		if (file.isFile()) rv.push(file.path);
-
-        if (file.isDirectory())
-          rv.push(GREUtils.Dir.readDir(file.path));
+		// if (file.isFile()) rv.push(file);
+        
+        if (file.isDirectory() && bRecursive) {
+            rv.push(GREUtils.Dir.readDir(file));
+        }else {
+            if (file.isFile() || file.isDirectory()) rv.push(file);
+        }
+        
       }
 
     } catch(e) {
