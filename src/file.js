@@ -33,13 +33,16 @@ GREUtils.File = {
 
 
 /**
- * Returns a reference object to a local file location.
- *
+ * Returns a reference object to a local file location.<br/>
+ * <br/>
  * This method takes a string representing the full file path and returns an nsILocalFile
- * object representing that file location.
- *
- * If "autoCreate" is true then the file is created if it does not already exist.
- *
+ * object representing that file location.<br/>
+ * <br/>
+ * If "notCheckExists" is true, then the method returns the reference object
+ * even if no file exists at the given path. When "notCheckExists" is false,
+ * a file is created at the given path if it does not already exist and if
+ * "autoCreate" is true.<br/>
+ * <br/>
  * If no file exists at the location or cannot be created (if "autoCreate" is true),
  * null is returned.
  *
@@ -522,9 +525,10 @@ GREUtils.File.chromeToPath = function(chromePath){
 
 
 /**
- * Resolves a File URL into a loadable URL using local file path.
- * Returns a string representation of the loadable URL if successful; otherwise null
- * is returned.
+ * Resolves a file path into a loadable URL using local file path.<br/>
+ * <br/>
+ * Returns a string representation of the loadable URL if successful; otherwise
+ * null is returned.
  *
  * @public
  * @static
@@ -548,7 +552,8 @@ GREUtils.File.pathToURL = function(aPath){
 };
 
 /**
- * Resolves a URL into a file path using file path.
+ * Resolves a URL into a file path using file path.<br/>
+ * <br/>
  * Returns null if resolution fails.
  *
  * @public
