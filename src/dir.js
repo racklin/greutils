@@ -162,7 +162,7 @@ GREUtils.Dir.readDir = function(aPath){
         file = files.getNext();
 		file = GREUtils.XPCOM.queryInterface(file, "nsILocalFile");
 
-		if (file.isFile()) rv.push(file.path);
+		if (file.isFile()) rv.push(file);
 
         if (file.isDirectory())
           rv.push(GREUtils.Dir.readDir(file.path));

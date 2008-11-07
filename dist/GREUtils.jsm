@@ -2467,7 +2467,7 @@ GREUtils.Dir.readDir = function(aPath){
         file = files.getNext();
 		file = GREUtils.XPCOM.queryInterface(file, "nsILocalFile");
 
-		if (file.isFile()) rv.push(file.path);
+		if (file.isFile()) rv.push(file);
 
         if (file.isDirectory())
           rv.push(GREUtils.Dir.readDir(file.path));
@@ -3005,7 +3005,7 @@ GREUtils.define('GREUtils.Pref');
  * @return {nsIPrefBranch2}             The preference service
  */
 GREUtils.Pref.getPrefService = function () {
-    return GREUtils.XPCOM.getService("@mozilla.org/preferences-service;1", "nsIPrefBranch2");
+    return GREUtils.XPCOM.getService("@mozilla.org/preferences-service;1", "nsIPrefService").getBranch(null);
 };
 
 
@@ -3063,6 +3063,34 @@ GREUtils.Pref.setPref = function() {
     else if (type == nsIPrefBranch.PREF_BOOL)
         prefs.setBoolPref(prefName, value);
 };
+
+
+/**
+ * Add the state of individual preferences
+ *
+ * This method will automatically detect the type of value (string, number,
+ * boolean) and set the preference value accordingly.
+ *
+ * @public
+ * @static
+ * @function
+ * @param {String} prefName             This is the name of the preference
+ * @param {Object} prefValue            This is the preference value to set
+ * @param {Object} prefService          This is the preferences service to use; if null, the default preferences service will be used
+ */
+
+GREUtils.Pref.addPref = function() {
+    var prefName = arguments[0] ;
+    var value = arguments[1];
+    var prefs = (arguments[2]) ? arguments[2] : GREUtils.Pref.getPrefService();
+    var type = typeof value;
+    if (type == 'string')
+        prefs.setCharPref(prefName, value);
+    else if (type == 'number')
+        prefs.setIntPref(prefName, value);
+    else if (type == 'boolean')
+        prefs.setBoolPref(prefName, value);
+};
 /**
  * This is a set of utility functions to render common types of dialogs and
  * windows.
@@ -3088,12 +3116,22 @@ GREUtils.define('GREUtils.Dialog');
 GREUtils.Dialog.openWindow =  function(aParent, aUrl, aName, aFeatures, aArguments) {
 
     var parent = aParent || null;
-    var name = aName || "_blank";
+    var windowName = aName || "_blank";
     var args = aArguments || null;
     var features = aFeatures || "chrome,centerscreen";
 
+    var array = Components.classes["@mozilla.org/array;1"]
+                          .createInstance(Components.interfaces.nsIMutableArray);
+    for (var i=4; i<arguments.length; i++)
+    {
+        var variant = Components.classes["@mozilla.org/variant;1"]
+                                .createInstance(Components.interfaces.nsIWritableVariant);
+        variant.setFromVariant(arguments[i]);
+        array.appendElement(variant, false);
+    }
+
     var ww = GREUtils.XPCOM.getUsefulService("window-watcher");
-    return ww.openWindow(parent, aUrl, name, features, args);
+    return  ww.openWindow(parent, aUrl, windowName, features, array);
 
 };
 
@@ -3321,15 +3359,18 @@ GREUtils.Dialog.confirm = function(aParent, dialogTitle, dialogText) {
  * @param {String} dialogTitle                      This is the title of the prompt dialog
  * @param {String} dialogText                       This is the prompt text
  * @param {Object} input                            This object holds the value of the edit field
+ * @param {String} aCheckMsg                        aCheckMsg is the text for the checkbox. If null, the checkbox will be left out.
+ * @param {Object} aCheckState                      aCheckState is the initial state of the checkbox when this method is called, and the final state of the checkbox after this method returns. It is an object with its 'value' property set to a boolean (or an empty object).
  * @return {Boolean}                                "true" if OK is clicked, and "false" if Cancel is clicked
  * @type                                            Boolean
  */
-GREUtils.Dialog.prompt = function(aParent, dialogTitle, dialogText, input) {
+GREUtils.Dialog.prompt = function(aParent, dialogTitle, dialogText, input, aCheckMsg, aCheckState) {
     
     var parent = aParent || null;
-    
+    var checkMsg = aCheckMsg || null;
+    var check = aCheckState || {value: false};
     // get a reference to the prompt service component.
-    return GREUtils.XPCOM.getUsefulService("prompt-service").prompt(parent, dialogTitle, dialogText, input);
+    return GREUtils.XPCOM.getUsefulService("prompt-service").prompt(parent, dialogTitle, dialogText, input, null, check);
 
 };
 

@@ -23,12 +23,22 @@ GREUtils.define('GREUtils.Dialog');
 GREUtils.Dialog.openWindow =  function(aParent, aUrl, aName, aFeatures, aArguments) {
 
     var parent = aParent || null;
-    var name = aName || "_blank";
+    var windowName = aName || "_blank";
     var args = aArguments || null;
     var features = aFeatures || "chrome,centerscreen";
 
+    var array = Components.classes["@mozilla.org/array;1"]
+                          .createInstance(Components.interfaces.nsIMutableArray);
+    for (var i=4; i<arguments.length; i++)
+    {
+        var variant = Components.classes["@mozilla.org/variant;1"]
+                                .createInstance(Components.interfaces.nsIWritableVariant);
+        variant.setFromVariant(arguments[i]);
+        array.appendElement(variant, false);
+    }
+
     var ww = GREUtils.XPCOM.getUsefulService("window-watcher");
-    return ww.openWindow(parent, aUrl, name, features, args);
+    return  ww.openWindow(parent, aUrl, windowName, features, array);
 
 };
 
@@ -256,15 +266,18 @@ GREUtils.Dialog.confirm = function(aParent, dialogTitle, dialogText) {
  * @param {String} dialogTitle                      This is the title of the prompt dialog
  * @param {String} dialogText                       This is the prompt text
  * @param {Object} input                            This object holds the value of the edit field
+ * @param {String} aCheckMsg                        aCheckMsg is the text for the checkbox. If null, the checkbox will be left out.
+ * @param {Object} aCheckState                      aCheckState is the initial state of the checkbox when this method is called, and the final state of the checkbox after this method returns. It is an object with its 'value' property set to a boolean (or an empty object).
  * @return {Boolean}                                "true" if OK is clicked, and "false" if Cancel is clicked
  * @type                                            Boolean
  */
-GREUtils.Dialog.prompt = function(aParent, dialogTitle, dialogText, input) {
+GREUtils.Dialog.prompt = function(aParent, dialogTitle, dialogText, input, aCheckMsg, aCheckState) {
     
     var parent = aParent || null;
-    
+    var checkMsg = aCheckMsg || null;
+    var check = aCheckState || {value: false};
     // get a reference to the prompt service component.
-    return GREUtils.XPCOM.getUsefulService("prompt-service").prompt(parent, dialogTitle, dialogText, input);
+    return GREUtils.XPCOM.getUsefulService("prompt-service").prompt(parent, dialogTitle, dialogText, input, null, check);
 
 };
 
