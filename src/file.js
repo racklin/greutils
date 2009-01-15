@@ -56,6 +56,8 @@ GREUtils.File = {
  */
 GREUtils.File.getFile = function(sFile){
     
+    if (sFile instanceof Components.interfaces.nsIFile ) return sFile;
+
     var autoCreate = arguments[1] || false;
     var notcheckExists = arguments[2] || false;
     if (/^file:/.test(sFile))
@@ -329,6 +331,7 @@ GREUtils.File.getURLContents = function(aURL) {
         var input=channel.open();
         scriptableStream.init(input);
 
+        var bytes;
         while ((bytes = input.available()) > 0) {
             str += scriptableStream.read(bytes);
         }
@@ -596,7 +599,13 @@ GREUtils.File.exists = function(aFile){
 
     var rv;
     try {
-        rv = GREUtils.File.getFile(aFile, false, true).exists();
+        if (typeof aFile == "string") {
+            rv = GREUtils.File.getFile(aFile, false, true).exists();
+        }else if ( typeof aFile['exists'] == 'function'){
+            rv = aFile.exists();
+        }else {
+            rv = false;
+        }
     }
     catch (e) {
         GREUtils.log('[Error] GREUtils.File.exists: '+e.message);
@@ -673,8 +682,8 @@ GREUtils.File.copy = function(aSource, aDest){
 
     var rv;
     try {
-        var fileInst = GREUtils.File.getFile(aSource);
-        var dir = GREUtils.File.getFile(aDest, false, true);
+        var fileInst = (typeof aSource == 'string') ? GREUtils.File.getFile(aSource) : aSource;
+        var dir = (typeof aDest == 'string') ? GREUtils.File.getFile(aDest, false, true) : aDest ;
         var copyName = fileInst.leafName;
 
         if (fileInst.isDirectory())

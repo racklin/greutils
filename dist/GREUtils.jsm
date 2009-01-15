@@ -201,7 +201,7 @@ GREUtils.createNamespace = function(name, object, context) {
   var part;
 
   // keep localContext
-  var curLocal = GREUtils.context;
+  // var curLocal = GREUtils.context;
 
   while ((part = parts.shift())) {
     if (!parts.length && GREUtils.isDefined(object)) {
@@ -209,14 +209,14 @@ GREUtils.createNamespace = function(name, object, context) {
       cur[part] = object;
       
       // add to GREUtils jsm context
-      curLocal[part] = object;
+      // curLocal[part] = object;
 
     } else if (cur[part]) {
       cur = cur[part];
-      curLocal = curLocal[part] = cur;
+      // curLocal = curLocal[part] = cur;
     } else {
       cur = cur[part] = {};
-      curLocal = curLocal[part] = cur;
+      // curLocal = curLocal[part] = cur;
     }
   }
 
@@ -236,7 +236,7 @@ GREUtils.getObjectByNamespace = function(name, context){
 	
   var parts = name.split('.');
   var cur = context || GREUtils.global;
-  var recursive = (cur == GREUtils.context);
+  // var recursive = (cur == GREUtils.context);
   
   for (var part; part = parts.shift(); ) {
     if (cur[part]) {
@@ -247,9 +247,10 @@ GREUtils.getObjectByNamespace = function(name, context){
     }
   }
 
+  /*
   if (cur == null && !recursive) {
     cur = GREUtils.getObjectByNamespace(name, GREUtils.context);
-  }
+  }*/
 
   return cur;
 
@@ -1214,13 +1215,16 @@ GREUtils.File = {
 
 
 /**
- * Returns a reference object to a local file location.
- *
+ * Returns a reference object to a local file location.<br/>
+ * <br/>
  * This method takes a string representing the full file path and returns an nsILocalFile
- * object representing that file location.
- *
- * If "autoCreate" is true then the file is created if it does not already exist.
- *
+ * object representing that file location.<br/>
+ * <br/>
+ * If "notCheckExists" is true, then the method returns the reference object
+ * even if no file exists at the given path. When "notCheckExists" is false,
+ * a file is created at the given path if it does not already exist and if
+ * "autoCreate" is true.<br/>
+ * <br/>
  * If no file exists at the location or cannot be created (if "autoCreate" is true),
  * null is returned.
  *
@@ -1234,6 +1238,8 @@ GREUtils.File = {
  */
 GREUtils.File.getFile = function(sFile){
     
+    if (sFile instanceof Components.interfaces.nsIFile ) return sFile;
+
     var autoCreate = arguments[1] || false;
     var notcheckExists = arguments[2] || false;
     if (/^file:/.test(sFile))
@@ -1507,6 +1513,7 @@ GREUtils.File.getURLContents = function(aURL) {
         var input=channel.open();
         scriptableStream.init(input);
 
+        var bytes;
         while ((bytes = input.available()) > 0) {
             str += scriptableStream.read(bytes);
         }
@@ -1703,9 +1710,10 @@ GREUtils.File.chromeToPath = function(chromePath){
 
 
 /**
- * Resolves a File URL into a loadable URL using local file path.
- * Returns a string representation of the loadable URL if successful; otherwise null
- * is returned.
+ * Resolves a file path into a loadable URL using local file path.<br/>
+ * <br/>
+ * Returns a string representation of the loadable URL if successful; otherwise
+ * null is returned.
  *
  * @public
  * @static
@@ -1729,7 +1737,8 @@ GREUtils.File.pathToURL = function(aPath){
 };
 
 /**
- * Resolves a URL into a file path using file path.
+ * Resolves a URL into a file path using file path.<br/>
+ * <br/>
  * Returns null if resolution fails.
  *
  * @public
@@ -1772,7 +1781,13 @@ GREUtils.File.exists = function(aFile){
 
     var rv;
     try {
-        rv = GREUtils.File.getFile(aFile, false, true).exists();
+        if (typeof aFile == "string") {
+            rv = GREUtils.File.getFile(aFile, false, true).exists();
+        }else if ( typeof aFile['exists'] == 'function'){
+            rv = aFile.exists();
+        }else {
+            rv = false;
+        }
     }
     catch (e) {
         GREUtils.log('[Error] GREUtils.File.exists: '+e.message);
@@ -1849,8 +1864,8 @@ GREUtils.File.copy = function(aSource, aDest){
 
     var rv;
     try {
-        var fileInst = GREUtils.File.getFile(aSource);
-        var dir = GREUtils.File.getFile(aDest, false, true);
+        var fileInst = (typeof aSource == 'string') ? GREUtils.File.getFile(aSource) : aSource;
+        var dir = (typeof aDest == 'string') ? GREUtils.File.getFile(aDest, false, true) : aDest ;
         var copyName = fileInst.leafName;
 
         if (fileInst.isDirectory())
@@ -2330,6 +2345,9 @@ GREUtils.define('GREUtils.Dir');
  * @return {nsILocalFile}               The given file, or null if the file does not exist and is not/cannot be created
  */
 GREUtils.Dir.getFile = function(aPath){
+
+    if (aPath instanceof Components.interfaces.nsIFile ) return aPath;
+
     var autoCreate = arguments[1] || false;
     if (/^file:/.test(aPath))
         aPath = aPath.replace("file://", "");
@@ -2445,11 +2463,15 @@ GREUtils.Dir.contains = function(aPath, aFile){
  * @static
  * @function
  * @param {String} aPath                This is the directory path
+ * @param {Boolean} bRecursive          Recursive directory default false
  * @return {Object}                     Returns the directory entries as an array of strings containing file paths
  */
-GREUtils.Dir.readDir = function(aPath){
+GREUtils.Dir.readDir = function(aPath, bRecursive){
 
 	var fileInst = GREUtils.Dir.getFile(aPath);
+
+    bRecursive = bRecursive || false;
+
     var rv = [];
 	if (fileInst == null) return rv;
 
@@ -2462,15 +2484,18 @@ GREUtils.Dir.readDir = function(aPath){
       var files     = fileInst.directoryEntries;
       var file;
 
-      while (files.hasMoreElements())
-      {
+      while (files.hasMoreElements()) {
         file = files.getNext();
 		file = GREUtils.XPCOM.queryInterface(file, "nsILocalFile");
 
-		if (file.isFile()) rv.push(file);
-
-        if (file.isDirectory())
-          rv.push(GREUtils.Dir.readDir(file.path));
+		// if (file.isFile()) rv.push(file);
+        
+        if (file.isDirectory() && bRecursive) {
+            rv.push(GREUtils.Dir.readDir(file));
+        }else {
+            if (file.isFile() || file.isDirectory()) rv.push(file);
+        }
+        
       }
 
     } catch(e) {
@@ -3005,7 +3030,7 @@ GREUtils.define('GREUtils.Pref');
  * @return {nsIPrefBranch2}             The preference service
  */
 GREUtils.Pref.getPrefService = function () {
-    return GREUtils.XPCOM.getService("@mozilla.org/preferences-service;1", "nsIPrefService").getBranch(null);
+    return GREUtils.XPCOM.getService("@mozilla.org/preferences-service;1", "nsIPrefService").getBranch("");
 };
 
 
@@ -3027,12 +3052,17 @@ GREUtils.Pref.getPref = function() {
     var prefs = (arguments[1]) ? arguments[1] : GREUtils.Pref.getPrefService();
     var nsIPrefBranch = GREUtils.XPCOM.Ci("nsIPrefBranch");
     var type = prefs.getPrefType(prefName);
-    if (type == nsIPrefBranch.PREF_STRING)
-        return prefs.getCharPref(prefName);
-    else if (type == nsIPrefBranch.PREF_INT)
+    
+    if (type == nsIPrefBranch.PREF_STRING) {
+        return prefs.getComplexValue(prefName,Components.interfaces.nsISupportsString).data;
+    }else if (type == nsIPrefBranch.PREF_INT) {
         return prefs.getIntPref(prefName);
-    else if (type == nsIPrefBranch.PREF_BOOL)
+    }else if (type == nsIPrefBranch.PREF_BOOL) {
         return prefs.getBoolPref(prefName);
+    }else {
+        return null;
+    }
+
 };
 
 
@@ -3056,12 +3086,19 @@ GREUtils.Pref.setPref = function() {
     var prefs = (arguments[2]) ? arguments[2] : GREUtils.Pref.getPrefService();
     var nsIPrefBranch = GREUtils.XPCOM.Ci("nsIPrefBranch");
     var type = prefs.getPrefType(prefName);
-    if (type == nsIPrefBranch.PREF_STRING)
-        prefs.setCharPref(prefName, value);
-    else if (type == nsIPrefBranch.PREF_INT)
+
+    if (type == nsIPrefBranch.PREF_STRING) {
+        var str = Components.classes["@mozilla.org/supports-string;1"]
+                  .createInstance(Components.interfaces.nsISupportsString);
+        str.data = value;
+        prefs.setComplexValue(prefName, Components.interfaces.nsISupportsString, str);
+    }else if (type == nsIPrefBranch.PREF_INT) {
         prefs.setIntPref(prefName, value);
-    else if (type == nsIPrefBranch.PREF_BOOL)
+    }else if (type == nsIPrefBranch.PREF_BOOL) {
         prefs.setBoolPref(prefName, value);
+    }else {
+        // XXX
+    }
 };
 
 
@@ -3084,12 +3121,20 @@ GREUtils.Pref.addPref = function() {
     var value = arguments[1];
     var prefs = (arguments[2]) ? arguments[2] : GREUtils.Pref.getPrefService();
     var type = typeof value;
-    if (type == 'string')
-        prefs.setCharPref(prefName, value);
-    else if (type == 'number')
+
+    if (type == 'string') {
+        var str = Components.classes["@mozilla.org/supports-string;1"]
+                  .createInstance(Components.interfaces.nsISupportsString);
+        str.data = value;
+        prefs.setComplexValue(prefName, Components.interfaces.nsISupportsString, str);
+    }else if (type == 'number') {
         prefs.setIntPref(prefName, value);
-    else if (type == 'boolean')
+    }else if (type == 'boolean') {
         prefs.setBoolPref(prefName, value);
+    }else {
+        prefs.setCharPref(prefName, GREUtils.JSON.encode(value));
+    }
+
 };
 /**
  * This is a set of utility functions to render common types of dialogs and

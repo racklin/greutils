@@ -17,7 +17,7 @@ GREUtils.define('GREUtils.Pref');
  * @return {nsIPrefBranch2}             The preference service
  */
 GREUtils.Pref.getPrefService = function () {
-    return GREUtils.XPCOM.getService("@mozilla.org/preferences-service;1", "nsIPrefService").getBranch(null);
+    return GREUtils.XPCOM.getService("@mozilla.org/preferences-service;1", "nsIPrefService").getBranch("");
 };
 
 
@@ -39,12 +39,17 @@ GREUtils.Pref.getPref = function() {
     var prefs = (arguments[1]) ? arguments[1] : GREUtils.Pref.getPrefService();
     var nsIPrefBranch = GREUtils.XPCOM.Ci("nsIPrefBranch");
     var type = prefs.getPrefType(prefName);
-    if (type == nsIPrefBranch.PREF_STRING)
-        return prefs.getCharPref(prefName);
-    else if (type == nsIPrefBranch.PREF_INT)
+    
+    if (type == nsIPrefBranch.PREF_STRING) {
+        return prefs.getComplexValue(prefName,Components.interfaces.nsISupportsString).data;
+    }else if (type == nsIPrefBranch.PREF_INT) {
         return prefs.getIntPref(prefName);
-    else if (type == nsIPrefBranch.PREF_BOOL)
+    }else if (type == nsIPrefBranch.PREF_BOOL) {
         return prefs.getBoolPref(prefName);
+    }else {
+        return null;
+    }
+
 };
 
 
@@ -68,12 +73,19 @@ GREUtils.Pref.setPref = function() {
     var prefs = (arguments[2]) ? arguments[2] : GREUtils.Pref.getPrefService();
     var nsIPrefBranch = GREUtils.XPCOM.Ci("nsIPrefBranch");
     var type = prefs.getPrefType(prefName);
-    if (type == nsIPrefBranch.PREF_STRING)
-        prefs.setCharPref(prefName, value);
-    else if (type == nsIPrefBranch.PREF_INT)
+
+    if (type == nsIPrefBranch.PREF_STRING) {
+        var str = Components.classes["@mozilla.org/supports-string;1"]
+                  .createInstance(Components.interfaces.nsISupportsString);
+        str.data = value;
+        prefs.setComplexValue(prefName, Components.interfaces.nsISupportsString, str);
+    }else if (type == nsIPrefBranch.PREF_INT) {
         prefs.setIntPref(prefName, value);
-    else if (type == nsIPrefBranch.PREF_BOOL)
+    }else if (type == nsIPrefBranch.PREF_BOOL) {
         prefs.setBoolPref(prefName, value);
+    }else {
+        // XXX
+    }
 };
 
 
@@ -96,10 +108,18 @@ GREUtils.Pref.addPref = function() {
     var value = arguments[1];
     var prefs = (arguments[2]) ? arguments[2] : GREUtils.Pref.getPrefService();
     var type = typeof value;
-    if (type == 'string')
-        prefs.setCharPref(prefName, value);
-    else if (type == 'number')
+
+    if (type == 'string') {
+        var str = Components.classes["@mozilla.org/supports-string;1"]
+                  .createInstance(Components.interfaces.nsISupportsString);
+        str.data = value;
+        prefs.setComplexValue(prefName, Components.interfaces.nsISupportsString, str);
+    }else if (type == 'number') {
         prefs.setIntPref(prefName, value);
-    else if (type == 'boolean')
+    }else if (type == 'boolean') {
         prefs.setBoolPref(prefName, value);
+    }else {
+        prefs.setCharPref(prefName, GREUtils.JSON.encode(value));
+    }
+
 };

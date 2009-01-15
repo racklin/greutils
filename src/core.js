@@ -191,7 +191,7 @@ GREUtils.createNamespace = function(name, object, context) {
   var part;
 
   // keep localContext
-  var curLocal = GREUtils.context;
+  // var curLocal = GREUtils.context;
 
   while ((part = parts.shift())) {
     if (!parts.length && GREUtils.isDefined(object)) {
@@ -199,14 +199,14 @@ GREUtils.createNamespace = function(name, object, context) {
       cur[part] = object;
       
       // add to GREUtils jsm context
-      curLocal[part] = object;
+      // curLocal[part] = object;
 
     } else if (cur[part]) {
       cur = cur[part];
-      curLocal = curLocal[part] = cur;
+      // curLocal = curLocal[part] = cur;
     } else {
       cur = cur[part] = {};
-      curLocal = curLocal[part] = cur;
+      // curLocal = curLocal[part] = cur;
     }
   }
 
@@ -226,7 +226,7 @@ GREUtils.getObjectByNamespace = function(name, context){
 	
   var parts = name.split('.');
   var cur = context || GREUtils.global;
-  var recursive = (cur == GREUtils.context);
+  // var recursive = (cur == GREUtils.context);
   
   for (var part; part = parts.shift(); ) {
     if (cur[part]) {
@@ -237,9 +237,10 @@ GREUtils.getObjectByNamespace = function(name, context){
     }
   }
 
+  /*
   if (cur == null && !recursive) {
     cur = GREUtils.getObjectByNamespace(name, GREUtils.context);
-  }
+  }*/
 
   return cur;
 
