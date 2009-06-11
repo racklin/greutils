@@ -38,5 +38,5 @@ clean:
 
 doc:
 	@echo "create GREUtils docs"
-	${jsdoc} ${DIST_DIR}/GREUtils.js
+	${jsdoc} ${DIST_DIR}/GREUtils.js -s
 

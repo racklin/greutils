@@ -764,7 +764,8 @@ GREUtils.getOSInfo = function() {
  * @return {Boolean}                  "true" if current operating system is Linux-based; "false" otherwise
  */
 GREUtils.isLinux = function(){
-    return (GREUtils.getOSInfo().match(/Linux/,"i").length > 0);
+    if (GREUtils.getOSInfo().match(/Linux|SunOS|BSD/gi)) return true;
+    return false;
 };
 
 
@@ -777,7 +778,8 @@ GREUtils.isLinux = function(){
  * @return {Boolean}                  "true" if current operating system is Windows-based; "false" otherwise
  */
 GREUtils.isWindow = function() {
-    return (GREUtils.getOSInfo().match(/Win/,"i").length > 0);
+    if (GREUtils.getOSInfo().match(/Winnt/gi)) return true;
+    return false;
 };
 
 
@@ -790,7 +792,8 @@ GREUtils.isWindow = function() {
  * @return {Boolean}                  "true" if current operating system is MacOS-based; "false" otherwise
  */
 GREUtils.isMac =function() {
-    return (GREUtils.getOSInfo().match(/Mac|Darwin/,"i").length > 0);
+    if(GREUtils.getOSInfo().match(/Mac|Darwin/gi)) return true;
+    return false;
 };
 
 
@@ -1017,6 +1020,37 @@ GREUtils.restartApplication = function() {
 };
 
 
+
+/**
+ * Attempts to reclaim memory by shrinking the heap.
+ * 
+ * This memory notifies registered observers of the "memory-pressure" topic of a 
+ * "heap-minimize" condition. The pressure observers should subsequently schedule
+ * a memory flush. 
+ *
+ * @public
+ * @static
+ * @function 
+ */
+GREUtils.gc = function() {
+    var observerService = GREUtils.XPCOM.getUsefulService("observer-service"); 
+    
+    // since we don't know the order of how things are going to go, fire these multiple times
+    observerService.notifyObservers(null, "memory-pressure", "heap-minimize");
+    observerService.notifyObservers(null, "memory-pressure", "heap-minimize");
+    observerService.notifyObservers(null, "memory-pressure", "heap-minimize");
+
+	if(typeof window != 'undefined' ) {
+		try {
+		   window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+		  .getInterface(Components.interfaces.nsIDOMWindowUtils)
+		  .garbageCollect();
+		}catch(e) {}
+		}
+
+};
+
+
 /**
  * Attempts to reclaim memory by shrinking the heap.
  * 
@@ -1029,13 +1063,7 @@ GREUtils.restartApplication = function() {
  * @function 
  */
 GREUtils.ramback = function() {
-    var observerService = GREUtils.XPCOM.getUsefulService("observer-service"); 
-    
-    // since we don't know the order of how things are going to go, fire these multiple times
-    observerService.notifyObservers(null, "memory-pressure", "heap-minimize");
-    observerService.notifyObservers(null, "memory-pressure", "heap-minimize");
-    observerService.notifyObservers(null, "memory-pressure", "heap-minimize");
-
+	GREUtils.gc() ;
 };
 
     
