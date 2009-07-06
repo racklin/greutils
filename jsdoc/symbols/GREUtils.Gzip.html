@@ -5,7 +5,7 @@
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<meta name="generator" content="JsDoc Toolkit" />
 		
-		<title>JsDoc Reference - GREUtils.Thread.CallbackRunnableAdapter</title>
+		<title>JsDoc Reference - GREUtils.Gzip</title>
 
 		<style type="text/css">
 			/* default.css */
@@ -228,14 +228,16 @@ ul.inheritsList
 <!-- ============================== class title ============================ -->
 			<h1 class="classTitle">
 				
-				Class GREUtils.Thread.CallbackRunnableAdapter
+				Namespace GREUtils.Gzip
 			</h1>
 
 <!-- ============================== class summary ========================== -->			
 			<p class="description">
 				
 			
-				
+				GREUtils.Gzip
+This is a set of Javascript wrappers around the XPCOM nsIStreamConverterService component
+that provides native implementation of gzip convert function.
 				
 				
 					<br /><i>Defined in: </i> <a href="../symbols/src/_home_rack_workspace_greutils_dist_GREUtils.js.html">GREUtils.js</a>.
@@ -244,8 +246,8 @@ ul.inheritsList
 
 <!-- ============================== constructor summary ==================== -->			
 			
-			<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class GREUtils.Thread.CallbackRunnableAdapter.">
-				<caption>Class Summary</caption>
+			<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class GREUtils.Gzip.">
+				<caption>Namespace Summary</caption>
 				<thead>
 					<tr>
 						<th scope="col">Constructor Attributes</th>
@@ -257,9 +259,10 @@ ul.inheritsList
 						<td class="attributes">&nbsp;</td>
 						<td class="nameDescription" >
 							<div class="fixedFont">
-								<b><a href="../symbols/GREUtils.Thread.CallbackRunnableAdapter.html#constructor">GREUtils.Thread.CallbackRunnableAdapter</a></b>(func, data)
+								<b><a href="../symbols/GREUtils.Gzip.html#constructor">GREUtils.Gzip</a></b>
 							</div>
-							<div class="description">CallbackRunnableAdapter</div>
+							<div class="description">This is a set of Javascript wrappers around the XPCOM nsIStreamConverterService component
+that provides native implementation of gzip convert function.</div>
 						</td>
 					</tr>
 				</tbody>
@@ -271,43 +274,67 @@ ul.inheritsList
 
 <!-- ============================== methods summary ======================== -->
 			
+				
+				
+				<table class="summaryTable" cellspacing="0" summary="A summary of the methods documented in the class GREUtils.Gzip.">
+					<caption>Method Summary</caption>
+					<thead>
+						<tr>
+							<th scope="col">Method Attributes</th>
+							<th scope="col">Method Name and Description</th>
+						</tr>
+					</thead>
+					<tbody>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">GREUtils.Gzip.<b><a href="../symbols/GREUtils.Gzip.html#.deflate">deflate</a></b>(data)
+								</div>
+								<div class="description">Deflate a string
+
+This function compress the given string using the DEFLATE  data format.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">GREUtils.Gzip.<b><a href="../symbols/GREUtils.Gzip.html#.inflate">inflate</a></b>(data)
+								</div>
+								<div class="description">Inflate a deflated string
+
+ This function inflate a deflated string.</div>
+							</td>
+						</tr>
+					
+					</tbody>
+				</table>
+				
+				
+				
+			
 
 <!-- ============================== constructor details ==================== -->		
 			
 			<div class="details"><a name="constructor"> </a>
 				<div class="sectionTitle">
-					Class Detail
+					Namespace Detail
 				</div>
 				
 				<div class="fixedFont">
-						<b>GREUtils.Thread.CallbackRunnableAdapter</b>(func, data)
+						<b>GREUtils.Gzip</b>
 				</div>
 				
 				<div class="description">
-					CallbackRunnableAdapter
+					This is a set of Javascript wrappers around the XPCOM nsIStreamConverterService component
+that provides native implementation of gzip convert function.
 					
 				</div>
 				
 				
 				
 				
-					
-						<dl class="detailList">
-						<dt class="heading">Parameters:</dt>
-						
-							<dt>
-								<span class="light fixedFont">{Object}</span>  <b>func</b>
-								
-							</dt>
-								<dd></dd>
-						
-							<dt>
-								<span class="light fixedFont">{Object}</span>  <b>data</b>
-								
-							</dt>
-								<dd></dd>
-						
-						</dl>
 					
 					
 					
@@ -323,6 +350,101 @@ ul.inheritsList
 			
 
 <!-- ============================== method details ========================= -->		
+			
+				<div class="sectionTitle">
+					Method Detail
+				</div>
+				
+					<a name=".deflate"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					<span class="light">{String}</span>
+					<span class="light">GREUtils.Gzip.</span><b>deflate</b>(data)
+					
+					</div>
+					<div class="description">
+						Deflate a string
+
+This function compress the given string using the DEFLATE  data format.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{String}</span> <b>data</b>
+									
+								</dt>
+								<dd>The data to compress</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{String}</span> The compressed string or FALSE if an error occurred.</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name=".inflate"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					<span class="light">{String}</span>
+					<span class="light">GREUtils.Gzip.</span><b>inflate</b>(data)
+					
+					</div>
+					<div class="description">
+						Inflate a deflated string
+
+ This function inflate a deflated string.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{String}</span> <b>data</b>
+									
+								</dt>
+								<dd>The data compressed</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{String}</span> The original uncompressed data or FALSE if an error occurred.</dd>
+							
+							</dl>
+						
+						
+						
+
+					
+				
 			
 			
 			<hr />
