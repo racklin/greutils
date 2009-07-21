@@ -4,4 +4,4 @@ OUT=`dirname $1`/../jsdoc
 if [ ! -d $OUT ]; then
 	mkdir $OUT
 fi;
-java -jar $APPDIR/jsrun.jar $APPDIR/app/run.js $1 -t=$APPDIR/templates/jsdoc -d=$OUT
+java -jar $APPDIR/jsrun.jar $APPDIR/app/run.js -p $1 -t=$APPDIR/templates/outline -d=$OUT $2 $3
