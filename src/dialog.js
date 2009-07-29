@@ -22,23 +22,89 @@ GREUtils.define('GREUtils.Dialog');
  */
 GREUtils.Dialog.openWindow =  function(aParent, aUrl, aName, aFeatures, aArguments) {
 
-    var parent = aParent || null;
+    var parent = aParent || window ||  null;
     var windowName = aName || "_blank";
     var args = aArguments || null;
     var features = aFeatures || "chrome,centerscreen";
 
-    var array = Components.classes["@mozilla.org/array;1"]
-                          .createInstance(Components.interfaces.nsIMutableArray);
-    for (var i=4; i<arguments.length; i++)
-    {
-        var variant = Components.classes["@mozilla.org/variant;1"]
-                                .createInstance(Components.interfaces.nsIWritableVariant);
-        variant.setFromVariant(arguments[i]);
-        array.appendElement(variant, false);
-    }
+    var parseFeature = function (str) {
+        var obj = {};
+        var arStr = str.split(',');
+        arStr.forEach(function(v){
+           var arVal = v.split('=');
+           obj[arVal[0]] = arVal[1] || '';
+        });
+        return obj;
+    };
 
-    var ww = GREUtils.XPCOM.getUsefulService("window-watcher");
-    return  ww.openWindow(parent, aUrl, windowName, features, array);
+    var featureObj = parseFeature(features);
+
+    try {
+        // using window.openDialog
+        if (parent && parent.openDialog) {
+
+            var args = [];
+            for (var i=4; i<arguments.length; i++) {
+                args.push(arguments[i]);
+            }
+            
+            //dump(parent.screen.width + ',,,' + parent.screen.height + ',,,' + parent.document.documentElement.boxObject.screenX + '\n');
+
+            if (parent.document.documentElement.boxObject.screenX <=0) {
+                
+                if ( typeof featureObj['centerscreen'] != 'undefined') {
+
+                    // calc left , top
+                    if(typeof featureObj['centerscreen'] != 'undefined') delete featureObj['centerscreen'];
+                    if(typeof featureObj['dependent'] != 'undefined') delete featureObj['dependent'];
+
+                    featureObj['left'] = parseInt( (parent.screen.width-featureObj['width'])/2);
+                    featureObj['top'] = parseInt( (parent.screen.height-featureObj['height'])/2);
+
+//                    dump(parent.screen.width + ',,,' + parent.screen.height + '\n');
+                    
+                }
+            }
+
+            var newFeatures = [];
+            for (var k in featureObj) {
+                if (featureObj[k]) newFeatures.push(k + '=' + featureObj[k]);
+                else newFeatures.push(k);
+            }
+
+            features = newFeatures.join(',');
+
+            //dump('openDialog: ' + features  + '\n');
+            return parent.openDialog.apply(parent, [aUrl, windowName, features].concat(args));
+
+        }else {
+
+            // wraped js to xpcom object, only js primitive types support
+            var array = Components.classes["@mozilla.org/array;1"]
+                                  .createInstance(Components.interfaces.nsIMutableArray);
+            for (var i=4; i<arguments.length; i++)
+            {
+
+                if (typeof arguments[i] == 'object') {
+                    arguments[i].wrappedJSObject = arguments[i];
+                    array.appendElement(arguments[i], false)
+                }else {
+                    var variant = Components.classes["@mozilla.org/variant;1"]
+                                            .createInstance(Components.interfaces.nsIWritableVariant);
+                    variant.setFromVariant(arguments[i]);
+                    array.appendElement(variant, false);
+                }
+
+            }
+
+            var ww = GREUtils.XPCOM.getUsefulService("window-watcher");
+            //dump('openWindow: ' + features  + ' [ ' + parent + ' ] \n');
+            return  ww.openWindow(parent, aUrl, windowName, features, array);
+
+        }
+    }catch (e) {
+        // ignore type check
+    }
 
 };
 

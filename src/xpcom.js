@@ -246,7 +246,8 @@ GREUtils.XPCOM._usefulServiceMap = {
 	"json": ["@mozilla.org/dom/json;1", "nsIJSON"],
 	"unicodeconverter": ["@mozilla.org/intl/scriptableunicodeconverter","nsIScriptableUnicodeConverter"],
 	"hash": ["@mozilla.org/security/hash;1", "nsICryptoHash"],
-	"xmlhttprequest": ["@mozilla.org/xmlextras/xmlhttprequest;1", "nsIXMLHttpRequest"]
+	"xmlhttprequest": ["@mozilla.org/xmlextras/xmlhttprequest;1", "nsIXMLHttpRequest"],
+        'environment': ["@mozilla.org/process/environment;1", "nsIEnvironment"]
 };
 
 
