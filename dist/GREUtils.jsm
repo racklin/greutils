@@ -322,7 +322,7 @@ GREUtils.isDefineAndNotNull = function(type) {
  * @return {Boolean}                  "true" if the object is an array; "false" otherwise
  */
 GREUtils.isArray = function(type) {
-  return typeof type == 'array';
+  return (typeof type == 'object' && type.constructor.name == "Array");
 };
 
 /**
@@ -377,8 +377,7 @@ GREUtils.isNumber = function(type) {
  * @return {Boolean}                  "true" if the parameter is an object, function, or array; "false" otherwise
  */
 GREUtils.isObject = function(type) {
-  var type = typeof type;
-  return type == 'object' || type == 'array' || type == 'function';
+  return (typeof type == 'object' || typeof type == 'function');
 };
 
 /**

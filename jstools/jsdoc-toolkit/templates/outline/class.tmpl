@@ -49,6 +49,16 @@
 -->
 					<div class="full-description">
 						<p>{+resolveLinks(data.classDesc)+}</p>
+						<if test="data.augments.length"><br/><p>Extends: 
+						{+
+							data.augments
+							.sort()
+							.map(
+								function($) { return new Link().toSymbol($); }
+							)
+							.join(", ")
+						+}.</p>
+						</if>
 					</div>
 					<if test="!data.isBuiltin()">{# isn't defined in any file #}
 						<p class="fileName itemName"><i>Defined in: </i> <span class="icon">{+new Link().toSrc(data.srcFile)+}.</span></p>
@@ -106,10 +116,43 @@
 								  <!--
 									<div class="module-filter">{+getModule(member)+}&nbsp;</div>
 									-->
-									<b class="icon{+getPrivateClass(member)+}" title="{+getPlainDesc(member)+}">{+new Link().toSymbol(member.alias).withText(member.name)+}</b><span class='signature'>{+makeSignature(member.params)+}</span>
+									<b class="icon{+getPrivateClass(member)+}" title="{+getPlainDesc(member)+}">{+new Link().toSymbol(member.alias).withText( (member.isStatic && member.memberOf != '_global_') ? (member.memberOf+'.'+member.name) : member.name)+}</b><span class='signature'>{+makeSignature(member.params)+}</span>
 									<span class='description'>{+getDesc(member)+}</span>
 								</div>
 							</for>
+
+
+							<if test="data.inheritsFrom.length">
+							<hr/>
+							<dl class="inheritsList">
+							{!
+								var borrowedMembers = data.methods.filter(function($) {return $.memberOf != data.alias});
+								var contributers = [];
+								borrowedMembers.map(function($) {if (contributers.indexOf($.memberOf) < 0) contributers.push($.memberOf)});
+								for (var i = 0, l = contributers.length; i < l; i++) {
+									output +=
+										"<dt>Methods borrowed from class "+new Link().toSymbol(contributers[i])+": </dt>"
+										+
+										"<dd>" +
+										borrowedMembers
+										.filter(
+											function($) { return $.memberOf == contributers[i] }
+										)
+										.sort(makeSortby("name"))
+										.map(
+											function($) { return new Link().toSymbol($.alias).withText($.name) }
+										)
+										.join(", ")
+										+
+										"</dd>";
+								}
+				
+							!}
+							</dl>
+							</if>
+
+
+
 							</div>
 						</div>
 						</if>
@@ -313,7 +356,7 @@
 									
 								!}
 									<a name="{+Link.symbolNameToLinkName(member)+}"> </a>
-									<div class="itemTitle icon">
+									<div class="itemTitle icon {+getPrivateClass(member)+}">
 										<if test="member.isStatic && member.memberOf != '_global_'">{+member.memberOf+}.</if>{+member.name+}<span class="signature">{+makeSignature(member.params)+}</span>
 										<if test="member.type"><span class="light" title="returns {+member.type+}">: {+new Link().toSymbol(member.type)+}</span></if>
 									</div>
