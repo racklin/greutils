@@ -503,3 +503,48 @@ GREUtils.ucfirst = function(word) {
     var f = word.charAt(0).toUpperCase();
     return f + word.substr(1, word.length-1);
 };
+
+/**
+ * Get the value of an environment variable.
+ *
+ * @public
+ * @static
+ * @function
+ * @param {String} aName   the variable name to retrieve.
+ * @return {String}       returns the value of the env variable. An empty string
+ *               will be returned when the env variable does not exist or
+ *               when the value itself is an empty string - please use
+ *               |GREUtils.isEnvExists()| to probe whether the env variable exists
+ *               or not.
+ */
+GREUtils.getEnv = function(aName) {
+    return GREUtils.XPCOM.getUsefulService("environment").get(aName);
+};
+
+/**
+ * Set the value of an environment variable.
+ *
+ * @public
+ * @static
+ * @function
+ * @param {String} aName   the variable name to set.
+ * @param {String} aValue  the value to set.
+ */
+GREUtils.setEnv = function(aName, aValue) {
+    return GREUtils.XPCOM.getUsefulService("environment").set(aName, aValue);
+};
+
+/**
+ * Check the existence of an environment variable.
+ * This method checks whether an environment variable is present in
+ * the environment or not.
+ *
+ * @public
+ * @static
+ * @function
+ * @param {String} aName              the variable name to probe.
+ * @return {Boolean}                  if the variable has been set, the value returned is TRUE.
+ */
+GREUtils.isEnvExists = function(aName) {
+    return GREUtils.XPCOM.getUsefulService("environment").exists(aName);
+};
