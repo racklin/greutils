@@ -3449,7 +3449,7 @@ GREUtils.Gzip.uncompress = function(data) {
         return decodedData;
 
     }catch(e) {
-        alert(e);
+        //alert(e);
         return false;
     }
 
