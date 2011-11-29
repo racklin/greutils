@@ -65,11 +65,15 @@ GREUtils.CryptoHash.crypt = function(str, algorithm) {
  */
 GREUtils.CryptoHash.cryptFromStream = function(aFile, algorithm) {
 
+    var nsIFile = GREUtils.File.getFile(aFile);
+    if (nsIFile == null || !nsIFile.exists()) return "";
+
+    var istream = GREUtils.XPCOM.createInstance("@mozilla.org/network/file-input-stream;1", "nsIFileInputStream");
+
+    // open for reading
+    istream.init(nsIFile, 0x01, 0444, 0);
+
 	var cryptohash = GREUtils.XPCOM.getUsefulService('hash');
-
-	var istream = GREUtils.File.getInputStream(aFile);
-
-	if(GREUtils.isNull(istream)) return "";
 
 	// init algorithm
 	cryptohash.init(cryptohash[algorithm]);
@@ -155,6 +159,40 @@ GREUtils.CryptoHash.sha1 = function(str) {
 
 
 /**
+ * Computes the SHA1 hash of a file.
+ *
+ * This method reads data from a file and computes its hash using the SHA1
+ * algorithm. The file can be specified as a string containing the file path or
+ * as an nsIFile object.
+ *
+ * @public
+ * @static
+ * @function
+ * @param {String|nsIFile} aFile  This is the file given as a file path or an nsIFile object
+ * @return {String}               The resulting hash as a hex string; an empty string is returned if the file is empty or cannot be read
+ */
+GREUtils.CryptoHash.sha1FromFile = function(aFile){
+
+	return GREUtils.CryptoHash.cryptFromStream(aFile, "SHA1");
+};
+
+/**
+ * Computes the SHA1 hash of a file.
+ *
+ * This method reads data from a file and computes its hash using the SHA1
+ * algorithm. The file can be specified as a string containing the file path or
+ * as an nsIFile object.
+ *
+ * @public
+ * @static
+ * @function
+ * @param {String|nsIFile} aFile  This is the file given as a file path or an nsIFile object
+ * @return {String}               The resulting hash as a hex string; an empty string is returned if the file is empty or cannot be read
+ */
+GREUtils.CryptoHash.sha1sum = GREUtils.CryptoHash.sha1FromFile;
+
+
+/**
  * Computes the SHA-256 hash of a string.
  *
  * This method takes a UTF-8 string and computes its hash using the SHA-256 algorithm.
@@ -169,6 +207,41 @@ GREUtils.CryptoHash.sha256 = function(str) {
 
 	return GREUtils.CryptoHash.crypt(str, "SHA256");
 };
+
+
+/**
+ * Computes the SHA256 hash of a file.
+ *
+ * This method reads data from a file and computes its hash using the SHA256
+ * algorithm. The file can be specified as a string containing the file path or
+ * as an nsIFile object.
+ *
+ * @public
+ * @static
+ * @function
+ * @param {String|nsIFile} aFile  This is the file given as a file path or an nsIFile object
+ * @return {String}               The resulting hash as a hex string; an empty string is returned if the file is empty or cannot be read
+ */
+GREUtils.CryptoHash.sha256FromFile = function(aFile){
+
+	return GREUtils.CryptoHash.cryptFromStream(aFile, "SHA256");
+};
+
+/**
+ * Computes the SHA256 hash of a file.
+ *
+ * This method reads data from a file and computes its hash using the SHA256
+ * algorithm. The file can be specified as a string containing the file path or
+ * as an nsIFile object.
+ *
+ * @public
+ * @static
+ * @function
+ * @param {String|nsIFile} aFile  This is the file given as a file path or an nsIFile object
+ * @return {String}               The resulting hash as a hex string; an empty string is returned if the file is empty or cannot be read
+ */
+GREUtils.CryptoHash.sha256sum = GREUtils.CryptoHash.sha256FromFile;
+
 
 /**
  * Returns the two-digit hexadecimal representation of a byte value.
@@ -200,7 +273,8 @@ GREUtils.CryptoHash.arrayToHexString = function(data) {
 
   	// convert the binary hash data to a hex string.
 	var s = [];
-	for(var i in data) {
+    var l = data.length;
+	for(var i = 0 ; i < l; i++) {
 		s.push(GREUtils.CryptoHash.toHexString(data.charCodeAt(i)));
 	}
 	return s.join("");
