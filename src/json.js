@@ -49,7 +49,11 @@ GREUtils.JSON.getJSONService = function() {
  * @return {Object}                       The JavaScript object represented by the JSON string
  */
 GREUtils.JSON.decode = function(aJSONString) {
- 	return GREUtils.JSON.getJSONService().decode(aJSONString);
+    if (JSON && typeof JSON.parse === 'function') {
+        return JSON.parse(aJSONString);
+    }else {
+        return GREUtils.JSON.getJSONService().decode(aJSONString);
+    }
 };
 
 
@@ -63,7 +67,11 @@ GREUtils.JSON.decode = function(aJSONString) {
  * @return {String}                       The JSON representation of the JavaScript object
  */
 GREUtils.JSON.encode = function(aJSObject) {
-	return GREUtils.JSON.getJSONService().encode(aJSObject);
+    if (JSON && typeof JSON.stringify === 'function') {
+        return JSON.stringify(aJSObject);
+    }else {
+	    return GREUtils.JSON.getJSONService().encode(aJSObject);
+    }
 };
 
 
