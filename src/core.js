@@ -10,7 +10,7 @@
  * @name GREUtils
  * @namespace GREUtils
  */
-var GREUtils = GREUtils  ||  {version: "1.1.0"};
+var GREUtils = GREUtils  ||  {version: "1.1.1"};
 
 GREUtils.context = this;
 
